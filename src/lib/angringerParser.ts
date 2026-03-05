@@ -197,10 +197,14 @@ function calculateDays(salesDateStr: string, regretDateStr: string): number {
     const salesDate = new Date(salesYear, salesMonth - 1, salesDay);
     const regretDate = new Date(regretYear, regretMonth - 1, regretDay);
     
-    const diffMs = regretDate.getTime() - salesDate.getTime();
+    // Always calculate absolute difference (handles date order reversals)
+    const olderDate = Math.min(salesDate.getTime(), regretDate.getTime());
+    const newerDate = Math.max(salesDate.getTime(), regretDate.getTime());
+    
+    const diffMs = newerDate - olderDate;
     const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
     
-    return Math.max(0, diffDays); // Return 0 if negative
+    return diffDays;
   } catch (err) {
     console.error('Error calculating days:', salesDateStr, regretDateStr, err);
     return 0;
