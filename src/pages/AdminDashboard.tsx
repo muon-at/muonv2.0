@@ -382,7 +382,7 @@ export default function AdminDashboard() {
             {activeAllenteTab === 'salg' && (
               <div className="tab-content">
                 <div className="content-title">
-                  <h3>Salg – Allente</h3>
+                  <h3>Salg – Allente {salgData.length > 0 && <span style={{ color: '#667eea', fontSize: '0.8em' }}>({salgData.length} ordre)</span>}</h3>
                   <p className="content-subtitle">Oversikt over alle opploadede salg fra CSV/Excel filer</p>
                 </div>
 
@@ -414,9 +414,6 @@ export default function AdminDashboard() {
                         </div>
                       ))}
                     </div>
-                    <p style={{ marginTop: '1.5rem', color: '#999', fontSize: '0.9rem' }}>
-                      Total: {salgData.length} salg
-                    </p>
                   </>
                 ) : (
                   <p style={{ textAlign: 'center', color: '#999', padding: '2rem' }}>
