@@ -62,6 +62,14 @@ export default function AdminDashboard() {
     datoFrom: '',
     datoTo: '',
   });
+  const [activeFilters, setActiveFilters] = useState<KontraktsarkivFilters>({
+    selger: '',
+    avdeling: '',
+    produkt: '',
+    platform: '',
+    datoFrom: '',
+    datoTo: '',
+  });
 
   // Fetch employees when Organisasjon tab is opened
   useEffect(() => {
@@ -277,9 +285,16 @@ export default function AdminDashboard() {
   };
 
   const convertDateFormat = (dateStr: string): string => {
-    // Convert DD.MM.YYYY to YYYY-MM-DD
+    // Convert DD/MM/YYYY or DD.MM.YYYY to YYYY-MM-DD
     if (!dateStr) return '';
-    const parts = dateStr.split('.');
+    
+    // Try splitting by / first
+    let parts = dateStr.split('/');
+    if (parts.length !== 3) {
+      // Try splitting by . if / didn't work
+      parts = dateStr.split('.');
+    }
+    
     if (parts.length === 3) {
       return `${parts[2]}-${parts[1]}-${parts[0]}`;
     }
@@ -289,40 +304,58 @@ export default function AdminDashboard() {
   const getFilteredSalgData = () => {
     return salgData.filter((record) => {
       // Selger filter
-      if (filters.selger && !record.selger?.toLowerCase().includes(filters.selger.toLowerCase())) {
+      if (activeFilters.selger && !record.selger?.toLowerCase().includes(activeFilters.selger.toLowerCase())) {
         return false;
       }
 
       // Avdeling filter
-      if (filters.avdeling && record.avdeling !== filters.avdeling) {
+      if (activeFilters.avdeling && record.avdeling !== activeFilters.avdeling) {
         return false;
       }
 
       // Produkt filter
-      if (filters.produkt && !record.produkt?.toLowerCase().includes(filters.produkt.toLowerCase())) {
+      if (activeFilters.produkt && !record.produkt?.toLowerCase().includes(activeFilters.produkt.toLowerCase())) {
         return false;
       }
 
       // Plattform filter
-      if (filters.platform && !record.platform?.toLowerCase().includes(filters.platform.toLowerCase())) {
+      if (activeFilters.platform && !record.platform?.toLowerCase().includes(activeFilters.platform.toLowerCase())) {
         return false;
       }
 
-      // Convert record date from DD.MM.YYYY to YYYY-MM-DD for comparison
+      // Convert record date from DD/MM/YYYY to YYYY-MM-DD for comparison
       const recordDate = convertDateFormat(record.dato || '');
 
       // Dato from filter
-      if (filters.datoFrom && recordDate && recordDate < filters.datoFrom) {
+      if (activeFilters.datoFrom && recordDate && recordDate < activeFilters.datoFrom) {
         return false;
       }
 
       // Dato to filter
-      if (filters.datoTo && recordDate && recordDate > filters.datoTo) {
+      if (activeFilters.datoTo && recordDate && recordDate > activeFilters.datoTo) {
         return false;
       }
 
       return true;
     });
+  };
+
+  const handleSearch = () => {
+    setActiveFilters(filters);
+    console.log('🔍 Search triggered with filters:', filters);
+  };
+
+  const handleResetFilters = () => {
+    const emptyFilters = {
+      selger: '',
+      avdeling: '',
+      produkt: '',
+      platform: '',
+      datoFrom: '',
+      datoTo: '',
+    };
+    setFilters(emptyFilters);
+    setActiveFilters(emptyFilters);
   };
 
   return (
@@ -532,19 +565,20 @@ export default function AdminDashboard() {
                         />
                       </div>
 
-                      <button
-                        className="filter-reset"
-                        onClick={() => setFilters({
-                          selger: '',
-                          avdeling: '',
-                          produkt: '',
-                          platform: '',
-                          datoFrom: '',
-                          datoTo: '',
-                        })}
-                      >
-                        🔄 Nullstill filter
-                      </button>
+                      <div className="filter-actions">
+                        <button
+                          className="filter-search"
+                          onClick={handleSearch}
+                        >
+                          🔍 Søk
+                        </button>
+                        <button
+                          className="filter-reset"
+                          onClick={handleResetFilters}
+                        >
+                          🔄 Nullstill
+                        </button>
+                      </div>
                     </div>
 
                     {/* Data Table */}
