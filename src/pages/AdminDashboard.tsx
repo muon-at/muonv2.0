@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, doc, updateDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import '../styles/AdminDashboard.css';
 
@@ -21,6 +21,8 @@ export default function AdminDashboard() {
   const [activeAllenteTab, setActiveAllenteTab] = useState('i-dag');
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loadingEmployees, setLoadingEmployees] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState<{ show: boolean; employeeId?: string; employeeName?: string }>({ show: false });
+  const [deleting, setDeleting] = useState(false);
 
   // Fetch employees when Organisasjon tab is opened
   useEffect(() => {
@@ -38,6 +40,9 @@ export default function AdminDashboard() {
       const employeeList: Employee[] = [];
       snapshot.forEach((doc) => {
         const data = doc.data();
+        // Skip archived employees
+        if (data.archived) return;
+        
         employeeList.push({
           id: doc.id,
           name: data.name || 'N/A',
@@ -99,6 +104,35 @@ export default function AdminDashboard() {
       ansatt: '#6b7280',
     };
     return roleColors[role?.toLowerCase() || ''] || '#6b7280';
+  };
+
+  const handleDeleteClick = (employeeId: string, employeeName: string) => {
+    setDeleteConfirm({ show: true, employeeId, employeeName });
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteConfirm.employeeId) return;
+
+    setDeleting(true);
+    try {
+      const empRef = doc(db, 'employees', deleteConfirm.employeeId);
+      await updateDoc(empRef, { archived: true });
+
+      // Remove from UI
+      setEmployees(employees.filter((emp) => emp.id !== deleteConfirm.employeeId));
+
+      // Close modal
+      setDeleteConfirm({ show: false });
+    } catch (err) {
+      console.error('Error archiving employee:', err);
+      alert('Feil ved arkivering av ansatt');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setDeleteConfirm({ show: false });
   };
 
   return (
@@ -257,7 +291,12 @@ export default function AdminDashboard() {
                       <div className="col-slack">{emp.slackName || '-'}</div>
                       <div className="col-actions">
                         <button className="action-btn edit-btn">✏️</button>
-                        <button className="action-btn delete-btn">🗑️</button>
+                        <button 
+                          className="action-btn delete-btn"
+                          onClick={() => handleDeleteClick(emp.id, emp.name)}
+                        >
+                          🗑️
+                        </button>
                       </div>
                     </div>
                   ))}
@@ -271,6 +310,37 @@ export default function AdminDashboard() {
           </div>
         )}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirm.show && (
+        <div className="modal-overlay">
+          <div className="confirmation-modal">
+            <h2>Arkiver ansatt?</h2>
+            <p>
+              Er du sikker på at du vil arkivere <strong>{deleteConfirm.employeeName}</strong>?
+            </p>
+            <p className="modal-info">
+              Ansattet vil bli markert som arkivert i Firestore og fjernet fra listen.
+            </p>
+            <div className="modal-actions">
+              <button 
+                className="modal-btn cancel-btn"
+                onClick={handleCancelDelete}
+                disabled={deleting}
+              >
+                Avbryt
+              </button>
+              <button 
+                className="modal-btn delete-btn"
+                onClick={handleConfirmDelete}
+                disabled={deleting}
+              >
+                {deleting ? 'Arkiverer...' : 'Ja, arkiver'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
