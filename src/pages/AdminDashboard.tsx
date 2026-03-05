@@ -65,6 +65,8 @@ export default function AdminDashboard() {
   const [uploadModal, setUploadModal] = useState<{ isOpen: boolean; fileType?: 'salg' | 'stats' | 'angring' }>({ isOpen: false });
   const [salgData, setSalgData] = useState<SalgRecord[]>([]);
   const [loadingSalg, setLoadingSalg] = useState(false);
+  const [angringerData, setAngringerData] = useState<any[]>([]);
+  const [loadingAngringer, setLoadingAngringer] = useState(false);
   const [filters, setFilters] = useState<KontraktsarkivFilters>({
     selger: '',
     avdeling: '',
@@ -88,6 +90,35 @@ export default function AdminDashboard() {
       fetchEmployees();
     }
   }, [activeMainTab]);
+
+  // Fetch angringer data when ANGRING tab is opened
+  useEffect(() => {
+    if (activeMainTab === 'allente' && activeAllenteTab === 'angring') {
+      setLoadingAngringer(true);
+      const loadAngringerData = async () => {
+        try {
+          const angringerRef = collection(db, 'allente_angringer');
+          const snapshot = await getDocs(angringerRef);
+          const records: any[] = [];
+          
+          snapshot.forEach((doc) => {
+            records.push({
+              id: doc.id,
+              ...doc.data(),
+            });
+          });
+          
+          setAngringerData(records);
+        } catch (err) {
+          console.error('Error fetching angringer:', err);
+        } finally {
+          setLoadingAngringer(false);
+        }
+      };
+      
+      loadAngringerData();
+    }
+  }, [activeMainTab, activeAllenteTab]);
 
   // Fetch salg data when SALG tab is opened
   useEffect(() => {
@@ -668,8 +699,76 @@ export default function AdminDashboard() {
               </div>
             )}
 
+            {/* ANGRING Tab */}
+            {activeAllenteTab === 'angring' && (
+              <div className="tab-content">
+                <div className="content-title">
+                  <h3>Angringer</h3>
+                  <p className="content-subtitle">Oversikt over alle angringer</p>
+                </div>
+
+                {loadingAngringer ? (
+                  <p style={{ textAlign: 'center', color: '#999', padding: '2rem' }}>
+                    Laster angringer...
+                  </p>
+                ) : angringerData.length > 0 ? (
+                  <>
+                    <button
+                      className="upload-btn"
+                      onClick={() => setUploadModal({ isOpen: true, fileType: 'angring' })}
+                      style={{
+                        marginBottom: '1.5rem',
+                        padding: '0.75rem 1.5rem',
+                        background: '#C86D4D',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '6px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      📤 Last opp Angringer
+                    </button>
+
+                    <div className="angringer-table">
+                      <div className="table-header">
+                        <div className="col-filename">Filnavn</div>
+                        <div className="col-kundenr">Kundenummer</div>
+                        <div className="col-product">Produkt</div>
+                        <div className="col-selger">Selger</div>
+                        <div className="col-salesdate">Salgsdato</div>
+                        <div className="col-regretdate">Avbrytelsesdato</div>
+                        <div className="col-period">Periode (dager)</div>
+                        <div className="col-category">Plattform</div>
+                      </div>
+                      {angringerData.map((record, idx) => (
+                        <div key={idx} className="table-row">
+                          <div className="col-filename">{record.filename || '-'}</div>
+                          <div className="col-kundenr">{record.kundenummer || '-'}</div>
+                          <div className="col-product">{record.produkt || '-'}</div>
+                          <div className="col-selger">{record.selger || '-'}</div>
+                          <div className="col-salesdate">{record.salesdate || '-'}</div>
+                          <div className="col-regretdate">{record.regretdate || '-'}</div>
+                          <div className="col-period">{record.period || 0}</div>
+                          <div className="col-category">{record.plattform || '-'}</div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <p style={{ marginTop: '1.5rem', color: '#999', fontSize: '0.9rem' }}>
+                      Total: {angringerData.length} angringer
+                    </p>
+                  </>
+                ) : (
+                  <p style={{ textAlign: 'center', color: '#999', padding: '2rem' }}>
+                    Ingen angringer funnet. Last opp en CSV/Excel fil for å komme i gang.
+                  </p>
+                )}
+              </div>
+            )}
+
             {/* Other tabs placeholder */}
-            {activeAllenteTab !== 'i-dag' && activeAllenteTab !== 'salg' && (
+            {activeAllenteTab !== 'i-dag' && activeAllenteTab !== 'salg' && activeAllenteTab !== 'angring' && (
               <div className="tab-content">
                 <p style={{ textAlign: 'center', color: '#999', padding: '2rem' }}>
                   {allenteTabs.find(t => t.id === activeAllenteTab)?.label} tab content coming soon...

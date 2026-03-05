@@ -880,3 +880,71 @@
   background: #667eea;
   color: #333;
 }
+
+/* Angringer Table */
+.angringer-table {
+  background: white;
+  border-radius: 8px;
+  overflow-x: auto;
+  border: 1px solid #e2e8f0;
+}
+
+.angringer-table .table-header {
+  background: #fffbf0;
+  display: grid;
+  grid-template-columns: 120px 120px 150px 140px 100px 120px 110px 120px;
+  gap: 1rem;
+  padding: 1rem;
+  font-weight: 600;
+  color: #333;
+  font-size: 0.85rem;
+  border-bottom: 2px solid #e2e8f0;
+  position: sticky;
+  top: 0;
+}
+
+.angringer-table .table-row {
+  display: grid;
+  grid-template-columns: 120px 120px 150px 140px 100px 120px 110px 120px;
+  gap: 1rem;
+  padding: 1rem;
+  border-bottom: 1px solid #e2e8f0;
+  align-items: center;
+}
+
+.angringer-table .col-filename {
+  color: #667eea;
+  font-weight: 500;
+}
+
+.angringer-table .col-kundenr {
+  color: #333;
+}
+
+.angringer-table .col-product {
+  color: #333;
+}
+
+.angringer-table .col-selger {
+  color: #333;
+}
+
+.angringer-table .col-salesdate {
+  color: #666;
+  font-size: 0.85rem;
+}
+
+.angringer-table .col-regretdate {
+  color: #dc2626;
+  font-weight: 500;
+}
+
+.angringer-table .col-period {
+  color: #333;
+  font-weight: 600;
+}
+
+.angringer-table .col-category {
+  color: #10b981;
+  font-weight: 500;
+}

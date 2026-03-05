@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { collection, getDocs, addDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { parseCSV } from '../lib/csvParser';
+import { parseAngringerCSV } from '../lib/angringerParser';
 import '../styles/FileUploadModal.css';
 
 interface FileUploadModalProps {
@@ -121,8 +122,83 @@ export default function FileUploadModal({ isOpen, title, fileType, onClose, onUp
           setSelectedFile(null);
           onClose();
         }, 1500);
+      } else if (fileType === 'angring') {
+        // Parse Angringer CSV
+        const records = parseAngringerCSV(fileText);
+        console.log('↩️ Parsed angringer:', records.length);
+
+        if (records.length === 0) {
+          setError('Ingen gyldige angringer funnet i filen');
+          setUploading(false);
+          return;
+        }
+
+        // Fetch existing records from Firestore
+        const angringerRef = collection(db, 'allente_angringer');
+        const snapshot = await getDocs(angringerRef);
+        const existingKundenummers = new Set<string>();
+        
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          if (data.kundenummer) {
+            existingKundenummers.add(data.kundenummer);
+          }
+        });
+
+        console.log('📋 Existing kundenummers in allente_angringer:', existingKundenummers.size);
+
+        // Filter new records (deduplicate by kundenummer)
+        const newRecords = records.filter(
+          (record) => !existingKundenummers.has(record.kundenummer)
+        );
+
+        console.log('✨ New angringer to insert:', newRecords.length);
+        console.log('🔄 Duplicates (already exist):', records.length - newRecords.length);
+
+        if (newRecords.length === 0) {
+          setError(`Alle ${records.length} angringer eksisterer allerede`);
+          setUploading(false);
+          return;
+        }
+
+        // Insert new records to Firestore
+        let insertedCount = 0;
+        for (const record of newRecords) {
+          try {
+            await addDoc(angringerRef, {
+              kundenummer: record.kundenummer,
+              produkt: record.produkt,
+              selger: record.selger,
+              salesdate: record.salesdate,
+              regretdate: record.regretdate,
+              period: record.period,
+              plattform: record.plattform,
+              filename: selectedFile.name,
+              createdAt: new Date(),
+            });
+            insertedCount++;
+          } catch (err) {
+            console.error('❌ Error inserting angring:', record.kundenummer, err);
+          }
+        }
+
+        console.log('🎉 Inserted angringer:', insertedCount);
+        setSuccess(true);
+        
+        // Show success message with counts
+        const duplicates = records.length - newRecords.length;
+        const message = `✅ Lastet opp ${insertedCount} nye angringer\n(${duplicates} eksisterte allerede)`;
+        alert(message);
+        
+        // Call parent callback
+        await onUpload(selectedFile, fileType);
+
+        setTimeout(() => {
+          setSelectedFile(null);
+          onClose();
+        }, 1500);
       } else {
-        // For stats and angring, use mock upload
+        // For other file types
         await onUpload(selectedFile, fileType);
         setSuccess(true);
         setTimeout(() => {
