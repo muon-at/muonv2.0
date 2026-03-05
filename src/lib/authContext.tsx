@@ -20,7 +20,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
 
   useEffect(() => {
-    // Load user from localStorage on mount
+    // Load user from localStorage on mount, or auto-login as demo Owner
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
       try {
@@ -28,6 +28,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } catch (err) {
         localStorage.removeItem('user');
       }
+    } else {
+      // Auto-login as demo Owner (temporary - remove for production)
+      const demoUser: AuthUser = {
+        id: 'demo-owner-001',
+        name: 'Stian Abrahamsen',
+        email: 'stian@muonas.no',
+        role: 'owner',
+      };
+      setUser(demoUser);
+      localStorage.setItem('user', JSON.stringify(demoUser));
     }
   }, []);
 
