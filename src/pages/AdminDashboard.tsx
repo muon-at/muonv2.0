@@ -97,20 +97,21 @@ export default function AdminDashboard() {
       const empRef = collection(db, 'employees');
       const snapshot = await getDocs(empRef);
       
+      console.log('📋 Fetching employees...found:', snapshot.size, 'records');
+      
       const map: { [key: string]: string } = {};
       snapshot.forEach((doc) => {
         const data = doc.data();
         if (data.externalName && data.department) {
           // Normalize whitespace for consistent matching
-          const normalized = normalizeWhitespace(data.externalName);
+          const original = data.externalName;
+          const normalized = normalizeWhitespace(original);
           map[normalized] = data.department;
+          console.log(`   "${original}" → normalized → "${normalized}" → ${data.department}`);
         }
       });
       
-      console.log('📋 Employee Map loaded:', Object.keys(map).length, 'entries');
-      Object.entries(map).slice(0, 3).forEach(([name, dept]) => {
-        console.log(`  "${name}" → ${dept}`);
-      });
+      console.log('✅ Employee Map ready:', Object.keys(map).length, 'entries');
       setEmployeeMap(map);
     } catch (err) {
       console.error('❌ Error fetching employee map:', err);
@@ -125,7 +126,13 @@ export default function AdminDashboard() {
       
       console.log('📊 Fetching from allente_kontraktsarkiv collection...');
       console.log('📦 Total documents found:', snapshot.size);
-      console.log('📋 Employee map loaded:', Object.keys(employeeMap).length, 'entries');
+      console.log('📋 Employee map entries:', Object.keys(employeeMap).length);
+      if (Object.keys(employeeMap).length > 0) {
+        console.log('📋 Sample employee map entries:');
+        Object.entries(employeeMap).slice(0, 5).forEach(([name, dept]) => {
+          console.log(`   "${name}" → ${dept}`);
+        });
+      }
       
       const salgList: SalgRecord[] = [];
       snapshot.forEach((doc) => {
@@ -136,8 +143,9 @@ export default function AdminDashboard() {
         const avdeling = employeeMap[normalizedSelger] || 'Ukjent';
         
         // Debug: Log first few records to see what's happening
-        if (salgList.length < 5) {
-          console.log('🔍 DEBUG - Selger orig:', selger, '| Normalized:', normalizedSelger, '→ Avdeling:', avdeling);
+        if (salgList.length < 3) {
+          const found = employeeMap[normalizedSelger] ? '✅ FOUND' : '❌ NOT FOUND';
+          console.log(`🔍 Record ${salgList.length + 1}: Selger="${selger}" → Normalized="${normalizedSelger}" ${found} → Avdeling="${avdeling}"`);
         }
         
         // Try different column name variations for kundenummer
