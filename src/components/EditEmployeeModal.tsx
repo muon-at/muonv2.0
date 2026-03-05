@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { doc, updateDoc } from 'firebase/firestore';
+import { doc, updateDoc, collection, addDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import '../styles/Modal.css';
 
@@ -21,15 +21,19 @@ interface EditEmployeeModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (updatedEmployee: Employee) => void;
+  mode?: 'edit' | 'create';
 }
 
-export default function EditEmployeeModal({ employee, isOpen, onClose, onSave }: EditEmployeeModalProps) {
-  const [formData, setFormData] = useState<Employee>(employee || {} as Employee);
+export default function EditEmployeeModal({ employee, isOpen, onClose, onSave, mode = 'edit' }: EditEmployeeModalProps) {
+  const [formData, setFormData] = useState<Employee>(
+    employee || { id: '', name: '', email: '', department: '', role: '', project: '', slackName: '', externalName: '', tmgName: '', employment_type: '' }
+  );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  if (!isOpen || !employee) return null;
+  if (!isOpen) return null;
+  if (mode === 'edit' && !employee) return null;
 
   const handleChange = (field: keyof Employee, value: string) => {
     setFormData({ ...formData, [field]: value });
@@ -37,26 +41,51 @@ export default function EditEmployeeModal({ employee, isOpen, onClose, onSave }:
   };
 
   const handleSave = async () => {
+    if (!formData.name || formData.name.trim() === '') {
+      setError('Navn er påkrevd');
+      return;
+    }
+
     setLoading(true);
     setError(null);
     setSuccess(false);
 
     try {
-      const empRef = doc(db, 'employees', formData.id);
-      await updateDoc(empRef, {
-        name: formData.name || '',
-        email: formData.email || '',
-        department: formData.department || '',
-        role: formData.role || '',
-        project: formData.project || '',
-        slackName: formData.slackName || '',
-        externalName: formData.externalName || '',
-        tmgName: formData.tmgName || '',
-        employment_type: formData.employment_type || '',
-      });
+      if (mode === 'create') {
+        // Opprett nytt dokument
+        const empRef = await addDoc(collection(db, 'employees'), {
+          name: formData.name || '',
+          email: formData.email || '',
+          department: formData.department || '',
+          role: formData.role || '',
+          project: formData.project || '',
+          slackName: formData.slackName || '',
+          externalName: formData.externalName || '',
+          tmgName: formData.tmgName || '',
+          employment_type: formData.employment_type || '',
+        });
 
-      setSuccess(true);
-      onSave(formData);
+        setSuccess(true);
+        onSave({ ...formData, id: empRef.id });
+      } else {
+        // Oppdater eksisterende dokument
+        const empRef = doc(db, 'employees', formData.id);
+        await updateDoc(empRef, {
+          name: formData.name || '',
+          email: formData.email || '',
+          department: formData.department || '',
+          role: formData.role || '',
+          project: formData.project || '',
+          slackName: formData.slackName || '',
+          externalName: formData.externalName || '',
+          tmgName: formData.tmgName || '',
+          employment_type: formData.employment_type || '',
+        });
+
+        setSuccess(true);
+        onSave(formData);
+      }
+
       setTimeout(() => {
         onClose();
       }, 1000);
@@ -72,7 +101,7 @@ export default function EditEmployeeModal({ employee, isOpen, onClose, onSave }:
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h2>Rediger ansatt</h2>
+          <h2>{mode === 'create' ? '➕ Legg til ansatt' : '✏️ Rediger ansatt'}</h2>
           <button className="modal-close" onClick={onClose}>✕</button>
         </div>
 

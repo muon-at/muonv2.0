@@ -70,8 +70,28 @@ export default function Dashboard() {
     fetchEmployees();
   }, []);
 
+  const [modalMode, setModalMode] = useState<'edit' | 'create'>('edit');
+
   const handleEditClick = (emp: Employee) => {
     setEditingEmployee(emp);
+    setModalMode('edit');
+    setIsModalOpen(true);
+  };
+
+  const handleAddClick = () => {
+    setEditingEmployee({
+      id: '',
+      name: '',
+      email: '',
+      department: '',
+      role: '',
+      project: '',
+      slackName: '',
+      externalName: '',
+      tmgName: '',
+      employment_type: '',
+    });
+    setModalMode('create');
     setIsModalOpen(true);
   };
 
@@ -81,11 +101,17 @@ export default function Dashboard() {
   };
 
   const handleSave = (updatedEmployee: Employee) => {
-    setEmployees(
-      employees.map((emp) =>
-        emp.id === updatedEmployee.id ? updatedEmployee : emp
-      )
-    );
+    if (modalMode === 'create') {
+      // Legg til ny ansatt i listen
+      setEmployees([...employees, updatedEmployee].sort((a, b) => a.name.localeCompare(b.name)));
+    } else {
+      // Oppdater eksisterende ansatt
+      setEmployees(
+        employees.map((emp) =>
+          emp.id === updatedEmployee.id ? updatedEmployee : emp
+        )
+      );
+    }
   };
 
   if (loading) return <div className="dashboard"><div className="loading">Laster ansattliste...</div></div>;
@@ -98,6 +124,9 @@ export default function Dashboard() {
           <h1>Muon Dashboard</h1>
           <p className="subtitle">Oversikt over ansatte</p>
         </div>
+        <button className="btn btn-add" onClick={handleAddClick}>
+          ➕ Legg til ansatt
+        </button>
       </div>
 
       <div className="table-container">
@@ -158,6 +187,7 @@ export default function Dashboard() {
         isOpen={isModalOpen}
         onClose={handleModalClose}
         onSave={handleSave}
+        mode={modalMode}
       />
     </div>
   );
