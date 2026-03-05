@@ -285,7 +285,7 @@ export default function AdminDashboard() {
   };
 
   const convertDateFormat = (dateStr: string): string => {
-    // Convert DD/MM/YYYY or DD.MM.YYYY to YYYY-MM-DD
+    // Convert M/D/YYYY, DD/MM/YYYY or DD.MM.YYYY to YYYY-MM-DD (with zero-padding)
     if (!dateStr) return '';
     
     // Try splitting by / first
@@ -296,7 +296,9 @@ export default function AdminDashboard() {
     }
     
     if (parts.length === 3) {
-      return `${parts[2]}-${parts[1]}-${parts[0]}`;
+      const day = String(parts[0]).padStart(2, '0');
+      const month = String(parts[1]).padStart(2, '0');
+      return `${parts[2]}-${month}-${day}`;
     }
     return dateStr;
   };
