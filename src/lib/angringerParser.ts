@@ -164,8 +164,30 @@ function parseDate(dateStr: string): string {
   return dateStr;
 }
 
+function isValidDate(dateStr: string): boolean {
+  if (!dateStr) return false;
+  const [year, month, day] = dateStr.split('-').map(Number);
+  
+  // Validate month (1-12) and day (1-31)
+  if (month < 1 || month > 12 || day < 1 || day > 31) {
+    return false;
+  }
+  
+  // Additional validation: check if date actually exists
+  const date = new Date(year, month - 1, day);
+  return date.getFullYear() === year && 
+         date.getMonth() === month - 1 && 
+         date.getDate() === day;
+}
+
 function calculateDays(salesDateStr: string, regretDateStr: string): number {
   if (!salesDateStr || !regretDateStr) return 0;
+  
+  // Validate dates before calculating
+  if (!isValidDate(salesDateStr) || !isValidDate(regretDateStr)) {
+    console.warn('⚠️ Invalid date format:', salesDateStr, regretDateStr);
+    return 0;
+  }
 
   try {
     // Parse ISO dates more explicitly
