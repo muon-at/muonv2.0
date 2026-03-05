@@ -812,9 +812,9 @@
   background: white;
   border-radius: 12px;
   padding: 2rem;
-  max-width: 500px;
-  width: 90%;
-  max-height: 80vh;
+  max-width: 600px;
+  width: 95%;
+  max-height: 90vh;
   overflow-y: auto;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
 }
@@ -858,6 +858,7 @@
   font-size: 0.9rem;
   font-family: inherit;
   background: #f8fafc;
+  color: #333;
 }
 
 .form-group input:focus,
@@ -866,4 +867,16 @@
   border-color: #667eea;
   background: white;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  color: #333;
+}
+
+/* Dropdown option styling */
+.form-group select option {
+  color: #333;
+  background: white;
+}
+
+.form-group select option:checked {
+  background: #667eea;
+  color: #333;
 }
