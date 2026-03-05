@@ -705,13 +705,16 @@ export default function AdminDashboard() {
                     <div className="filter-panel">
                       <div className="filter-group">
                         <label>Selger:</label>
-                        <input
-                          type="text"
-                          placeholder="Søk selger..."
+                        <select
                           value={filters.selger}
                           onChange={(e) => setFilters({ ...filters, selger: e.target.value })}
-                          className="filter-input"
-                        />
+                          className="filter-select"
+                        >
+                          <option value="">Alle</option>
+                          {[...new Set(salgData.map(r => r.selger).filter(Boolean))].sort().map((s) => (
+                            <option key={s} value={s}>{s}</option>
+                          ))}
+                        </select>
                       </div>
 
                       <div className="filter-group">
@@ -721,7 +724,7 @@ export default function AdminDashboard() {
                           onChange={(e) => setFilters({ ...filters, avdeling: e.target.value })}
                           className="filter-select"
                         >
-                          <option value="">Alle avdelinger</option>
+                          <option value="">Alle</option>
                           {[...new Set(salgData.map(r => r.avdeling).filter(Boolean))].sort().map((avd) => (
                             <option key={avd} value={avd}>{avd}</option>
                           ))}
@@ -730,24 +733,30 @@ export default function AdminDashboard() {
 
                       <div className="filter-group">
                         <label>Produkt:</label>
-                        <input
-                          type="text"
-                          placeholder="Søk produkt..."
+                        <select
                           value={filters.produkt}
                           onChange={(e) => setFilters({ ...filters, produkt: e.target.value })}
-                          className="filter-input"
-                        />
+                          className="filter-select"
+                        >
+                          <option value="">Alle</option>
+                          {[...new Set(salgData.map(r => r.produkt).filter(Boolean))].sort().map((p) => (
+                            <option key={p} value={p}>{p}</option>
+                          ))}
+                        </select>
                       </div>
 
                       <div className="filter-group">
                         <label>Plattform:</label>
-                        <input
-                          type="text"
-                          placeholder="Søk plattform..."
+                        <select
                           value={filters.platform}
                           onChange={(e) => setFilters({ ...filters, platform: e.target.value })}
-                          className="filter-input"
-                        />
+                          className="filter-select"
+                        >
+                          <option value="">Alle</option>
+                          {[...new Set(salgData.map(r => r.platform).filter(Boolean))].sort().map((pl) => (
+                            <option key={pl} value={pl}>{pl}</option>
+                          ))}
+                        </select>
                       </div>
 
                       <div className="filter-group">
@@ -853,53 +862,55 @@ export default function AdminDashboard() {
                     <div className="filter-panel">
                       <div className="filter-group">
                         <label>Filnavn:</label>
-                        <input
-                          type="text"
-                          placeholder="Søk..."
+                        <select
                           value={angringerFilters.filnavn}
                           onChange={(e) => setAngringerFilters({ ...angringerFilters, filnavn: e.target.value })}
-                          className="filter-input"
-                        />
-                      </div>
-                      <div className="filter-group">
-                        <label>Kundenummer:</label>
-                        <input
-                          type="text"
-                          placeholder="Søk..."
-                          value={angringerFilters.kundenummer}
-                          onChange={(e) => setAngringerFilters({ ...angringerFilters, kundenummer: e.target.value })}
-                          className="filter-input"
-                        />
-                      </div>
-                      <div className="filter-group">
-                        <label>Produkt:</label>
-                        <input
-                          type="text"
-                          placeholder="Søk..."
-                          value={angringerFilters.produkt}
-                          onChange={(e) => setAngringerFilters({ ...angringerFilters, produkt: e.target.value })}
-                          className="filter-input"
-                        />
+                          className="filter-select"
+                        >
+                          <option value="">Alle</option>
+                          {Array.from(new Set(angringerData.map(r => r.filename))).sort().map(fn => (
+                            <option key={fn} value={fn}>{fn}</option>
+                          ))}
+                        </select>
                       </div>
                       <div className="filter-group">
                         <label>Selger:</label>
-                        <input
-                          type="text"
-                          placeholder="Søk..."
+                        <select
                           value={angringerFilters.selger}
                           onChange={(e) => setAngringerFilters({ ...angringerFilters, selger: e.target.value })}
-                          className="filter-input"
-                        />
+                          className="filter-select"
+                        >
+                          <option value="">Alle</option>
+                          {Array.from(new Set(angringerData.map(r => r.selger))).sort().map(s => (
+                            <option key={s} value={s}>{s}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="filter-group">
+                        <label>Produkt:</label>
+                        <select
+                          value={angringerFilters.produkt}
+                          onChange={(e) => setAngringerFilters({ ...angringerFilters, produkt: e.target.value })}
+                          className="filter-select"
+                        >
+                          <option value="">Alle</option>
+                          {Array.from(new Set(angringerData.map(r => r.produkt))).sort().map(p => (
+                            <option key={p} value={p}>{p}</option>
+                          ))}
+                        </select>
                       </div>
                       <div className="filter-group">
                         <label>Plattform:</label>
-                        <input
-                          type="text"
-                          placeholder="Søk..."
+                        <select
                           value={angringerFilters.plattform}
                           onChange={(e) => setAngringerFilters({ ...angringerFilters, plattform: e.target.value })}
-                          className="filter-input"
-                        />
+                          className="filter-select"
+                        >
+                          <option value="">Alle</option>
+                          {Array.from(new Set(angringerData.map(r => r.plattform))).sort().map(pl => (
+                            <option key={pl} value={pl}>{pl}</option>
+                          ))}
+                        </select>
                       </div>
                       <button
                         onClick={() => {
@@ -974,7 +985,7 @@ export default function AdminDashboard() {
                     </div>
 
                     <p style={{ marginTop: '1.5rem', color: '#999', fontSize: '0.9rem' }}>
-                      Total: {getFilteredAngringerData().length} av {angringerData.length} angringer
+                      {angringerData.length > 0 && <span style={{ color: '#667eea', fontSize: '0.95em', fontWeight: '600' }}>({getFilteredAngringerData().length} av {angringerData.length})</span>}
                     </p>
                   </>
                 ) : (
