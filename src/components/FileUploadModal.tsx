@@ -134,7 +134,7 @@ export default function FileUploadModal({ isOpen, title, fileType, onClose, onUp
         }
 
         // Fetch existing records from Firestore
-        const angringerRef = collection(db, 'allente_angringer_arkiv');
+        const angringerRef = collection(db, 'allente_kanselleringer');
         const snapshot = await getDocs(angringerRef);
         const existingKundenummers = new Set<string>();
         

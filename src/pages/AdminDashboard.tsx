@@ -154,7 +154,7 @@ export default function AdminDashboard() {
       setLoadingAngringer(true);
       const loadAngringerData = async () => {
         try {
-          const angringerRef = collection(db, 'allente_angringer_arkiv');
+          const angringerRef = collection(db, 'allente_kanselleringer');
           const snapshot = await getDocs(angringerRef);
           const records: any[] = [];
           
