@@ -228,19 +228,14 @@ export default function AdminDashboard() {
   };
 
   const handleFileUpload = async (file: File, fileType: string) => {
-    // Mock upload - in real app, would save to Firestore or send to backend
-    console.log(`Uploading ${fileType} file:`, file.name, file.size);
+    console.log(`📤 Upload completed for ${fileType} file:`, file.name);
     
-    // Simulate upload delay
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    
-    // In real app, you would:
-    // 1. Parse the file (CSV, Excel, JSON)
-    // 2. Validate the data
-    // 3. Save to Firestore or send to backend
-    // 4. Return success/error
-    
-    console.log('File uploaded successfully');
+    // Refresh salg data after successful upload
+    if (fileType === 'salg' && activeMainTab === 'allente' && activeAllenteTab === 'salg') {
+      console.log('🔄 Refreshing SALG data...');
+      await fetchEmployeeMap();
+      await fetchSalgData();
+    }
   };
 
   const getUploadModalTitle = () => {

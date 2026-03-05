@@ -1,4 +1,7 @@
 import { useState } from 'react';
+import { collection, getDocs, addDoc } from 'firebase/firestore';
+import { db } from '../lib/firebase';
+import { parseCSV } from '../lib/csvParser';
 import '../styles/FileUploadModal.css';
 
 interface FileUploadModalProps {
@@ -37,13 +40,95 @@ export default function FileUploadModal({ isOpen, title, fileType, onClose, onUp
     setSuccess(false);
 
     try {
-      await onUpload(selectedFile, fileType);
-      setSuccess(true);
-      setTimeout(() => {
-        setSelectedFile(null);
-        onClose();
-      }, 1500);
+      // Read file as text
+      const fileText = await selectedFile.text();
+      console.log('📄 File text length:', fileText.length);
+
+      if (fileType === 'salg') {
+        // Parse CSV
+        const records = parseCSV(fileText);
+        console.log('📊 Parsed records:', records.length);
+
+        if (records.length === 0) {
+          setError('Ingen gyldige records funnet i filen');
+          setUploading(false);
+          return;
+        }
+
+        // Fetch existing kundenummer from Firestore
+        const salgRef = collection(db, 'allente_salg');
+        const snapshot = await getDocs(salgRef);
+        const existingKundenummer = new Set<string>();
+        
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          if (data.kundenummer) {
+            existingKundenummer.add(data.kundenummer);
+          }
+        });
+
+        console.log('📋 Existing kundenummer:', existingKundenummer.size);
+
+        // Filter new records (deduplicate)
+        const newRecords = records.filter(
+          (record) => !existingKundenummer.has(record.kundenummer)
+        );
+
+        console.log('✨ New records to insert:', newRecords.length);
+
+        if (newRecords.length === 0) {
+          setError(`Alle ${records.length} records eksisterer allerede`);
+          setUploading(false);
+          return;
+        }
+
+        // Insert new records to Firestore
+        let insertedCount = 0;
+        for (const record of newRecords) {
+          try {
+            await addDoc(salgRef, {
+              kundenummer: record.kundenummer,
+              kunde: record.kunde,
+              dato: record.ordredato,
+              produkt: record.produkt,
+              ordertype: record.ordertype,
+              forhandler: record.forhandler,
+              selger: record.selger,
+              platform: record.platform,
+              status: record.status,
+              createdAt: new Date(),
+            });
+            insertedCount++;
+          } catch (err) {
+            console.error('❌ Error inserting record:', record.kundenummer, err);
+          }
+        }
+
+        console.log('🎉 Inserted records:', insertedCount);
+        setSuccess(true);
+        
+        // Show success message with counts
+        const message = `✅ Lastet opp ${insertedCount} nye salg\n(${records.length - insertedCount} eksisterte allerede)`;
+        alert(message);
+        
+        // Call parent callback
+        await onUpload(selectedFile, fileType);
+
+        setTimeout(() => {
+          setSelectedFile(null);
+          onClose();
+        }, 1500);
+      } else {
+        // For stats and angring, use mock upload
+        await onUpload(selectedFile, fileType);
+        setSuccess(true);
+        setTimeout(() => {
+          setSelectedFile(null);
+          onClose();
+        }, 1500);
+      }
     } catch (err) {
+      console.error('❌ Upload error:', err);
       setError(`Feil ved opplasting: ${err}`);
     } finally {
       setUploading(false);
