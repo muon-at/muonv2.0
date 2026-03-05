@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { collection, getDocs, doc, updateDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import '../styles/AdminDashboard.css';
@@ -17,6 +18,7 @@ interface Employee {
 }
 
 export default function AdminDashboard() {
+  const navigate = useNavigate();
   const [activeMainTab, setActiveMainTab] = useState('allente');
   const [activeAllenteTab, setActiveAllenteTab] = useState('i-dag');
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -146,7 +148,15 @@ export default function AdminDashboard() {
             <p className="subtitle">Sentralisert oversikt over kontrakter og brukerstatistikk</p>
           </div>
         </div>
-        <button className="logout-btn">LOGG UT</button>
+        <div className="header-buttons-admin">
+          <button 
+            className="back-btn-admin"
+            onClick={() => navigate('/teamleder')}
+          >
+            ← Tilbake
+          </button>
+          <button className="logout-btn">LOGG UT</button>
+        </div>
       </div>
 
       {/* Main Tab Navigation */}
