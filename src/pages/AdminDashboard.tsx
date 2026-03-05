@@ -31,6 +31,7 @@ interface SalgRecord {
 }
 
 export default function AdminDashboard() {
+  console.log('✅ AdminDashboard component mounted!');
   const navigate = useNavigate();
   const [activeMainTab, setActiveMainTab] = useState('allente');
   const [activeAllenteTab, setActiveAllenteTab] = useState('i-dag');
@@ -331,7 +332,10 @@ export default function AdminDashboard() {
                 <button
                   key={tab.id}
                   className={`allente-tab ${activeAllenteTab === tab.id ? 'active' : ''}`}
-                  onClick={() => setActiveAllenteTab(tab.id)}
+                  onClick={() => {
+                    console.log('🔘 Clicked tab:', tab.id);
+                    setActiveAllenteTab(tab.id);
+                  }}
                 >
                   {tab.label}
                 </button>
