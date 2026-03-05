@@ -296,7 +296,7 @@
 .table-header {
   background: #fffbf0;
   display: grid;
-  grid-template-columns: 120px 150px 120px 100px 120px 120px 100px;
+  grid-template-columns: 110px 140px 130px 200px 140px 150px;
   gap: 1rem;
   padding: 1rem;
   font-weight: 600;
@@ -307,7 +307,7 @@
 
 .table-row {
   display: grid;
-  grid-template-columns: 120px 150px 120px 100px 120px 120px 100px;
+  grid-template-columns: 110px 140px 130px 200px 140px 150px;
   gap: 1rem;
   padding: 1rem;
   border-bottom: 1px solid #e2e8f0;
@@ -576,38 +576,41 @@
   cursor: not-allowed;
 }
 
-/* SALG Tab Styles */
-.col-kunde {
-  font-weight: 500;
-  color: #333;
-}
-
-.col-navn {
-  font-weight: 500;
-  color: #333;
-}
-
-.col-beløp {
-  color: #10b981;
-  font-weight: 600;
-}
-
+/* SALG Tab / Kontraktsarkiv Styles */
 .col-dato {
   color: #666;
   font-size: 0.9rem;
 }
 
+.col-id {
+  color: #667eea;
+  font-weight: 600;
+  font-family: 'Courier New', monospace;
+  font-size: 0.85rem;
+}
+
+.col-kunde {
+  font-weight: 600;
+  color: #333;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+}
+
 .col-produkt {
-  color: #666;
+  color: #333;
+  font-size: 0.9rem;
+  line-height: 1.4;
 }
 
 .col-selger {
   color: #666;
+  font-size: 0.9rem;
 }
 
-.col-avdeling {
-  color: #667eea;
+.col-platform {
+  color: #10b981;
   font-weight: 500;
+  font-size: 0.9rem;
 }
 
 /* Responsive */

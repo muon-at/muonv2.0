@@ -26,6 +26,7 @@ interface SalgRecord {
   dato?: string;
   produkt?: string;
   selger?: string;
+  platform?: string;
   avdeling?: string;
   [key: string]: any;
 }
@@ -108,6 +109,7 @@ export default function AdminDashboard() {
           dato: data.dato,
           produkt: data.produkt,
           selger: selger,
+          platform: data.platform || '-',
           avdeling: avdeling,
           ...data,
         });
@@ -382,8 +384,8 @@ export default function AdminDashboard() {
             {activeAllenteTab === 'salg' && (
               <div className="tab-content">
                 <div className="content-title">
-                  <h3>Salg – Allente {salgData.length > 0 && <span style={{ color: '#667eea', fontSize: '0.8em' }}>({salgData.length} ordre)</span>}</h3>
-                  <p className="content-subtitle">Oversikt over alle opploadede salg fra CSV/Excel filer</p>
+                  <h3>Kontraktsarkiv {salgData.length > 0 && <span style={{ color: '#667eea', fontSize: '0.8em' }}>({salgData.length} ordre)</span>}</h3>
+                  <p className="content-subtitle">Fullstendig oversikt over alle kontrakter</p>
                 </div>
 
                 {loadingSalg ? (
@@ -394,23 +396,21 @@ export default function AdminDashboard() {
                   <>
                     <div className="sales-table">
                       <div className="table-header">
-                        <div className="col-kunde">Kunde-Nr</div>
-                        <div className="col-navn">Kunde Navn</div>
-                        <div className="col-beløp">Beløp</div>
-                        <div className="col-dato">Dato</div>
-                        <div className="col-produkt">Produkt</div>
+                        <div className="col-dato">Ordredato</div>
+                        <div className="col-id">Id</div>
+                        <div className="col-kunde">Kundenummer</div>
+                        <div className="col-produkt">Produkter</div>
                         <div className="col-selger">Selger</div>
-                        <div className="col-avdeling">Avdeling</div>
+                        <div className="col-platform">Choosen Platform</div>
                       </div>
                       {salgData.map((row) => (
                         <div key={row.id} className="table-row">
-                          <div className="col-kunde">{row.kundeNr}</div>
-                          <div className="col-navn">{row.kundeNavn || '-'}</div>
-                          <div className="col-beløp">{row.beløp ? `${row.beløp} kr` : '-'}</div>
                           <div className="col-dato">{row.dato || '-'}</div>
+                          <div className="col-id">{row.id}</div>
+                          <div className="col-kunde">{row.kundeNr}</div>
                           <div className="col-produkt">{row.produkt || '-'}</div>
                           <div className="col-selger">{row.selger || '-'}</div>
-                          <div className="col-avdeling">{row.avdeling || 'Ukjent'}</div>
+                          <div className="col-platform">{row.platform || '-'}</div>
                         </div>
                       ))}
                     </div>
