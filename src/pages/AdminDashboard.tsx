@@ -222,20 +222,7 @@ export default function AdminDashboard() {
     { label: 'Last opp Angring', icon: '↩️', color: '#10b981' },
   ];
 
-  const getRoleColor = (role?: string) => {
-    const roleColors: { [key: string]: string } = {
-      owner: '#4f46e5',
-      teamleder: '#6366f1',
-      selger: '#10b981',
-      tekniker: '#f59e0b',
-      ansatt: '#6b7280',
-    };
-    return roleColors[role?.toLowerCase() || ''] || '#6b7280';
-  };
 
-  const handleDeleteClick = (employeeId: string, employeeName: string) => {
-    setDeleteConfirm({ show: true, employeeId, employeeName });
-  };
 
   const handleConfirmDelete = async () => {
     if (!deleteConfirm.employeeId) return;
@@ -656,34 +643,16 @@ export default function AdminDashboard() {
                 <div className="employees-table">
                   <div className="table-header">
                     <div className="col-name">Navn</div>
-                    <div className="col-email">Email</div>
-                    <div className="col-role">Rolle</div>
-                    <div className="col-dept">Avdeling</div>
-                    <div className="col-project">Prosjekt</div>
-                    <div className="col-slack">Slack</div>
-                    <div className="col-actions">Handlinger</div>
+                    <div className="col-slack">Slack Navn</div>
+                    <div className="col-external">Ekstern Navn</div>
+                    <div className="col-tmg">TMG Navn</div>
                   </div>
                   {employees.map((emp) => (
                     <div key={emp.id} className="table-row">
                       <div className="col-name">{emp.name}</div>
-                      <div className="col-email">{emp.email || '-'}</div>
-                      <div className="col-role">
-                        <span className="role-badge" style={{ backgroundColor: getRoleColor(emp.role) }}>
-                          {emp.role || '-'}
-                        </span>
-                      </div>
-                      <div className="col-dept">{emp.department || '-'}</div>
-                      <div className="col-project">{emp.project || '-'}</div>
                       <div className="col-slack">{emp.slackName || '-'}</div>
-                      <div className="col-actions">
-                        <button className="action-btn edit-btn">✏️</button>
-                        <button 
-                          className="action-btn delete-btn"
-                          onClick={() => handleDeleteClick(emp.id, emp.name)}
-                        >
-                          🗑️
-                        </button>
-                      </div>
+                      <div className="col-external">{emp.externalName || '-'}</div>
+                      <div className="col-tmg">{emp.tmgName || '-'}</div>
                     </div>
                   ))}
                 </div>

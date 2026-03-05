@@ -375,7 +375,7 @@
 .employees-table .table-header {
   background: #fffbf0;
   display: grid;
-  grid-template-columns: 150px 180px 110px 110px 110px 120px 100px;
+  grid-template-columns: 200px 200px 250px 200px;
   gap: 1rem;
   padding: 1rem;
   font-weight: 600;
@@ -388,7 +388,7 @@
 
 .employees-table .table-row {
   display: grid;
-  grid-template-columns: 150px 180px 110px 110px 110px 120px 100px;
+  grid-template-columns: 200px 200px 250px 200px;
   gap: 1rem;
   padding: 1rem;
   border-bottom: 1px solid #e2e8f0;
@@ -442,6 +442,18 @@
   display: flex;
   gap: 0.5rem;
   justify-content: center;
+}
+
+.col-external {
+  font-family: 'Courier New', monospace;
+  font-size: 0.85rem;
+  color: #667eea;
+}
+
+.col-tmg {
+  font-family: 'Courier New', monospace;
+  font-size: 0.85rem;
+  color: #666;
 }
 
 .action-btn {
