@@ -20,6 +20,7 @@ interface Employee {
 
 interface SalgRecord {
   id: string;
+  csvId?: string;
   kundeNr: string;
   kundeNavn?: string;
   beløp?: number;
@@ -103,6 +104,7 @@ export default function AdminDashboard() {
         
         salgList.push({
           id: doc.id,
+          csvId: data.id || data.csvId || '-',
           kundeNr: kundeNr,
           kundeNavn: data.kunde || data.kundeNavn || data.kundenavn || '-',
           beløp: data.beløp || '-',
@@ -406,7 +408,7 @@ export default function AdminDashboard() {
                       {salgData.map((row) => (
                         <div key={row.id} className="table-row">
                           <div className="col-dato">{row.dato || '-'}</div>
-                          <div className="col-id">{row.id}</div>
+                          <div className="col-id">{row.csvId || '-'}</div>
                           <div className="col-kunde">{row.kundeNr}</div>
                           <div className="col-produkt">{row.produkt || '-'}</div>
                           <div className="col-selger">{row.selger || '-'}</div>

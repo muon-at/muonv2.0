@@ -87,6 +87,7 @@ export default function FileUploadModal({ isOpen, title, fileType, onClose, onUp
         for (const record of newRecords) {
           try {
             await addDoc(salgRef, {
+              id: record.id,
               kundenummer: record.kundenummer,
               kunde: record.kunde,
               dato: record.ordredato,

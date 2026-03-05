@@ -6,6 +6,7 @@
  */
 
 export interface ParsedSalgRecord {
+  id: string;
   kundenummer: string;
   kunde: string;
   ordredato: string;
@@ -77,6 +78,7 @@ export function parseCSV(csvText: string): ParsedSalgRecord[] {
     
     // Build record
     const record: ParsedSalgRecord = {
+      id: getColumnValue(values, columnMap, 'id'),
       kundenummer,
       kunde: getColumnValue(values, columnMap, 'kunde', 'customer'),
       ordredato,
