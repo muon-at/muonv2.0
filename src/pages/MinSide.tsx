@@ -7,8 +7,16 @@ export default function MinSide() {
   return (
     <div className="page-container">
       <div className="page-header">
-        <h1>Min Side</h1>
-        <p className="subtitle">Dine personlige statistikker og oversikter</p>
+        <div>
+          <h1>Min Side</h1>
+          <p className="subtitle">Dine personlige statistikker og oversikter</p>
+        </div>
+        <button 
+          className="nav-button teamleder-btn-header"
+          onClick={() => navigate('/teamleder')}
+        >
+          👥 Teamleder →
+        </button>
       </div>
 
       <div className="page-content">
@@ -71,14 +79,7 @@ export default function MinSide() {
           </div>
         </div>
 
-        <div className="navigation-section">
-          <button 
-            className="nav-button teamleder-btn"
-            onClick={() => navigate('/teamleder')}
-          >
-            👥 Gå til Teamleder
-          </button>
-        </div>
+
       </div>
     </div>
   );

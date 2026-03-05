@@ -7,9 +7,16 @@
 .page-header {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  padding: 3rem 2rem;
-  text-align: center;
+  padding: 2rem;
   width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+}
+
+.page-header > div:first-child {
+  flex: 1;
 }
 
 .page-header h1 {
@@ -227,23 +234,65 @@
 }
 
 /* Navigation Buttons */
-.navigation-section {
+.header-nav-buttons {
   display: flex;
   gap: 1rem;
-  justify-content: center;
   flex-wrap: wrap;
-  margin-top: 2rem;
+  white-space: nowrap;
+}
+
+.navigation-section {
+  display: none;
 }
 
 .nav-button {
-  padding: 1rem 2rem;
+  padding: 0.75rem 1.5rem;
   border: none;
   border-radius: 8px;
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.nav-button-large {
+  padding: 1rem 2rem;
   min-width: 200px;
+}
+
+.teamleder-btn-header {
+  background: white;
+  color: #667eea;
+}
+
+.teamleder-btn-header:hover {
+  background: #f0f4f8;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.admin-btn-header {
+  background: rgba(255, 255, 255, 0.9);
+  color: #667eea;
+}
+
+.admin-btn-header:hover {
+  background: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.back-btn-header {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.back-btn-header:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-2px);
 }
 
 .teamleder-btn {

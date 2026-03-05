@@ -7,8 +7,24 @@ export default function Teamleder() {
   return (
     <div className="page-container">
       <div className="page-header">
-        <h1>Teamleder Dashboard</h1>
-        <p className="subtitle">Oversikt og styring av ditt team</p>
+        <div>
+          <h1>Teamleder Dashboard</h1>
+          <p className="subtitle">Oversikt og styring av ditt team</p>
+        </div>
+        <div className="header-nav-buttons">
+          <button 
+            className="nav-button back-btn-header"
+            onClick={() => navigate('/')}
+          >
+            ← Min Side
+          </button>
+          <button 
+            className="nav-button admin-btn-header"
+            onClick={() => navigate('/admin')}
+          >
+            Admin →
+          </button>
+        </div>
       </div>
 
       <div className="page-content">
@@ -80,20 +96,7 @@ export default function Teamleder() {
           </div>
         </div>
 
-        <div className="navigation-section">
-          <button 
-            className="nav-button back-btn"
-            onClick={() => navigate('/')}
-          >
-            ← Tilbake til Min Side
-          </button>
-          <button 
-            className="nav-button admin-btn"
-            onClick={() => navigate('/admin')}
-          >
-            🔐 Gå til Admin →
-          </button>
-        </div>
+
       </div>
     </div>
   );

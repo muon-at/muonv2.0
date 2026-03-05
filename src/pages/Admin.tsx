@@ -126,15 +126,15 @@ export default function Admin() {
           <h1>🔐 Admin - Ansatt Oversikt</h1>
           <p className="subtitle">Administrering av alle ansatte</p>
         </div>
-        <div className="header-buttons">
+        <div className="header-nav-buttons">
           <button className="btn btn-add" onClick={handleAddClick}>
             ➕ Legg til ansatt
           </button>
           <button 
-            className="btn btn-back"
+            className="nav-button back-btn-header"
             onClick={() => navigate('/teamleder')}
           >
-            ← Tilbake
+            ← Teamleder
           </button>
         </div>
       </div>
