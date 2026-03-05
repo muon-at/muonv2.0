@@ -52,7 +52,9 @@ export default function AdminDashboard() {
 
   // Fetch salg data when SALG tab is opened
   useEffect(() => {
+    console.log('🔍 useEffect triggered:', { activeMainTab, activeAllenteTab });
     if (activeMainTab === 'allente' && activeAllenteTab === 'salg') {
+      console.log('🚀 Fetching salg data...');
       fetchEmployeeMap().then(() => fetchSalgData());
     }
   }, [activeMainTab, activeAllenteTab]);
