@@ -70,9 +70,10 @@ export default function AdminDashboard() {
         }
       });
       
+      console.log('📋 Employee Map:', map);
       setEmployeeMap(map);
     } catch (err) {
-      console.error('Error fetching employee map:', err);
+      console.error('❌ Error fetching employee map:', err);
     }
   };
 
@@ -82,11 +83,16 @@ export default function AdminDashboard() {
       const salgRef = collection(db, 'allente_salg');
       const snapshot = await getDocs(salgRef);
       
+      console.log('📊 Fetching from allente_salg collection...');
+      console.log('📦 Total documents found:', snapshot.size);
+      
       const salgList: SalgRecord[] = [];
       snapshot.forEach((doc) => {
         const data = doc.data();
         const selger = data.selger || '';
         const avdeling = employeeMap[selger] || 'Ukjent';
+        
+        console.log('📌 Document:', doc.id, 'Selger:', selger, 'Avdeling:', avdeling);
         
         salgList.push({
           id: doc.id,
@@ -101,9 +107,10 @@ export default function AdminDashboard() {
         });
       });
       
+      console.log('✅ Total salg records processed:', salgList.length);
       setSalgData(salgList.sort((a, b) => (b.dato || '').localeCompare(a.dato || '')));
     } catch (err) {
-      console.error('Error fetching salg data:', err);
+      console.error('❌ Error fetching salg data:', err);
     } finally {
       setLoadingSalg(false);
     }
