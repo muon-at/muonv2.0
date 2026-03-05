@@ -53,7 +53,6 @@ export default function AdminDashboard() {
   const [uploadModal, setUploadModal] = useState<{ isOpen: boolean; fileType?: 'salg' | 'stats' | 'angring' }>({ isOpen: false });
   const [salgData, setSalgData] = useState<SalgRecord[]>([]);
   const [loadingSalg, setLoadingSalg] = useState(false);
-  const [employeeMap, setEmployeeMap] = useState<{ [key: string]: string }>({});
   const [filters, setFilters] = useState<KontraktsarkivFilters>({
     selger: '',
     avdeling: '',
@@ -80,10 +79,60 @@ export default function AdminDashboard() {
 
   // Fetch salg data when SALG tab is opened
   useEffect(() => {
-    console.log('🔍 useEffect triggered:', { activeMainTab, activeAllenteTab });
     if (activeMainTab === 'allente' && activeAllenteTab === 'salg') {
-      console.log('🚀 Fetching salg data...');
-      fetchEmployeeMap().then(() => fetchSalgData());
+      setLoadingSalg(true);
+      const loadBothAsync = async () => {
+        // First fetch employees
+        const empRef = collection(db, 'employees');
+        const empSnapshot = await getDocs(empRef);
+        const map: { [key: string]: string } = {};
+        
+        console.log('📋 EMPLOYEES: Found', empSnapshot.size, 'records');
+        empSnapshot.forEach((doc) => {
+          const data = doc.data();
+          if (data.externalName && data.department) {
+            const normalized = normalizeWhitespace(data.externalName);
+            map[normalized] = data.department;
+          }
+        });
+        console.log('✅ EMPLOYEE MAP: Ready with', Object.keys(map).length, 'entries');
+        
+        // Then fetch and match salg data
+        const salgRef = collection(db, 'allente_kontraktsarkiv');
+        const salgSnapshot = await getDocs(salgRef);
+        const salgList: SalgRecord[] = [];
+        
+        console.log('📊 SALG: Found', salgSnapshot.size, 'records');
+        salgSnapshot.forEach((doc) => {
+          const data = doc.data();
+          const selger = data.selger || '';
+          const normalizedSelger = normalizeWhitespace(selger);
+          const avdeling = map[normalizedSelger] || 'Ukjent';
+          
+          if (salgList.length < 2) {
+            console.log(`  Rec: "${selger}" → "${normalizedSelger}" → "${avdeling}"`);
+          }
+          
+          salgList.push({
+            id: doc.id,
+            csvId: data.id || data.csvId || '-',
+            kundeNr: data.kundenummer || data.kundeNr || data.kundenr || 'N/A',
+            kundeNavn: data.kunde || data.kundeNavn || data.kundenavn || '-',
+            beløp: data.beløp || '-',
+            dato: data.dato,
+            produkt: data.produkt,
+            selger: selger,
+            platform: data.platform || '-',
+            avdeling: avdeling,
+            ...data,
+          });
+        });
+        
+        setSalgData(salgList.sort((a, b) => (b.dato || '').localeCompare(a.dato || '')));
+        setLoadingSalg(false);
+      };
+      
+      loadBothAsync();
     }
   }, [activeMainTab, activeAllenteTab]);
 
@@ -92,91 +141,7 @@ export default function AdminDashboard() {
     return text.replace(/\s*\/\s*/g, ' / ').trim();
   };
 
-  const fetchEmployeeMap = async () => {
-    try {
-      const empRef = collection(db, 'employees');
-      const snapshot = await getDocs(empRef);
-      
-      console.log('📋 Fetching employees...found:', snapshot.size, 'records');
-      
-      const map: { [key: string]: string } = {};
-      snapshot.forEach((doc) => {
-        const data = doc.data();
-        if (data.externalName && data.department) {
-          // Normalize whitespace for consistent matching
-          const original = data.externalName;
-          const normalized = normalizeWhitespace(original);
-          map[normalized] = data.department;
-          console.log(`   "${original}" → normalized → "${normalized}" → ${data.department}`);
-        }
-      });
-      
-      console.log('✅ Employee Map ready:', Object.keys(map).length, 'entries');
-      setEmployeeMap(map);
-    } catch (err) {
-      console.error('❌ Error fetching employee map:', err);
-    }
-  };
 
-  const fetchSalgData = async () => {
-    setLoadingSalg(true);
-    try {
-      const salgRef = collection(db, 'allente_kontraktsarkiv');
-      const snapshot = await getDocs(salgRef);
-      
-      console.log('📊 Fetching from allente_kontraktsarkiv collection...');
-      console.log('📦 Total documents found:', snapshot.size);
-      console.log('📋 Employee map entries:', Object.keys(employeeMap).length);
-      if (Object.keys(employeeMap).length > 0) {
-        console.log('📋 Sample employee map entries:');
-        Object.entries(employeeMap).slice(0, 5).forEach(([name, dept]) => {
-          console.log(`   "${name}" → ${dept}`);
-        });
-      }
-      
-      const salgList: SalgRecord[] = [];
-      snapshot.forEach((doc) => {
-        const data = doc.data();
-        const selger = data.selger || '';
-        // Normalize whitespace for matching
-        const normalizedSelger = normalizeWhitespace(selger);
-        const avdeling = employeeMap[normalizedSelger] || 'Ukjent';
-        
-        // Debug: Log first few records to see what's happening
-        if (salgList.length < 3) {
-          const found = employeeMap[normalizedSelger] ? '✅ FOUND' : '❌ NOT FOUND';
-          console.log(`🔍 Record ${salgList.length + 1}: Selger="${selger}" → Normalized="${normalizedSelger}" ${found} → Avdeling="${avdeling}"`);
-        }
-        
-        // Try different column name variations for kundenummer
-        const kundeNr = data.kundenummer || data.kundeNr || data.kundenr || 'N/A';
-        
-        console.log('📌 Document:', doc.id, 'Kundenummer:', kundeNr, 'Selger:', selger);
-        
-        salgList.push({
-          id: doc.id,
-          csvId: data.id || data.csvId || '-',
-          kundeNr: kundeNr,
-          kundeNavn: data.kunde || data.kundeNavn || data.kundenavn || '-',
-          beløp: data.beløp || '-',
-          dato: data.dato,
-          produkt: data.produkt,
-          selger: selger,
-          platform: data.platform || '-',
-          avdeling: avdeling,
-          ...data,
-        });
-        console.log('📌 Record with avdeling:', kundeNr, '→', avdeling);
-      });
-      
-      console.log('✅ Total salg records processed:', salgList.length);
-      setSalgData(salgList.sort((a, b) => (b.dato || '').localeCompare(a.dato || '')));
-    } catch (err) {
-      console.error('❌ Error fetching salg data:', err);
-    } finally {
-      setLoadingSalg(false);
-    }
-  };
 
   const fetchEmployees = async () => {
     setLoadingEmployees(true);
@@ -276,12 +241,8 @@ export default function AdminDashboard() {
   const handleFileUpload = async (file: File, fileType: string) => {
     console.log(`📤 Upload completed for ${fileType} file:`, file.name);
     
-    // Refresh salg data after successful upload
-    if (fileType === 'salg' && activeMainTab === 'allente' && activeAllenteTab === 'salg') {
-      console.log('🔄 Refreshing SALG data...');
-      await fetchEmployeeMap();
-      await fetchSalgData();
-    }
+    // Note: SALG data will auto-refresh when useEffect triggers on tab change
+    // No need to manually fetch here
   };
 
   const getUploadModalTitle = () => {
