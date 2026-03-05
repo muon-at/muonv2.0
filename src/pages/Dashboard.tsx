@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import EditEmployeeModal from '../components/EditEmployeeModal';
 import '../styles/Dashboard.css';
 
 interface Employee {
@@ -31,6 +32,8 @@ export default function Dashboard() {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchEmployees = async () => {
@@ -66,6 +69,24 @@ export default function Dashboard() {
 
     fetchEmployees();
   }, []);
+
+  const handleEditClick = (emp: Employee) => {
+    setEditingEmployee(emp);
+    setIsModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    setEditingEmployee(null);
+  };
+
+  const handleSave = (updatedEmployee: Employee) => {
+    setEmployees(
+      employees.map((emp) =>
+        emp.id === updatedEmployee.id ? updatedEmployee : emp
+      )
+    );
+  };
 
   if (loading) return <div className="dashboard"><div className="loading">Laster ansattliste...</div></div>;
   if (error) return <div className="dashboard error">{error}</div>;
@@ -118,7 +139,7 @@ export default function Dashboard() {
                   <td>{emp.employment_type || '-'}</td>
                   <td>{emp.externalName || '-'}</td>
                   <td className="actions-cell">
-                    <button className="btn btn-edit">Redigør</button>
+                    <button className="btn btn-edit" onClick={() => handleEditClick(emp)}>Redigør</button>
                     <button className="btn btn-delete">Slett</button>
                   </td>
                 </tr>
@@ -131,6 +152,13 @@ export default function Dashboard() {
           </tbody>
         </table>
       </div>
+
+      <EditEmployeeModal
+        employee={editingEmployee}
+        isOpen={isModalOpen}
+        onClose={handleModalClose}
+        onSave={handleSave}
+      />
     </div>
   );
 }
