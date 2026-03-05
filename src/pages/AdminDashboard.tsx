@@ -643,6 +643,9 @@ export default function AdminDashboard() {
                 <div className="employees-table">
                   <div className="table-header">
                     <div className="col-name">Navn</div>
+                    <div className="col-role">Rolle</div>
+                    <div className="col-project">Prosjekt</div>
+                    <div className="col-dept">Avdeling</div>
                     <div className="col-slack">Slack Navn</div>
                     <div className="col-external">Ekstern Navn</div>
                     <div className="col-tmg">TMG Navn</div>
@@ -650,6 +653,9 @@ export default function AdminDashboard() {
                   {employees.map((emp) => (
                     <div key={emp.id} className="table-row">
                       <div className="col-name">{emp.name}</div>
+                      <div className="col-role">{emp.role || '-'}</div>
+                      <div className="col-project">{emp.project || '-'}</div>
+                      <div className="col-dept">{emp.department || '-'}</div>
                       <div className="col-slack">{emp.slackName || '-'}</div>
                       <div className="col-external">{emp.externalName || '-'}</div>
                       <div className="col-tmg">{emp.tmgName || '-'}</div>

@@ -375,7 +375,7 @@
 .employees-table .table-header {
   background: #fffbf0;
   display: grid;
-  grid-template-columns: 200px 200px 250px 200px;
+  grid-template-columns: 180px 120px 140px 120px 150px 220px 180px;
   gap: 1rem;
   padding: 1rem;
   font-weight: 600;
@@ -388,7 +388,7 @@
 
 .employees-table .table-row {
   display: grid;
-  grid-template-columns: 200px 200px 250px 200px;
+  grid-template-columns: 180px 120px 140px 120px 150px 220px 180px;
   gap: 1rem;
   padding: 1rem;
   border-bottom: 1px solid #e2e8f0;
@@ -445,15 +445,33 @@
 }
 
 .col-external {
-  font-family: 'Courier New', monospace;
-  font-size: 0.85rem;
-  color: #667eea;
+  color: #333;
 }
 
 .col-tmg {
-  font-family: 'Courier New', monospace;
-  font-size: 0.85rem;
+  color: #333;
+}
+
+.col-role {
   color: #666;
+}
+
+.col-project {
+  color: #666;
+}
+
+.col-dept {
+  color: #667eea;
+  font-weight: 500;
+}
+
+.col-slack {
+  color: #666;
+}
+
+.col-name {
+  font-weight: 500;
+  color: #333;
 }
 
 .action-btn {
