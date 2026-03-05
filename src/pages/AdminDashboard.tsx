@@ -115,12 +115,18 @@ export default function AdminDashboard() {
       
       console.log('📊 Fetching from allente_kontraktsarkiv collection...');
       console.log('📦 Total documents found:', snapshot.size);
+      console.log('📋 Employee map loaded:', Object.keys(employeeMap).length, 'entries');
       
       const salgList: SalgRecord[] = [];
       snapshot.forEach((doc) => {
         const data = doc.data();
         const selger = data.selger || '';
         const avdeling = employeeMap[selger] || 'Ukjent';
+        
+        // Debug: Log first few records to see what's happening
+        if (salgList.length < 5) {
+          console.log('🔍 DEBUG - Selger:', selger, '→ Avdeling:', avdeling, '| Map has:', Object.keys(employeeMap).length, 'entries');
+        }
         
         // Try different column name variations for kundenummer
         const kundeNr = data.kundenummer || data.kundeNr || data.kundenr || 'N/A';
