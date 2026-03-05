@@ -50,6 +50,8 @@ export default function AdminDashboard() {
   const [loadingEmployees, setLoadingEmployees] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<{ show: boolean; employeeId?: string; employeeName?: string }>({ show: false });
   const [deleting, setDeleting] = useState(false);
+  const [editingEmployee, setEditingEmployee] = useState<any | null>(null);
+  const [showEditModal, setShowEditModal] = useState(false);
   const [uploadModal, setUploadModal] = useState<{ isOpen: boolean; fileType?: 'salg' | 'stats' | 'angring' }>({ isOpen: false });
   const [salgData, setSalgData] = useState<SalgRecord[]>([]);
   const [loadingSalg, setLoadingSalg] = useState(false);
@@ -135,6 +137,39 @@ export default function AdminDashboard() {
 
   const handleDeleteClick = (employeeId: string, employeeName: string) => {
     setDeleteConfirm({ show: true, employeeId, employeeName });
+  };
+
+  const handleEditClick = (employee: any) => {
+    setEditingEmployee({ ...employee });
+    setShowEditModal(true);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingEmployee) return;
+    
+    try {
+      const empRef = doc(db, 'employees', editingEmployee.id);
+      await updateDoc(empRef, {
+        name: editingEmployee.name || '',
+        role: editingEmployee.role || '',
+        project: editingEmployee.project || '',
+        department: editingEmployee.department || '',
+        slackName: editingEmployee.slackName || '',
+        externalName: editingEmployee.externalName || '',
+        tmgName: editingEmployee.tmgName || '',
+      });
+
+      // Update local state
+      setEmployees(employees.map((emp) => 
+        emp.id === editingEmployee.id ? editingEmployee : emp
+      ));
+      
+      setShowEditModal(false);
+      setEditingEmployee(null);
+    } catch (err) {
+      console.error('Error saving employee:', err);
+      alert('Feil ved lagring av ansatt');
+    }
   };
 
 
@@ -659,17 +694,17 @@ export default function AdminDashboard() {
                       <div className="col-actions">
                         <button 
                           className="action-btn edit-btn"
-                          onClick={() => {
-                            // TODO: Implement edit
-                          }}
-                          style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem' }}
+                          onClick={() => handleEditClick(emp)}
+                          style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem', padding: '0.25rem 0.5rem' }}
+                          title="Rediger"
                         >
                           ✏️
                         </button>
                         <button 
                           className="action-btn delete-btn"
                           onClick={() => handleDeleteClick(emp.id, emp.name)}
-                          style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem' }}
+                          style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem', padding: '0.25rem 0.5rem', color: '#dc2626' }}
+                          title="Slett"
                         >
                           🗑️
                         </button>
@@ -712,6 +747,100 @@ export default function AdminDashboard() {
                 disabled={deleting}
               >
                 {deleting ? 'Arkiverer...' : 'Ja, arkiver'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Employee Modal */}
+      {showEditModal && editingEmployee && (
+        <div className="modal-overlay">
+          <div className="edit-modal">
+            <h2>Rediger ansatt</h2>
+            <div className="edit-form">
+              <div className="form-group">
+                <label>Navn *</label>
+                <input 
+                  type="text"
+                  value={editingEmployee.name || ''}
+                  onChange={(e) => setEditingEmployee({ ...editingEmployee, name: e.target.value })}
+                />
+              </div>
+              <div className="form-group">
+                <label>Rolle</label>
+                <select 
+                  value={editingEmployee.role || ''}
+                  onChange={(e) => setEditingEmployee({ ...editingEmployee, role: e.target.value })}
+                >
+                  <option value="">Velg rolle</option>
+                  <option value="owner">Owner</option>
+                  <option value="teamlead">Teamlead</option>
+                  <option value="employee">Employee</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label>Prosjekt</label>
+                <input 
+                  type="text"
+                  value={editingEmployee.project || ''}
+                  onChange={(e) => setEditingEmployee({ ...editingEmployee, project: e.target.value })}
+                />
+              </div>
+              <div className="form-group">
+                <label>Avdeling</label>
+                <select 
+                  value={editingEmployee.department || ''}
+                  onChange={(e) => setEditingEmployee({ ...editingEmployee, department: e.target.value })}
+                >
+                  <option value="">Velg avdeling</option>
+                  <option value="OSL">OSL</option>
+                  <option value="KRS">KRS</option>
+                  <option value="Skien">Skien</option>
+                  <option value="MUON">MUON</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label>Slack Navn</label>
+                <input 
+                  type="text"
+                  value={editingEmployee.slackName || ''}
+                  onChange={(e) => setEditingEmployee({ ...editingEmployee, slackName: e.target.value })}
+                />
+              </div>
+              <div className="form-group">
+                <label>Ekstern Navn *</label>
+                <input 
+                  type="text"
+                  placeholder='f.eks "Mats / selger"'
+                  value={editingEmployee.externalName || ''}
+                  onChange={(e) => setEditingEmployee({ ...editingEmployee, externalName: e.target.value })}
+                />
+              </div>
+              <div className="form-group">
+                <label>TMG Navn</label>
+                <input 
+                  type="text"
+                  value={editingEmployee.tmgName || ''}
+                  onChange={(e) => setEditingEmployee({ ...editingEmployee, tmgName: e.target.value })}
+                />
+              </div>
+            </div>
+            <div className="modal-actions">
+              <button 
+                className="modal-btn cancel-btn"
+                onClick={() => {
+                  setShowEditModal(false);
+                  setEditingEmployee(null);
+                }}
+              >
+                Avbryt
+              </button>
+              <button 
+                className="modal-btn save-btn"
+                onClick={handleSaveEdit}
+              >
+                Lagre
               </button>
             </div>
           </div>
