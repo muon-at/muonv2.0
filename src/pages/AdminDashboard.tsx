@@ -276,6 +276,16 @@ export default function AdminDashboard() {
     }
   };
 
+  const convertDateFormat = (dateStr: string): string => {
+    // Convert DD.MM.YYYY to YYYY-MM-DD
+    if (!dateStr) return '';
+    const parts = dateStr.split('.');
+    if (parts.length === 3) {
+      return `${parts[2]}-${parts[1]}-${parts[0]}`;
+    }
+    return dateStr;
+  };
+
   const getFilteredSalgData = () => {
     return salgData.filter((record) => {
       // Selger filter
@@ -298,13 +308,16 @@ export default function AdminDashboard() {
         return false;
       }
 
+      // Convert record date from DD.MM.YYYY to YYYY-MM-DD for comparison
+      const recordDate = convertDateFormat(record.dato || '');
+
       // Dato from filter
-      if (filters.datoFrom && record.dato && record.dato < filters.datoFrom) {
+      if (filters.datoFrom && recordDate && recordDate < filters.datoFrom) {
         return false;
       }
 
       // Dato to filter
-      if (filters.datoTo && record.dato && record.dato > filters.datoTo) {
+      if (filters.datoTo && recordDate && recordDate > filters.datoTo) {
         return false;
       }
 
