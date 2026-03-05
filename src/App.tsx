@@ -1,4 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './lib/authContext';
+import { ProtectedRoute } from './components/ProtectedRoute';
 import Login from './pages/Login';
 import MinSide from './pages/MinSide';
 import Teamleder from './pages/Teamleder';
@@ -8,15 +10,45 @@ import './App.css';
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/min-side" element={<MinSide />} />
-        <Route path="/teamleder" element={<Teamleder />} />
-        <Route path="/admin" element={<Admin />} />
-        <Route path="/admin-dashboard" element={<AdminDashboard />} />
-      </Routes>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<Login />} />
+          <Route 
+            path="/min-side" 
+            element={
+              <ProtectedRoute requiredRole="employee">
+                <MinSide />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/teamleder" 
+            element={
+              <ProtectedRoute requiredRole="teamlead">
+                <Teamleder />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin" 
+            element={
+              <ProtectedRoute requiredRole="owner">
+                <Admin />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin-dashboard" 
+            element={
+              <ProtectedRoute requiredRole="owner">
+                <AdminDashboard />
+              </ProtectedRoute>
+            } 
+          />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }
 

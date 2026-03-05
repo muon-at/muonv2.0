@@ -1,0 +1,32 @@
+import { Navigate } from 'react-router-dom';
+import { useAuth } from '../lib/authContext';
+
+interface ProtectedRouteProps {
+  children: React.ReactNode;
+  requiredRole?: 'owner' | 'teamlead' | 'employee';
+}
+
+export function ProtectedRoute({ children, requiredRole = 'employee' }: ProtectedRouteProps) {
+  const { user, isAuthenticated } = useAuth();
+
+  if (!isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
+
+  if (!user) {
+    return <Navigate to="/" replace />;
+  }
+
+  const roleHierarchy: { [key: string]: number } = {
+    owner: 3,
+    teamlead: 2,
+    employee: 1,
+  };
+
+  // Check if user has required role or higher
+  if (roleHierarchy[user.role] < roleHierarchy[requiredRole]) {
+    return <Navigate to="/min-side" replace />;
+  }
+
+  return <>{children}</>;
+}

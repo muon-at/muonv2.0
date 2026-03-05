@@ -61,6 +61,18 @@
   transform: translateY(-2px);
 }
 
+.logout-btn-header {
+  background: rgba(220, 38, 38, 0.8);
+  color: white;
+  border: none;
+}
+
+.logout-btn-header:hover {
+  background: #dc2626;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+
 .admin-btn-header {
   background: rgba(255, 255, 255, 0.9);
   color: #667eea;

@@ -1,8 +1,12 @@
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../lib/authContext';
 import '../styles/MinSide.css';
 
 export default function MinSide() {
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
+
+  const canAccessTeamleder = user?.role === 'owner' || user?.role === 'teamlead';
 
   // Mock data - will be replaced with Firestore later
   const userData = {
@@ -51,9 +55,16 @@ export default function MinSide() {
           </div>
         </div>
 
-        <button className="nav-button-minside" onClick={() => navigate('/teamleder')}>
-          👥 Teamleder →
-        </button>
+        <div className="header-buttons">
+          {canAccessTeamleder && (
+            <button className="nav-button-minside" onClick={() => navigate('/teamleder')}>
+              👥 Teamleder →
+            </button>
+          )}
+          <button className="logout-button-minside" onClick={logout}>
+            Logg ut
+          </button>
+        </div>
       </div>
 
       {/* Main Content */}

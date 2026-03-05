@@ -1,8 +1,12 @@
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../lib/authContext';
 import '../styles/Teamleder.css';
 
 export default function Teamleder() {
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
+
+  const isOwner = user?.role === 'owner';
 
   // Mock data - will be replaced with Firestore later
   const kpis = [
@@ -61,11 +65,19 @@ export default function Teamleder() {
           >
             ← Min Side
           </button>
+          {isOwner && (
+            <button 
+              className="nav-button admin-btn-header"
+              onClick={() => navigate('/admin-dashboard')}
+            >
+              Admin →
+            </button>
+          )}
           <button 
-            className="nav-button admin-btn-header"
-            onClick={() => navigate('/admin-dashboard')}
+            className="nav-button logout-btn-header"
+            onClick={logout}
           >
-            Admin →
+            Logg ut
           </button>
         </div>
       </div>

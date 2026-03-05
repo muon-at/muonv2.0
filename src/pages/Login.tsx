@@ -1,11 +1,14 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../lib/authContext';
 import '../styles/Login.css';
 
 export default function Login() {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [selectedRole, setSelectedRole] = useState<'owner' | 'teamlead' | 'employee'>('employee');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -23,9 +26,7 @@ export default function Login() {
     // Mock login - in real app, this would validate against backend
     setTimeout(() => {
       if (email && password) {
-        // Store auth state (in real app, use proper auth)
-        localStorage.setItem('auth', 'true');
-        localStorage.setItem('user_email', email);
+        login(email, password, selectedRole);
         navigate('/min-side');
       } else {
         setError('Feil e-post eller passord');
@@ -70,6 +71,42 @@ export default function Login() {
               placeholder="••••••••"
               disabled={loading}
             />
+          </div>
+
+          <div className="form-group">
+            <label>Rolle (for demo)</label>
+            <div className="role-selector">
+              <label className="role-option">
+                <input
+                  type="radio"
+                  value="owner"
+                  checked={selectedRole === 'owner'}
+                  onChange={(e) => setSelectedRole(e.target.value as 'owner' | 'teamlead' | 'employee')}
+                  disabled={loading}
+                />
+                <span className="role-label">👑 Owner</span>
+              </label>
+              <label className="role-option">
+                <input
+                  type="radio"
+                  value="teamlead"
+                  checked={selectedRole === 'teamlead'}
+                  onChange={(e) => setSelectedRole(e.target.value as 'owner' | 'teamlead' | 'employee')}
+                  disabled={loading}
+                />
+                <span className="role-label">👔 Teamlead</span>
+              </label>
+              <label className="role-option">
+                <input
+                  type="radio"
+                  value="employee"
+                  checked={selectedRole === 'employee'}
+                  onChange={(e) => setSelectedRole(e.target.value as 'owner' | 'teamlead' | 'employee')}
+                  disabled={loading}
+                />
+                <span className="role-label">👤 Employee</span>
+              </label>
+            </div>
           </div>
 
           <button type="submit" className="login-btn" disabled={loading}>
