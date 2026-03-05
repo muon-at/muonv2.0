@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { collection, getDocs, doc, updateDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import FileUploadModal from '../components/FileUploadModal';
 import '../styles/AdminDashboard.css';
 
 interface Employee {
@@ -25,6 +26,7 @@ export default function AdminDashboard() {
   const [loadingEmployees, setLoadingEmployees] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<{ show: boolean; employeeId?: string; employeeName?: string }>({ show: false });
   const [deleting, setDeleting] = useState(false);
+  const [uploadModal, setUploadModal] = useState<{ isOpen: boolean; fileType?: 'salg' | 'stats' | 'angring' }>({ isOpen: false });
 
   // Fetch employees when Organisasjon tab is opened
   useEffect(() => {
@@ -137,6 +139,39 @@ export default function AdminDashboard() {
     setDeleteConfirm({ show: false });
   };
 
+  const handleUploadClick = (fileType: 'salg' | 'stats' | 'angring') => {
+    setUploadModal({ isOpen: true, fileType });
+  };
+
+  const handleFileUpload = async (file: File, fileType: string) => {
+    // Mock upload - in real app, would save to Firestore or send to backend
+    console.log(`Uploading ${fileType} file:`, file.name, file.size);
+    
+    // Simulate upload delay
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    
+    // In real app, you would:
+    // 1. Parse the file (CSV, Excel, JSON)
+    // 2. Validate the data
+    // 3. Save to Firestore or send to backend
+    // 4. Return success/error
+    
+    console.log('File uploaded successfully');
+  };
+
+  const getUploadModalTitle = () => {
+    switch (uploadModal.fileType) {
+      case 'salg':
+        return '📤 Last opp Salg';
+      case 'stats':
+        return '📈 Last opp Stats';
+      case 'angring':
+        return '↩️ Last opp Angring';
+      default:
+        return 'Last opp fil';
+    }
+  };
+
   return (
     <div className="admin-dashboard-container">
       {/* Header */}
@@ -183,15 +218,27 @@ export default function AdminDashboard() {
                 <h2>Allente</h2>
               </div>
               <div className="upload-buttons">
-                {uploadButtons.map((btn, idx) => (
-                  <button 
-                    key={idx} 
-                    className="upload-btn"
-                    style={{ borderColor: btn.color, color: btn.color }}
-                  >
-                    {btn.icon} {btn.label}
-                  </button>
-                ))}
+                <button 
+                  className="upload-btn"
+                  style={{ borderColor: uploadButtons[0].color, color: uploadButtons[0].color }}
+                  onClick={() => handleUploadClick('salg')}
+                >
+                  {uploadButtons[0].icon} {uploadButtons[0].label}
+                </button>
+                <button 
+                  className="upload-btn"
+                  style={{ borderColor: uploadButtons[1].color, color: uploadButtons[1].color }}
+                  onClick={() => handleUploadClick('stats')}
+                >
+                  {uploadButtons[1].icon} {uploadButtons[1].label}
+                </button>
+                <button 
+                  className="upload-btn"
+                  style={{ borderColor: uploadButtons[2].color, color: uploadButtons[2].color }}
+                  onClick={() => handleUploadClick('angring')}
+                >
+                  {uploadButtons[2].icon} {uploadButtons[2].label}
+                </button>
               </div>
             </div>
 
@@ -351,6 +398,15 @@ export default function AdminDashboard() {
           </div>
         </div>
       )}
+
+      {/* File Upload Modal */}
+      <FileUploadModal
+        isOpen={uploadModal.isOpen}
+        title={getUploadModalTitle()}
+        fileType={uploadModal.fileType || 'salg'}
+        onClose={() => setUploadModal({ isOpen: false })}
+        onUpload={handleFileUpload}
+      />
     </div>
   );
 }

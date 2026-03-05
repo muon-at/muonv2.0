@@ -1,0 +1,268 @@
+.file-upload-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.file-upload-modal {
+  background: white;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.upload-header {
+  background: #f8fafc;
+  padding: 1.5rem;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.upload-header h2 {
+  margin: 0;
+  font-size: 1.3rem;
+  color: #1e293b;
+  font-weight: 600;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #64748b;
+  transition: color 0.2s ease;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-btn:hover {
+  color: #1e293b;
+}
+
+.upload-body {
+  padding: 2rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.success-message {
+  background: #dcfce7;
+  color: #166534;
+  padding: 1rem;
+  border-radius: 8px;
+  border-left: 4px solid #16a34a;
+  font-weight: 500;
+  text-align: center;
+}
+
+.error-message {
+  background: #fee2e2;
+  color: #991b1b;
+  padding: 1rem;
+  border-radius: 8px;
+  border-left: 4px solid #dc2626;
+  font-weight: 500;
+}
+
+.file-input-wrapper {
+  flex: 1;
+}
+
+.file-label {
+  cursor: pointer;
+  display: block;
+}
+
+.file-drop-area {
+  border: 2px dashed #cbd5e1;
+  border-radius: 8px;
+  padding: 2rem;
+  text-align: center;
+  transition: all 0.2s ease;
+  background: #f8fafc;
+}
+
+.file-label:hover .file-drop-area {
+  border-color: #667eea;
+  background: #f0f4f8;
+}
+
+.file-icon {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.file-text {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.95rem;
+  color: #334155;
+  font-weight: 500;
+}
+
+.file-subtext {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #94a3b8;
+}
+
+.hidden-file-input {
+  display: none;
+}
+
+.file-info {
+  background: #fffbf0;
+  border: 1px solid #fed7aa;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.file-info p {
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+  color: #92400e;
+}
+
+.file-info p:first-child {
+  margin-top: 0;
+}
+
+.file-info p:last-child {
+  margin-bottom: 0;
+}
+
+.file-info strong {
+  color: #7c2d12;
+}
+
+.upload-footer {
+  display: flex;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-top: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+
+.btn-cancel {
+  flex: 1;
+  padding: 0.75rem 1.5rem;
+  background: #e2e8f0;
+  color: #334155;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+}
+
+.btn-cancel:hover:not(:disabled) {
+  background: #cbd5e1;
+}
+
+.btn-cancel:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-upload {
+  flex: 1;
+  padding: 0.75rem 1.5rem;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+}
+
+.btn-upload:hover:not(:disabled) {
+  background: #5568d3;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.btn-upload:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 480px) {
+  .file-upload-modal {
+    width: 95%;
+    max-width: 100%;
+  }
+
+  .upload-header {
+    padding: 1rem;
+  }
+
+  .upload-header h2 {
+    font-size: 1.1rem;
+  }
+
+  .upload-body {
+    padding: 1.5rem;
+  }
+
+  .file-drop-area {
+    padding: 1.5rem;
+  }
+
+  .file-icon {
+    font-size: 2rem;
+  }
+
+  .upload-footer {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .btn-cancel,
+  .btn-upload {
+    width: 100%;
+  }
+}
