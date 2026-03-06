@@ -98,18 +98,21 @@ export default function Teamleder() {
         });
         setDepartmentData(deptMap);
 
-        // Top 5 sellers
+        // All sellers with department
         const sellerMap: any = {};
         contracts.forEach(c => {
           const sellerKey = c.selger || 'Unknown';
-          sellerMap[sellerKey] = (sellerMap[sellerKey] || 0) + 1;
+          const dept = c.avdeling || 'Ukjent';
+          if (!sellerMap[sellerKey]) {
+            sellerMap[sellerKey] = { count: 0, department: dept };
+          }
+          sellerMap[sellerKey].count += 1;
         });
 
         const sellers = Object.entries(sellerMap)
-          .map(([name, count]) => ({ name, count }))
+          .map(([name, data]: any) => ({ name, count: data.count, department: data.department }))
           .sort((a, b) => (b.count as any) - (a.count as any))
-          .slice(0, 5)
-          .map((s, idx) => ({ rank: idx + 1, name: s.name, value: s.count }));
+          .map((s, idx) => ({ rank: idx + 1, name: s.name, value: s.count, department: s.department }));
 
         setTopSellers(sellers);
       } catch (err) {
@@ -182,25 +185,25 @@ export default function Teamleder() {
     {
       name: 'KRS',
       stats: [
-        { label: 'Dag', current: departmentData.KRS?.today || 0, target: targetData.KRS?.dag || 14 },
-        { label: 'Uke', current: departmentData.KRS?.week || 0, target: targetData.KRS?.uke || 70 },
-        { label: 'Måned', current: departmentData.KRS?.month || 0, target: targetData.KRS?.måned || null },
+        { label: 'Dag', current: departmentData.KRS?.today || 0, target: (targetData.KRS?.dag ? parseInt(targetData.KRS.dag) : 0) || 0 },
+        { label: 'Uke', current: departmentData.KRS?.week || 0, target: (targetData.KRS?.uke ? parseInt(targetData.KRS.uke) : 0) || 0 },
+        { label: 'Måned', current: departmentData.KRS?.month || 0, target: (targetData.KRS?.måned ? parseInt(targetData.KRS.måned) : 0) || 0 },
       ],
     },
     {
       name: 'OSL',
       stats: [
-        { label: 'Dag', current: departmentData.OSL?.today || 0, target: targetData.OSL?.dag || 14 },
-        { label: 'Uke', current: departmentData.OSL?.week || 0, target: targetData.OSL?.uke || 70 },
-        { label: 'Måned', current: departmentData.OSL?.month || 0, target: targetData.OSL?.måned || null },
+        { label: 'Dag', current: departmentData.OSL?.today || 0, target: (targetData.OSL?.dag ? parseInt(targetData.OSL.dag) : 0) || 0 },
+        { label: 'Uke', current: departmentData.OSL?.week || 0, target: (targetData.OSL?.uke ? parseInt(targetData.OSL.uke) : 0) || 0 },
+        { label: 'Måned', current: departmentData.OSL?.month || 0, target: (targetData.OSL?.måned ? parseInt(targetData.OSL.måned) : 0) || 0 },
       ],
     },
     {
       name: 'Skien',
       stats: [
-        { label: 'Dag', current: departmentData.Skien?.today || 0, target: targetData.Skien?.dag || 10 },
-        { label: 'Uke', current: departmentData.Skien?.week || 0, target: targetData.Skien?.uke || 50 },
-        { label: 'Måned', current: departmentData.Skien?.month || 0, target: targetData.Skien?.måned || null },
+        { label: 'Dag', current: departmentData.Skien?.today || 0, target: (targetData.Skien?.dag ? parseInt(targetData.Skien.dag) : 0) || 0 },
+        { label: 'Uke', current: departmentData.Skien?.week || 0, target: (targetData.Skien?.uke ? parseInt(targetData.Skien.uke) : 0) || 0 },
+        { label: 'Måned', current: departmentData.Skien?.month || 0, target: (targetData.Skien?.måned ? parseInt(targetData.Skien.måned) : 0) || 0 },
       ],
     },
   ];
@@ -305,16 +308,18 @@ export default function Teamleder() {
           ))}
         </div>
 
-        {/* Top 5 Sellers */}
+        {/* All Sellers */}
         <div className="top-sellers-card">
           <div className="top-sellers-header">
-            <h3>🏆 Topp 5 Sælgere</h3>
+            <h3>🏆 Alle Sælgere</h3>
           </div>
           <div className="sellers-list">
             {topSellers.map((seller: any, idx: number) => (
               <div key={idx} className="seller-row">
                 <div className="seller-rank">{seller.rank}</div>
-                <div className="seller-name">{seller.name}</div>
+                <div className="seller-name">
+                  {seller.name} <span style={{ color: '#999', fontSize: '0.85rem' }}>({seller.department})</span>
+                </div>
                 <div className="seller-value" style={{ color: '#C86D4D' }}>
                   {seller.value}
                 </div>
