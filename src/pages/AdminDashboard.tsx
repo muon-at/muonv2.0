@@ -184,6 +184,18 @@ export default function AdminDashboard() {
             const months = Object.values(stats.months);
             const bestMonth = months.length > 0 ? Math.max(...months) : 0;
             
+            // Debug log
+            if (selger.includes('Ajay')) {
+              console.log('🔍 Debug Ajay:', {
+                weeksObj: stats.weeks,
+                weeksArray: weeks,
+                bestWeek,
+                monthsObj: stats.months,
+                monthsArray: months,
+                bestMonth,
+              });
+            }
+            
             return {
               selger,
               month: stats.month,
