@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { collection, getDocs, doc, updateDoc, addDoc, getDoc, setDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, updateDoc, addDoc, getDoc, setDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import FileUploadModal from '../components/FileUploadModal';
 import '../styles/AdminDashboard.css';
@@ -370,6 +370,22 @@ export default function AdminDashboard() {
           
           // Calculate threshold badges
           try {
+            const mvpRef = collection(db, 'allente_badge_earners');
+            
+            // CLEANUP: Remove old threshold badges (from previous 5/15/20 system)
+            const allBadges = await getDocs(mvpRef);
+            const oldBadges = ['SALG_20', 'SALG_15']; // Old thresholds to remove
+            
+            // Delete old threshold badges
+            const deletePromises: Promise<void>[] = [];
+            allBadges.forEach((badgeDoc) => {
+              const data = badgeDoc.data();
+              if (oldBadges.includes(data.badge)) {
+                deletePromises.push(deleteDoc(badgeDoc.ref));
+              }
+            });
+            await Promise.all(deletePromises);
+            
             // Build best day per seller
             const dailyStats: { [key: string]: { [key: string]: number } } = {};
             const bestDayPerSeller: { [key: string]: { sales: number; date: string } } = {};
@@ -406,14 +422,7 @@ export default function AdminDashboard() {
               }
             }
             
-            // Debug: Log best day for each seller
-            console.log('📊 BEST DAY PER SELLER:');
-            Object.entries(bestDayPerSeller).forEach(([selger, data]: [string, any]) => {
-              console.log(`  ${selger}: ${data.sales} salg på ${data.date}`);
-            });
-            
-            const mvpRef = collection(db, 'allente_badge_earners');
-            const allBadges = await getDocs(mvpRef);
+            const freshBadges = await getDocs(mvpRef);
             
             const thresholdEarners: { [key: string]: Set<string> } = {
               FØRSTE_SALGET: new Set(),
@@ -422,9 +431,9 @@ export default function AdminDashboard() {
               SALG_15: new Set(),
             };
             
-            // Load existing threshold badge winners
-            allBadges.forEach((doc) => {
-              const data = doc.data();
+            // Load existing threshold badge winners (after cleanup)
+            freshBadges.forEach((badgeDoc) => {
+              const data = badgeDoc.data();
               if (thresholdEarners[data.badge]) {
                 thresholdEarners[data.badge].add(data.selger);
               }
