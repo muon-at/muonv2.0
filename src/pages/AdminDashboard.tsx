@@ -557,23 +557,22 @@ export default function AdminDashboard() {
       setLoadingProdukter(true);
       const loadProdukterData = async () => {
         try {
-          // Get unique Produkt + Choosen Platform combinations from contracts
+          // Get unique Produkt + Plattform combinations from contracts
           const contractsRef = collection(db, 'allente_kontraktsarkiv');
           const contractsSnapshot = await getDocs(contractsRef);
           const produkterMap = new Map<string, any>();
           
-          const contracts = contractsSnapshot.docs;
-          contracts.forEach((doc) => {
+          contractsSnapshot.docs.forEach((doc) => {
             const data = doc.data();
             const produkt = data.produkt || '';
-            // Hent "Choosen Platform" fra arkivet som separat felt
-            const chosenPlattform = data['Choosen Platform'] || 'Ukjent';
-            const key = `${produkt}|${chosenPlattform}`;
+            // Prøv ulike felt-navn for plattform
+            const plattform = data['Choosen Platform'] || data.plattform || 'Ukjent';
+            const key = `${produkt}|${plattform}`;
             
             if (produkt.trim() && !produkterMap.has(key)) {
               produkterMap.set(key, {
                 navn: produkt,
-                plattform: chosenPlattform,
+                plattform: plattform,
                 cpo: '',
                 provisjon: '',
               });
@@ -586,7 +585,7 @@ export default function AdminDashboard() {
           
           cpoSnapshot.forEach((doc) => {
             const data = doc.data();
-            // Update all matching produkter with same navn
+            // Update all matching produkter
             produkterMap.forEach((value) => {
               if (value.navn === data.navn) {
                 value.cpo = data.cpo || '';
@@ -1706,8 +1705,8 @@ export default function AdminDashboard() {
             {activeAllenteTab === 'produkt' && (
               <div className="tab-content">
                 <div className="content-title">
-                  <h3>Produkter</h3>
-                  <p className="content-subtitle">Administrer CPO og Provisjon per produkt</p>
+                  <h3>Produkter med Plattform</h3>
+                  <p className="content-subtitle">Oversikt over ulike produkter og tilhørende plattformer fra arkivet</p>
                 </div>
 
                 {loadingProdukter ? (
@@ -1726,7 +1725,7 @@ export default function AdminDashboard() {
                       {produkterData.map((produkt, idx) => (
                         <div key={idx} className="table-row">
                           <div className="col-produktnavn">{produkt.navn}</div>
-                          <div className="col-plattform" style={{ fontWeight: '600', color: '#667eea' }}>
+                          <div className="col-plattform" style={{ fontWeight: '600', color: '#667eea', textAlign: 'center' }}>
                             {produkt.plattform}
                           </div>
                           <div className="col-cpo">
@@ -1744,6 +1743,7 @@ export default function AdminDashboard() {
                                 padding: '0.5rem',
                                 border: '1px solid #e2e8f0',
                                 borderRadius: '4px',
+                                color: '#333',
                               }}
                             />
                           </div>
@@ -1762,6 +1762,7 @@ export default function AdminDashboard() {
                                 padding: '0.5rem',
                                 border: '1px solid #e2e8f0',
                                 borderRadius: '4px',
+                                color: '#333',
                               }}
                             />
                           </div>
@@ -1782,16 +1783,16 @@ export default function AdminDashboard() {
                         cursor: 'pointer',
                       }}
                     >
-                      💾 Lagre alle produkter
+                      💾 Lagre CPO og Provisjon
                     </button>
 
                     <p style={{ marginTop: '1.5rem', color: '#999', fontSize: '0.9rem' }}>
-                      Total: {produkterData.length} produkter (fra {salgData.length} kontrakter)
+                      Viser {produkterData.length} unike Produkt + Plattform kombinasjoner
                     </p>
                   </>
                 ) : (
                   <p style={{ textAlign: 'center', color: '#999', padding: '2rem' }}>
-                    Ingen produkter funnet. Hent kontrakter først under SALG-tabell.
+                    Ingen produkter funnet. Hent kontrakter først.
                   </p>
                 )}
               </div>
