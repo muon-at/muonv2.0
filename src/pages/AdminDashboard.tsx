@@ -562,19 +562,11 @@ export default function AdminDashboard() {
           const contractsSnapshot = await getDocs(contractsRef);
           const produkterMap = new Map<string, any>();
           
-          // Debug: Log first contract to see all field names
-          const firstDoc = contractsSnapshot.docs[0];
-          if (firstDoc) {
-            const firstData = firstDoc.data();
-            console.log('📊 FIRST CONTRACT FULL DATA:', firstData);
-            console.log('🔍 All keys:', Object.keys(firstData));
-          }
-          
           contractsSnapshot.docs.forEach((doc) => {
             const data = doc.data();
             const produkt = data.produkt || '';
-            // Prøv ulike felt-navn for plattform
-            const plattform = data['Choosen Platform'] || data.chosenPlatform || data.plattform || 'Ukjent';
+            // Felt heter "platform" (English)
+            const plattform = data.platform || 'Ukjent';
             const key = `${produkt}|${plattform}`;
             
             if (produkt.trim() && !produkterMap.has(key)) {
