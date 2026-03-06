@@ -294,10 +294,44 @@ export default function Chat() {
 
   const insertGif = (gif: any) => {
     const gifUrl = gif.images.fixed_height.url;
-    sendMessage(`[GIF] ${gifUrl}`);
+    insertGifAsAttachment(gifUrl);
     setIsPickingGif(false);
     setGifSearch('');
     setGifs([]);
+  };
+
+  const insertGifAsAttachment = async (gifUrl: string) => {
+    try {
+      if (selectedChannel) {
+        const messagesRef = collection(db, 'chat_channels', selectedChannel, 'messages');
+        await addDoc(messagesRef, {
+          sender: user?.name || 'Unknown',
+          content: '🎬 Shared a GIF',
+          timestamp: Date.now(),
+          attachments: [
+            {
+              type: 'gif',
+              url: gifUrl,
+            }
+          ],
+        });
+      } else if (selectedDM) {
+        const messagesRef = collection(db, 'chat_dms', selectedDM, 'messages');
+        await addDoc(messagesRef, {
+          sender: user?.name || 'Unknown',
+          content: '🎬 Shared a GIF',
+          timestamp: Date.now(),
+          attachments: [
+            {
+              type: 'gif',
+              url: gifUrl,
+            }
+          ],
+        });
+      }
+    } catch (err) {
+      console.error('Error inserting GIF:', err);
+    }
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
