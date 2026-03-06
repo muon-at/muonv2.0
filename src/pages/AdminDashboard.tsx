@@ -90,15 +90,15 @@ export default function AdminDashboard() {
   const [thresholdBadges, setThresholdBadges] = useState<{ [key: string]: Set<string> }>({
     FØRSTE_SALGET: new Set(),
     SALG_5: new Set(),
-    SALG_10: new Set(),
     SALG_15: new Set(),
+    SALG_20: new Set(),
   });
 
   const thresholdBadgesList = [
     { badge: 'FØRSTE_SALGET', emoji: '🎓', type: 'total', threshold: 1, label: 'Første salget' },
     { badge: 'SALG_5', emoji: '🚀', type: 'day', threshold: 5, label: '5 Salg på en dag' },
-    { badge: 'SALG_10', emoji: '🔥', type: 'day', threshold: 10, label: '10 Salg på en dag' },
-    { badge: 'SALG_15', emoji: '💎', type: 'day', threshold: 15, label: '15 Salg på en dag' },
+    { badge: 'SALG_15', emoji: '🔥', type: 'day', threshold: 15, label: '15 Salg på en dag' },
+    { badge: 'SALG_20', emoji: '💎', type: 'day', threshold: 20, label: '20 Salg på en dag' },
   ];
   const [filters, setFilters] = useState<KontraktsarkivFilters>({
     selger: '',
@@ -372,9 +372,9 @@ export default function AdminDashboard() {
           try {
             const mvpRef = collection(db, 'allente_badge_earners');
             
-            // CLEANUP: Remove old threshold badges (from previous 5/15/20 system)
+            // CLEANUP: Remove old threshold badges (from 5/10/15 system)
             const allBadges = await getDocs(mvpRef);
-            const oldBadges = ['SALG_20', 'SALG_15']; // Old thresholds to remove
+            const oldBadges = ['SALG_10']; // Old thresholds to remove
             
             // Delete old threshold badges
             const deletePromises: Promise<void>[] = [];
@@ -422,13 +422,19 @@ export default function AdminDashboard() {
               }
             }
             
+            // Debug: Show best day per seller in console
+            console.log('📊 BEST DAY PER SELLER:');
+            Object.entries(bestDayPerSeller).forEach(([selger, data]: [string, any]) => {
+              console.log(`  ${selger}: ${data.sales} salg på ${data.date}`);
+            });
+            
             const freshBadges = await getDocs(mvpRef);
             
             const thresholdEarners: { [key: string]: Set<string> } = {
               FØRSTE_SALGET: new Set(),
               SALG_5: new Set(),
-              SALG_10: new Set(),
               SALG_15: new Set(),
+              SALG_20: new Set(),
             };
             
             // Load existing threshold badge winners (after cleanup)
@@ -1507,8 +1513,8 @@ export default function AdminDashboard() {
                           {mvpDagWinners.has(row.selger) ? '⭐' : ''}
                           {thresholdBadges.FØRSTE_SALGET.has(row.selger) ? '🎓' : ''}
                           {thresholdBadges.SALG_5.has(row.selger) ? '🚀' : ''}
-                          {thresholdBadges.SALG_10.has(row.selger) ? '🔥' : ''}
-                          {thresholdBadges.SALG_15.has(row.selger) ? '💎' : ''}
+                          {thresholdBadges.SALG_15.has(row.selger) ? '🔥' : ''}
+                          {thresholdBadges.SALG_20.has(row.selger) ? '💎' : ''}
                         </div>
                       </div>
                     ))}
