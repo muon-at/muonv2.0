@@ -292,6 +292,12 @@
   border-radius: 6px;
   font-family: inherit;
   font-size: 0.9rem;
+  color: #fff;
+  background: #2d3748;
+}
+
+.gif-search-input::placeholder {
+  color: #999;
 }
 
 .gif-search-input:focus {
@@ -364,10 +370,15 @@
   border-radius: 6px;
   font-family: inherit;
   font-size: 0.95rem;
-  color: #333;
+  color: #fff;
+  background: #2d3748;
   resize: none;
   max-height: 100px;
   min-height: 40px;
+}
+
+.message-input::placeholder {
+  color: #999;
 }
 
 .message-input:focus {
