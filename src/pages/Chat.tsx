@@ -28,6 +28,7 @@ interface Message {
   sender: string;
   content: string;
   timestamp: number;
+  editedAt?: number;
   reactions?: Record<string, string[]>;
   replyTo?: {
     id: string;
@@ -68,6 +69,8 @@ export default function Chat() {
   const [isChannelModalOpen, setIsChannelModalOpen] = useState(false);
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
   const [emojiPickerMessageId, setEmojiPickerMessageId] = useState<string | null>(null);
+  const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
+  const [editingMessageContent, setEditingMessageContent] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
@@ -491,6 +494,33 @@ export default function Chat() {
       }
     } catch (err) {
       console.error('Error deleting message:', err);
+    }
+  };
+
+  const editMessage = async (messageId: string, newContent: string) => {
+    if (!newContent.trim()) {
+      alert('Message cannot be empty');
+      return;
+    }
+
+    try {
+      if (selectedChannel) {
+        const msgRef = doc(db, 'chat_channels', selectedChannel, 'messages', messageId);
+        await updateDoc(msgRef, {
+          content: newContent,
+          editedAt: new Date().getTime(),
+        });
+      } else if (selectedDM) {
+        const msgRef = doc(db, 'chat_dms', selectedDM, 'messages', messageId);
+        await updateDoc(msgRef, {
+          content: newContent,
+          editedAt: new Date().getTime(),
+        });
+      }
+      setEditingMessageId(null);
+      setEditingMessageContent('');
+    } catch (err) {
+      console.error('Error editing message:', err);
     }
   };
 
@@ -959,19 +989,83 @@ export default function Chat() {
                         <span className="reply-content">{msg.replyTo.content.substring(0, 50)}...</span>
                       </div>
                     )}
-                    <div className="message-header">
-                      <span className="message-sender">{msg.sender}</span>
-                      <span className="message-content" style={{
-                        color: msg.isDeleted ? '#999' : '#333',
-                        fontStyle: msg.isDeleted ? 'italic' : 'normal',
-                        opacity: msg.isDeleted ? 0.7 : 1,
-                      }}>
-                        {msg.content}
-                      </span>
-                      <span className="message-time">
-                        {new Date(msg.timestamp).toLocaleTimeString()}
-                      </span>
-                    </div>
+                    {editingMessageId === msg.id ? (
+                      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '0.5rem' }}>
+                        <input
+                          type="text"
+                          value={editingMessageContent}
+                          onChange={(e) => setEditingMessageContent(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              editMessage(msg.id, editingMessageContent);
+                            } else if (e.key === 'Escape') {
+                              setEditingMessageId(null);
+                              setEditingMessageContent('');
+                            }
+                          }}
+                          style={{
+                            flex: 1,
+                            padding: '0.5rem',
+                            background: 'rgba(102, 126, 234, 0.2)',
+                            border: '1px solid #667eea',
+                            borderRadius: '4px',
+                            color: '#fff',
+                            fontFamily: 'inherit',
+                          }}
+                          autoFocus
+                        />
+                        <button
+                          onClick={() => editMessage(msg.id, editingMessageContent)}
+                          style={{
+                            padding: '0.5rem 1rem',
+                            background: '#667eea',
+                            border: 'none',
+                            borderRadius: '4px',
+                            color: 'white',
+                            cursor: 'pointer',
+                            fontSize: '0.85rem',
+                          }}
+                        >
+                          Save
+                        </button>
+                        <button
+                          onClick={() => {
+                            setEditingMessageId(null);
+                            setEditingMessageContent('');
+                          }}
+                          style={{
+                            padding: '0.5rem 1rem',
+                            background: '#555',
+                            border: 'none',
+                            borderRadius: '4px',
+                            color: 'white',
+                            cursor: 'pointer',
+                            fontSize: '0.85rem',
+                          }}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="message-header">
+                        <span className="message-sender">{msg.sender}</span>
+                        <span className="message-content" style={{
+                          color: msg.isDeleted ? '#999' : '#333',
+                          fontStyle: msg.isDeleted ? 'italic' : 'normal',
+                          opacity: msg.isDeleted ? 0.7 : 1,
+                        }}>
+                          {msg.content}
+                        </span>
+                        {msg.editedAt && (
+                          <span style={{ fontSize: '0.7rem', color: '#999', marginLeft: '0.5rem' }}>
+                            (edited)
+                          </span>
+                        )}
+                        <span className="message-time">
+                          {new Date(msg.timestamp).toLocaleTimeString()}
+                        </span>
+                      </div>
+                    )}
                     {msg.attachments && msg.attachments.length > 0 && (
                       <div className="message-attachments">
                         {msg.attachments.map((att, idx) => (
@@ -1022,6 +1116,18 @@ export default function Chat() {
                       >
                         ➕
                       </button>
+                      {msg.sender === user?.name && !msg.isDeleted && (
+                        <button
+                          className="reply-button"
+                          onClick={() => {
+                            setEditingMessageId(msg.id);
+                            setEditingMessageContent(msg.content);
+                          }}
+                          style={{ color: '#667eea' }}
+                        >
+                          ✏️ Edit
+                        </button>
+                      )}
                       {user?.role === 'owner' && !msg.isDeleted && (
                         <button
                           className="reply-button"
