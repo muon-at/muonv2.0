@@ -16,7 +16,13 @@ export default function MinSide() {
     profileImage: '📷',
   };
 
-  const badges = ['👑', '🎓', '🏆', '⭐', '💎', '🔥', '🚀', '👑', '🎯', '💪', '☀️', '⚡', '🎭', '🏅', '🎖️'];
+  // Badge order: In-use (8) + Future (6)
+  const badges = [
+    // In-use badges
+    '🏆', '👑', '⭐', '🎓', '🚀', '🎯', '🔥', '💎',
+    // Future badges (no duplicates)
+    '💪', '☀️', '⚡', '🎭', '🏅', '🎖️'
+  ];
 
   const stats = [
     { value: 57, label: 'Dag', color: '#E8956E' },

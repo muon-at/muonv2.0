@@ -81,7 +81,27 @@ export default function AdminDashboard() {
   const [badgesData, setBadgesData] = useState<any[]>([]);
   const [loadingBadges, setLoadingBadges] = useState(false);
 
-  const defaultBadges = ['👑', '🎓', '🏆', '⭐', '💎', '🔥', '🚀', '👑', '🎯', '💪', '☀️', '⚡', '🎭', '🏅', '🎖️'];
+  // Badge definitions - In-use (8) + Future (6)
+  const badgeDefinitions = [
+    // ACTIVE BADGES
+    { emoji: '🏆', navn: 'BEST', verdi: 'Løpende', beskrivelse: 'Den som har flest salg totalt (kun en)' },
+    { emoji: '👑', navn: 'MVP MÅNED', verdi: 'Historisk', beskrivelse: 'Har vært best i minst en måned' },
+    { emoji: '⭐', navn: 'MVP DAG', verdi: 'Historisk', beskrivelse: 'Har vært best på minst en dag' },
+    { emoji: '🎓', navn: 'FØRSTE SALGET', verdi: '1+', beskrivelse: '1+ salg totalt' },
+    { emoji: '🚀', navn: '5 SALG', verdi: '5+', beskrivelse: '5+ salg på EN dag' },
+    { emoji: '🎯', navn: '10 SALG', verdi: '10+', beskrivelse: '10+ salg på EN dag' },
+    { emoji: '🔥', navn: '15 SALG', verdi: '15+', beskrivelse: '15+ salg på EN dag' },
+    { emoji: '💎', navn: '20 SALG', verdi: '20+', beskrivelse: '20+ salg på EN dag' },
+    // FUTURE BADGES
+    { emoji: '💪', navn: '', verdi: '', beskrivelse: '' },
+    { emoji: '☀️', navn: '', verdi: '', beskrivelse: '' },
+    { emoji: '⚡', navn: '', verdi: '', beskrivelse: '' },
+    { emoji: '🎭', navn: '', verdi: '', beskrivelse: '' },
+    { emoji: '🏅', navn: '', verdi: '', beskrivelse: '' },
+    { emoji: '🎖️', navn: '', verdi: '', beskrivelse: '' },
+  ];
+  
+
   const [progresjonData, setProgresjonData] = useState<any[]>([]);
   const [loadingProgresjon, setLoadingProgresjon] = useState(false);
   const [badgeWinner, setBadgeWinner] = useState<string | null>(null);
@@ -510,17 +530,15 @@ export default function AdminDashboard() {
             badges.push({ id: doc.id, ...doc.data() });
           });
 
-          // If no badges in DB, create from defaults
+          // If no badges in DB, create from definitions
           if (badges.length === 0) {
-            const defaultBadgesList = defaultBadges.map((emoji) => ({
-              emoji,
-              navn: '',
-              verdi: '',
-              beskrivelse: '',
-            }));
-            setBadgesData(defaultBadgesList);
+            setBadgesData(badgeDefinitions);
           } else {
-            setBadgesData(badges.sort((a, b) => a.emoji.localeCompare(b.emoji)));
+            // Sort by definition order
+            const sortedBadges = badgeDefinitions.map(def => 
+              badges.find(b => b.emoji === def.emoji) || def
+            );
+            setBadgesData(sortedBadges);
           }
         } catch (err) {
           console.error('Error fetching badges:', err);
@@ -1553,63 +1571,83 @@ export default function AdminDashboard() {
                         <div className="col-beskrivelse">Beskrivelse</div>
                       </div>
                       {badgesData.map((badge, idx) => (
-                        <div key={idx} className="table-row">
-                          <div className="col-emoji" style={{ fontSize: '2rem', textAlign: 'center' }}>
-                            {badge.emoji}
-                          </div>
-                          <div className="col-navn">
-                            <input
-                              type="text"
-                              value={badge.navn || ''}
-                              onChange={(e) => {
-                                const updated = [...badgesData];
-                                updated[idx].navn = e.target.value;
-                                setBadgesData(updated);
-                              }}
-                              placeholder="f.eks King"
-                              style={{
-                                width: '100%',
-                                padding: '0.5rem',
-                                border: '1px solid #e2e8f0',
-                                borderRadius: '4px',
-                              }}
-                            />
-                          </div>
-                          <div className="col-verdi">
-                            <input
-                              type="text"
-                              value={badge.verdi || ''}
-                              onChange={(e) => {
-                                const updated = [...badgesData];
-                                updated[idx].verdi = e.target.value;
-                                setBadgesData(updated);
-                              }}
-                              placeholder="f.eks 100 poeng"
-                              style={{
-                                width: '100%',
-                                padding: '0.5rem',
-                                border: '1px solid #e2e8f0',
-                                borderRadius: '4px',
-                              }}
-                            />
-                          </div>
-                          <div className="col-beskrivelse">
-                            <input
-                              type="text"
-                              value={badge.beskrivelse || ''}
-                              onChange={(e) => {
-                                const updated = [...badgesData];
-                                updated[idx].beskrivelse = e.target.value;
-                                setBadgesData(updated);
-                              }}
-                              placeholder="Hva betyr denne badge?"
-                              style={{
-                                width: '100%',
-                                padding: '0.5rem',
-                                border: '1px solid #e2e8f0',
-                                borderRadius: '4px',
-                              }}
-                            />
+                        <div key={idx}>
+                          {idx === 8 && (
+                            <div style={{
+                              padding: '1rem',
+                              textAlign: 'center',
+                              background: '#f0f0f0',
+                              fontWeight: 'bold',
+                              color: '#666',
+                              borderBottom: '2px solid #ccc'
+                            }}>
+                              ⬇️ FREMTIDIGA BADGES ⬇️
+                            </div>
+                          )}
+                          <div className="table-row">
+                            <div className="col-emoji" style={{ fontSize: '2rem', textAlign: 'center' }}>
+                              {badge.emoji}
+                            </div>
+                            <div className="col-navn">
+                              <input
+                                type="text"
+                                value={badge.navn || ''}
+                                onChange={(e) => {
+                                  const updated = [...badgesData];
+                                  updated[idx].navn = e.target.value;
+                                  setBadgesData(updated);
+                                }}
+                                placeholder="f.eks King"
+                                style={{
+                                  width: '100%',
+                                  padding: '0.5rem',
+                                  border: '1px solid #e2e8f0',
+                                  borderRadius: '4px',
+                                  background: idx < 8 ? '#fff' : '#f9f9f9',
+                                }}
+                                disabled={idx >= 8}
+                              />
+                            </div>
+                            <div className="col-verdi">
+                              <input
+                                type="text"
+                                value={badge.verdi || ''}
+                                onChange={(e) => {
+                                  const updated = [...badgesData];
+                                  updated[idx].verdi = e.target.value;
+                                  setBadgesData(updated);
+                                }}
+                                placeholder="f.eks 100 poeng"
+                                style={{
+                                  width: '100%',
+                                  padding: '0.5rem',
+                                  border: '1px solid #e2e8f0',
+                                  borderRadius: '4px',
+                                  background: idx < 8 ? '#fff' : '#f9f9f9',
+                                }}
+                                disabled={idx >= 8}
+                              />
+                            </div>
+                            <div className="col-beskrivelse">
+                              <input
+                                type="text"
+                                value={badge.beskrivelse || ''}
+                                onChange={(e) => {
+                                  const updated = [...badgesData];
+                                  updated[idx].beskrivelse = e.target.value;
+                                  setBadgesData(updated);
+                                }}
+                                placeholder="Hva betyr denne badge?"
+                                style={{
+                                  width: '100%',
+                                  padding: '0.5rem',
+                                  border: '1px solid #e2e8f0',
+                                  borderRadius: '4px',
+                                  background: idx < 8 ? '#fff' : '#f9f9f9',
+                                }}
+                                disabled={idx >= 8}
+                              />
+                            </div>
                           </div>
                         </div>
                       ))}
