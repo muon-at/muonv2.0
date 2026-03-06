@@ -85,6 +85,7 @@ export default function AdminDashboard() {
   const [progresjonData, setProgresjonData] = useState<any[]>([]);
   const [loadingProgresjon, setLoadingProgresjon] = useState(false);
   const [badgeWinner, setBadgeWinner] = useState<string | null>(null);
+  const [mvpMånedWinners, setMvpMånedWinners] = useState<Set<string>>(new Set());
   const [filters, setFilters] = useState<KontraktsarkivFilters>({
     selger: '',
     avdeling: '',
@@ -231,6 +232,74 @@ export default function AdminDashboard() {
             } catch (err) {
               console.error('Error updating badge winner:', err);
             }
+          }
+          
+          // Calculate MVP MÅNED badge
+          try {
+            // Group contracts by month and seller
+            const monthlyStats: { [key: string]: { [key: string]: number } } = {};
+            
+            contracts.forEach((data) => {
+              const selger = data.selger || 'Ukjent';
+              const dateStr = data.dato || data.orderdato || '';
+              
+              if (dateStr) {
+                const parts = dateStr.split('/');
+                if (parts.length === 3) {
+                  const month = parseInt(parts[1]);
+                  const year = parseInt(parts[2]);
+                  const monthKey = `${year}-${String(month).padStart(2, '0')}`;
+                  
+                  if (!monthlyStats[monthKey]) {
+                    monthlyStats[monthKey] = {};
+                  }
+                  monthlyStats[monthKey][selger] = (monthlyStats[monthKey][selger] || 0) + 1;
+                }
+              }
+            });
+            
+            // Find best seller each month and award badge
+            const mvpEarners = new Set<string>();
+            
+            // Load existing MVP MÅNED winners
+            const mvpRef = collection(db, 'allente_badge_earners');
+            const mvpSnap = await getDocs(mvpRef);
+            mvpSnap.forEach((doc) => {
+              if (doc.data().badge === 'MVP_MÅNED') {
+                mvpEarners.add(doc.data().selger);
+              }
+            });
+            
+            // Award badge for each month
+            for (const monthKey in monthlyStats) {
+              const sellers = monthlyStats[monthKey];
+              let bestSeller = '';
+              let maxSales = 0;
+              
+              for (const selger in sellers) {
+                if (sellers[selger] > maxSales) {
+                  maxSales = sellers[selger];
+                  bestSeller = selger;
+                }
+              }
+              
+              // If best seller doesn't have badge yet, award it
+              if (bestSeller && !mvpEarners.has(bestSeller)) {
+                await addDoc(mvpRef, {
+                  badge: 'MVP_MÅNED',
+                  emoji: '👑',
+                  selger: bestSeller,
+                  monthKey: monthKey,
+                  sales: maxSales,
+                  awardedAt: new Date().toISOString(),
+                });
+                mvpEarners.add(bestSeller);
+              }
+            }
+            
+            setMvpMånedWinners(mvpEarners);
+          } catch (err) {
+            console.error('Error calculating MVP MÅNED:', err);
           }
         } catch (err) {
           console.error('Error fetching progresjon data:', err);
@@ -1257,8 +1326,9 @@ export default function AdminDashboard() {
                         <div className="col-best-month" style={{ textAlign: 'center', fontWeight: '600', color: '#10b981' }}>
                           {row.bestMonth}
                         </div>
-                        <div className="col-badges" style={{ textAlign: 'center', fontSize: '1.5rem' }}>
+                        <div className="col-badges" style={{ textAlign: 'center', fontSize: '1.5rem', letterSpacing: '0.25rem' }}>
                           {badgeWinner === row.selger ? '🏆' : ''}
+                          {mvpMånedWinners.has(row.selger) ? '👑' : ''}
                         </div>
                       </div>
                     ))}
