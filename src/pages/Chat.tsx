@@ -66,8 +66,20 @@ export default function Chat() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredMessages, setFilteredMessages] = useState<Message[]>([]);
   const [isChannelModalOpen, setIsChannelModalOpen] = useState(false);
+  const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
+  const [emojiPickerMessageId, setEmojiPickerMessageId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  const emojiList = [
+    '👍', '❤️', '😂', '🔥', '👏', '😍', '🎉', '💯', '😢', '😡',
+    '😱', '🤔', '😎', '🙌', '💪', '🎯', '✨', '🎊', '🎈', '🚀',
+    '💥', '👌', '🙏', '💯', '❌', '✅', '🔔', '🎭', '🎪', '🎨',
+    '🎬', '🎤', '🎸', '🎹', '🎺', '⚽', '🏀', '🎲', '🃏', '🎯',
+    '🍕', '🍔', '🍟', '🍗', '🌮', '🍜', '🍱', '🍰', '🍪', '☕',
+    '🍷', '🍸', '🍹', '🍺', '🌮', '🎂', '🧁', '🥗', '🥘', '🍛'
+  ];
+  
 
   // Load channels on mount
   useEffect(() => {
@@ -992,59 +1004,23 @@ export default function Chat() {
                       >
                         📌 Pin
                       </button>
+                      {['👍', '❤️', '😂', '🔥', '👏'].map(emoji => (
+                        <button 
+                          key={emoji}
+                          className="reaction-button"
+                          onClick={() => addReaction(msg.id, emoji)}
+                        >
+                          {emoji}
+                        </button>
+                      ))}
                       <button 
-                        className="reaction-button"
-                        onClick={() => addReaction(msg.id, '👍')}
+                        className="add-reaction-btn"
+                        onClick={() => {
+                          setEmojiPickerMessageId(msg.id);
+                          setEmojiPickerOpen(true);
+                        }}
                       >
-                        👍
-                      </button>
-                      <button 
-                        className="reaction-button"
-                        onClick={() => addReaction(msg.id, '❤️')}
-                      >
-                        ❤️
-                      </button>
-                      <button 
-                        className="reaction-button"
-                        onClick={() => addReaction(msg.id, '😂')}
-                      >
-                        😂
-                      </button>
-                      <button 
-                        className="reaction-button"
-                        onClick={() => addReaction(msg.id, '🔥')}
-                      >
-                        🔥
-                      </button>
-                      <button 
-                        className="reaction-button"
-                        onClick={() => addReaction(msg.id, '👏')}
-                      >
-                        👏
-                      </button>
-                      <button 
-                        className="reaction-button"
-                        onClick={() => addReaction(msg.id, '😍')}
-                      >
-                        😍
-                      </button>
-                      <button 
-                        className="reaction-button"
-                        onClick={() => addReaction(msg.id, '🎉')}
-                      >
-                        🎉
-                      </button>
-                      <button 
-                        className="reaction-button"
-                        onClick={() => addReaction(msg.id, '💯')}
-                      >
-                        💯
-                      </button>
-                      <button 
-                        className="reaction-button"
-                        onClick={() => addReaction(msg.id, '😢')}
-                      >
-                        😢
+                        ➕
                       </button>
                       {user?.role === 'owner' && !msg.isDeleted && (
                         <button
@@ -1180,6 +1156,39 @@ export default function Chat() {
             </div>
           )}
         </div>
+
+        {/* Emoji Picker Modal */}
+        {emojiPickerOpen && (
+          <div className="emoji-picker-modal" onClick={() => setEmojiPickerOpen(false)}>
+            <div className="emoji-picker-content" onClick={(e) => e.stopPropagation()}>
+              <div className="emoji-picker-header">
+                <h2>Add Reaction</h2>
+                <button 
+                  className="emoji-picker-close"
+                  onClick={() => setEmojiPickerOpen(false)}
+                >
+                  ✕
+                </button>
+              </div>
+              <div className="emoji-picker-grid">
+                {emojiList.map(emoji => (
+                  <button
+                    key={emoji}
+                    className="emoji-picker-item"
+                    onClick={() => {
+                      if (emojiPickerMessageId) {
+                        addReaction(emojiPickerMessageId, emoji);
+                      }
+                      setEmojiPickerOpen(false);
+                    }}
+                  >
+                    {emoji}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
