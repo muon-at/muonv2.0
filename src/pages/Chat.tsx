@@ -222,7 +222,7 @@ export default function Chat() {
       'admin': '🔐',
       'allente': '📊',
       'skien': '🏭',
-      'krs': '⚙️',
+      'krs': '🏝️',
       'general': '💬',
       'random': '🎲',
       'announcements': '📢',
