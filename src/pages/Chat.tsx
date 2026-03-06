@@ -12,6 +12,7 @@ interface Channel {
   type: 'project' | 'team' | 'admin' | 'avdeling' | 'global';
   unread: number;
   allowedUsers?: string[];
+  emoji?: string;
 }
 
 interface DMThread {
@@ -131,6 +132,7 @@ export default function Chat() {
             type: data.type,
             unread: 0,
             allowedUsers: data.allowedUsers,
+            emoji: getChannelEmoji(data.name, data.emoji),
           });
         }
       });
@@ -208,6 +210,30 @@ export default function Chat() {
     } catch (err) {
       console.error('Error starting DM:', err);
     }
+  };
+
+  const getChannelEmoji = (channelName: string, customEmoji?: string): string => {
+    if (customEmoji) return customEmoji;
+    
+    const emojiMap: Record<string, string> = {
+      'team': '👥',
+      'teamledere': '👔',
+      'osl': '🏢',
+      'admin': '🔐',
+      'allente': '📊',
+      'skien': '🏭',
+      'krs': '⚙️',
+      'general': '💬',
+      'random': '🎲',
+      'announcements': '📢',
+      'sales': '💰',
+      'marketing': '📱',
+      'support': '🎯',
+      'engineering': '🛠️',
+    };
+    
+    const lower = channelName.toLowerCase();
+    return emojiMap[lower] || '💬';
   };
 
   const checkChannelAccess = (type: string, avdeling?: string, allowedUsers?: string[]): boolean => {
@@ -694,7 +720,7 @@ export default function Chat() {
                   }}
                 >
                   <span className={`chat-name ${channel.unread > 0 ? 'unread' : ''}`}>
-                    # {channel.name}
+                    {channel.emoji} {channel.name}
                   </span>
                   {channel.unread > 0 && (
                     <span className="chat-unread">{channel.unread}</span>
@@ -794,6 +820,57 @@ export default function Chat() {
         <div className="chat-main">
           {selectedChannel || selectedDM ? (
             <>
+              {/* Channel Header */}
+              {selectedChannel && channels.find(c => c.id === selectedChannel) && (
+                <div style={{
+                  padding: '1rem 1.5rem',
+                  background: '#667eea',
+                  color: 'white',
+                  borderBottom: '1px solid #e2e8f0',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <span style={{ fontSize: '1.5rem' }}>
+                      {channels.find(c => c.id === selectedChannel)?.emoji}
+                    </span>
+                    <div>
+                      <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 600 }}>
+                        {channels.find(c => c.id === selectedChannel)?.name}
+                      </h2>
+                      <span style={{ fontSize: '0.85rem', opacity: 0.9 }}>
+                        {channels.find(c => c.id === selectedChannel)?.type}
+                      </span>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                    <button style={{
+                      background: 'rgba(255,255,255,0.2)',
+                      border: 'none',
+                      color: 'white',
+                      padding: '0.5rem 1rem',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      fontSize: '0.85rem',
+                    }}>
+                      📄 Files
+                    </button>
+                    <button style={{
+                      background: 'rgba(255,255,255,0.2)',
+                      border: 'none',
+                      color: 'white',
+                      padding: '0.5rem 1rem',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      fontSize: '0.85rem',
+                    }}>
+                      📌 Pins
+                    </button>
+                  </div>
+                </div>
+              )}
+
               {/* Pinned Message */}
               {pinnedMessage && (
                 <div style={{

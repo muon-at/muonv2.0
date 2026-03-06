@@ -13,7 +13,10 @@ export default function ChannelModal({ isOpen, onClose, onChannelCreated, allUse
   const [channelName, setChannelName] = useState('');
   const [channelType, setChannelType] = useState<'project' | 'team' | 'admin' | 'avdeling' | 'global'>('project');
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
+  const [channelEmoji, setChannelEmoji] = useState('💬');
   const [loading, setLoading] = useState(false);
+
+  const commonEmojis = ['💬', '👥', '👔', '📊', '🔐', '📢', '💰', '🎯', '🏢', '⚙️', '🎲', '🛠️', '📱', '📋', '🎉', '🔥'];
 
   const handleCreateChannel = async () => {
     if (!channelName.trim()) {
@@ -27,6 +30,7 @@ export default function ChannelModal({ isOpen, onClose, onChannelCreated, allUse
       await addDoc(channelsRef, {
         name: channelName,
         type: channelType,
+        emoji: channelEmoji,
         allowedUsers: selectedUsers.length > 0 ? selectedUsers : null,
         createdAt: new Date(),
       });
@@ -34,6 +38,7 @@ export default function ChannelModal({ isOpen, onClose, onChannelCreated, allUse
       setChannelName('');
       setChannelType('project');
       setSelectedUsers([]);
+      setChannelEmoji('💬');
       onChannelCreated();
       onClose();
     } catch (err) {
@@ -89,6 +94,36 @@ export default function ChannelModal({ isOpen, onClose, onChannelCreated, allUse
               boxSizing: 'border-box',
             }}
           />
+        </div>
+
+        {/* Channel Emoji */}
+        <div style={{ marginBottom: '1rem' }}>
+          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>
+            Channel Emoji
+          </label>
+          <div style={{
+            display: 'flex',
+            gap: '0.5rem',
+            flexWrap: 'wrap',
+          }}>
+            {commonEmojis.map(emoji => (
+              <button
+                key={emoji}
+                onClick={() => setChannelEmoji(emoji)}
+                style={{
+                  fontSize: '1.5rem',
+                  padding: '0.5rem',
+                  background: channelEmoji === emoji ? '#667eea' : '#f0f0f0',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                }}
+              >
+                {emoji}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Channel Type */}
