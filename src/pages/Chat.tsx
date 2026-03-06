@@ -191,10 +191,12 @@ export default function Chat() {
 
   const sendMessage = async (content?: string) => {
     const messageContent = content || newMessage;
+    console.log('📤 Send clicked! Message:', messageContent, 'Channel:', selectedChannel);
     if (!messageContent.trim()) return;
     
     try {
       if (selectedChannel) {
+        console.log('📝 Sending to channel:', selectedChannel);
         const messagesRef = collection(db, 'chat_channels', selectedChannel, 'messages');
         await addDoc(messagesRef, {
           sender: user?.name || 'Unknown',
@@ -206,7 +208,9 @@ export default function Chat() {
             content: replyingTo.content,
           } : undefined,
         });
+        console.log('✅ Message sent successfully!');
       } else if (selectedDM) {
+        console.log('📝 Sending to DM:', selectedDM);
         const messagesRef = collection(db, 'chat_dms', selectedDM, 'messages');
         await addDoc(messagesRef, {
           sender: user?.name || 'Unknown',
@@ -218,12 +222,13 @@ export default function Chat() {
             content: replyingTo.content,
           } : undefined,
         });
+        console.log('✅ Message sent successfully!');
       }
       
       setNewMessage('');
       setReplyingTo(null);
     } catch (err) {
-      console.error('Error sending message:', err);
+      console.error('❌ Error sending message:', err);
     }
   };
 
