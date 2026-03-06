@@ -2224,14 +2224,14 @@ export default function AdminDashboard() {
                         };
                         return (
                       <div key={emp.id} style={{ display: 'grid', gridTemplateColumns: '180px 200px 100px 140px 120px 140px 120px 180px 150px', gap: '0.5rem', padding: '0.75rem 0.5rem', background: 'white', borderBottom: '1px solid #e5e7eb', alignItems: 'center', fontWeight: '600', fontSize: '0.9rem' }}>
-                        <div style={{ fontWeight: '700', color: '#333' }}>{emp.name && emp.name !== 'N/A' ? emp.name : '⚠️ Ingen navn'}</div>
-                        <div style={{ fontSize: '0.85rem', color: '#666' }}>{emp.email || '-'}</div>
+                        <div style={{ fontWeight: '700', color: '#1f2937' }}>{emp.name && emp.name !== 'N/A' ? emp.name : '⚠️ Ingen navn'}</div>
+                        <div style={{ fontSize: '0.85rem', color: '#4b5563' }}>{emp.email || '-'}</div>
                         <div><span style={{ background: getRoleColor(emp.role), color: 'white', padding: '0.3rem 0.6rem', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '600', whiteSpace: 'nowrap' }}>{getRoleLabel(emp.role)}</span></div>
-                        <div>{emp.project || '-'}</div>
-                        <div>{emp.department || '-'}</div>
-                        <div>{emp.tmgName || '-'}</div>
-                        <div>{emp.stilling || '-'}</div>
-                        <div>{emp.externalName || '-'}</div>
+                        <div style={{ color: '#1f2937' }}>{emp.project || '-'}</div>
+                        <div style={{ color: '#1f2937' }}>{emp.department || '-'}</div>
+                        <div style={{ color: '#1f2937' }}>{emp.tmgName || '-'}</div>
+                        <div style={{ color: '#1f2937' }}>{emp.stilling || '-'}</div>
+                        <div style={{ color: '#1f2937' }}>{emp.externalName || '-'}</div>
                         <div style={{ display: 'flex', gap: '1rem', fontSize: '0.85rem' }}>
                           <button 
                             onClick={() => handleEditClick(emp)}
