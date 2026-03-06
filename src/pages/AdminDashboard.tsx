@@ -2185,80 +2185,82 @@ export default function AdminDashboard() {
                   />
                 </div>
 
-                <div className="employees-table" style={{ width: '100%', overflowX: 'auto' }}>
-                  <div className="table-header">
-                    <div className="col-name">Navn</div>
-                    <div className="col-email">E-post</div>
-                    <div className="col-role">Rolle</div>
-                    <div className="col-project">Prosjekt</div>
-                    <div className="col-dept">Avdeling</div>
-                    <div className="col-tmg">TMG-navn</div>
-                    <div className="col-slack">Stilling</div>
-                    <div className="col-external">Ekstern navn</div>
-                    <div className="col-actions">Handlinger</div>
-                  </div>
-                  {employees
-                    .filter(emp => emp.name?.toLowerCase().includes(employeeSearchQuery.toLowerCase()) || emp.email?.toLowerCase().includes(employeeSearchQuery.toLowerCase()))
-                    .map((emp) => {
-                      const getRoleColor = (role?: string) => {
-                        switch(role) {
-                          case 'owner': return '#a78bfa'; // purple
-                          case 'teamlead': return '#60a5fa'; // blue
-                          default: return '#34d399'; // green
-                        }
-                      };
-                      const getRoleLabel = (role?: string) => {
-                        switch(role) {
-                          case 'owner': return 'eier';
-                          case 'teamlead': return 'teamleder';
-                          default: return 'selger';
-                        }
-                      };
-                      return (
-                    <div key={emp.id} className="table-row">
-                      <div className="col-name">{emp.name}</div>
-                      <div className="col-email" style={{ fontSize: '0.9rem' }}>{emp.email || '-'}</div>
-                      <div className="col-role"><span style={{ background: getRoleColor(emp.role), color: 'white', padding: '0.25rem 0.75rem', borderRadius: '12px', fontSize: '0.8rem', fontWeight: '500' }}>{getRoleLabel(emp.role)}</span></div>
-                      <div className="col-project">{emp.project || '-'}</div>
-                      <div className="col-dept">{emp.department || '-'}</div>
-                      <div className="col-tmg">{emp.tmgName || '-'}</div>
-                      <div className="col-slack">{emp.stilling || '-'}</div>
-                      <div className="col-external">{emp.externalName || '-'}</div>
-                      <div className="col-actions" style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
-                        <button 
-                          onClick={() => handleEditClick(emp)}
-                          style={{ 
-                            background: 'none', 
-                            border: 'none', 
-                            cursor: 'pointer',
-                            fontSize: '0.85rem',
-                            fontWeight: '500',
-                            color: '#667eea',
-                            textDecoration: 'underline',
-                            padding: '0'
-                          }}
-                        >
-                          Rediger
-                        </button>
-                        <button 
-                          onClick={() => handleDeleteClick(emp.id, emp.name)}
-                          style={{ 
-                            background: 'none', 
-                            border: 'none', 
-                            cursor: 'pointer',
-                            fontSize: '0.85rem',
-                            fontWeight: '500',
-                            color: '#dc2626',
-                            textDecoration: 'underline',
-                            padding: '0'
-                          }}
-                        >
-                          Slett
-                        </button>
-                      </div>
+                <div style={{ overflowX: 'auto', width: '100%', marginBottom: '1rem' }}>
+                  <div className="employees-table" style={{ minWidth: '2200px', width: '100%' }}>
+                    <div className="table-header" style={{ display: 'grid', gridTemplateColumns: '180px 200px 100px 140px 120px 140px 120px 180px 150px', gap: '0.5rem', padding: '0.75rem 0.5rem', background: '#f9fafb', borderRadius: '6px 6px 0 0', fontWeight: '700', fontSize: '0.9rem' }}>
+                      <div>Navn</div>
+                      <div>E-post</div>
+                      <div>Rolle</div>
+                      <div>Prosjekt</div>
+                      <div>Avdeling</div>
+                      <div>TMG-navn</div>
+                      <div>Stilling</div>
+                      <div>Ekstern navn</div>
+                      <div>Handlinger</div>
                     </div>
-                  );
-                    })}
+                    {employees
+                      .filter(emp => emp.name?.toLowerCase().includes(employeeSearchQuery.toLowerCase()) || emp.email?.toLowerCase().includes(employeeSearchQuery.toLowerCase()))
+                      .map((emp) => {
+                        const getRoleColor = (role?: string) => {
+                          switch(role) {
+                            case 'owner': return '#a78bfa'; // purple
+                            case 'teamlead': return '#60a5fa'; // blue
+                            default: return '#34d399'; // green
+                          }
+                        };
+                        const getRoleLabel = (role?: string) => {
+                          switch(role) {
+                            case 'owner': return 'eier';
+                            case 'teamlead': return 'teamleder';
+                            default: return 'selger';
+                          }
+                        };
+                        return (
+                      <div key={emp.id} style={{ display: 'grid', gridTemplateColumns: '180px 200px 100px 140px 120px 140px 120px 180px 150px', gap: '0.5rem', padding: '0.75rem 0.5rem', background: 'white', borderBottom: '1px solid #e5e7eb', alignItems: 'center', fontWeight: '600', fontSize: '0.9rem' }}>
+                        <div>{emp.name}</div>
+                        <div style={{ fontSize: '0.85rem', color: '#666' }}>{emp.email || '-'}</div>
+                        <div><span style={{ background: getRoleColor(emp.role), color: 'white', padding: '0.3rem 0.6rem', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '600', whiteSpace: 'nowrap' }}>{getRoleLabel(emp.role)}</span></div>
+                        <div>{emp.project || '-'}</div>
+                        <div>{emp.department || '-'}</div>
+                        <div>{emp.tmgName || '-'}</div>
+                        <div>{emp.stilling || '-'}</div>
+                        <div>{emp.externalName || '-'}</div>
+                        <div style={{ display: 'flex', gap: '1rem', fontSize: '0.85rem' }}>
+                          <button 
+                            onClick={() => handleEditClick(emp)}
+                            style={{ 
+                              background: 'none', 
+                              border: 'none', 
+                              cursor: 'pointer',
+                              color: '#667eea',
+                              textDecoration: 'underline',
+                              padding: '0',
+                              fontWeight: '600',
+                              fontSize: '0.85rem'
+                            }}
+                          >
+                            Rediger
+                          </button>
+                          <button 
+                            onClick={() => handleDeleteClick(emp.id, emp.name)}
+                            style={{ 
+                              background: 'none', 
+                              border: 'none', 
+                              cursor: 'pointer',
+                              color: '#dc2626',
+                              textDecoration: 'underline',
+                              padding: '0',
+                              fontWeight: '600',
+                              fontSize: '0.85rem'
+                            }}
+                          >
+                            Slett
+                          </button>
+                        </div>
+                      </div>
+                    );
+                      })}
+                  </div>
                 </div>
 
                 <p style={{ marginTop: '1.5rem', color: '#999', fontSize: '0.9rem' }}>
