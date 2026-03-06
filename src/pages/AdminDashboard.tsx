@@ -60,6 +60,7 @@ export default function AdminDashboard() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [newEmployee, setNewEmployee] = useState({
     name: '',
+    email: '',
     username: '',
     password: '',
     role: 'employee',
@@ -846,6 +847,7 @@ export default function AdminDashboard() {
       const empRef = doc(db, 'employees', editingEmployee.id);
       await updateDoc(empRef, {
         name: editingEmployee.name || '',
+        email: editingEmployee.email || '',
         username: editingEmployee.username || '',
         password: editingEmployee.password || '',
         role: editingEmployee.role || '',
@@ -970,6 +972,7 @@ export default function AdminDashboard() {
       const empCollection = collection(db, 'employees');
       const docRef = await addDoc(empCollection, {
         name: newEmployee.name,
+        email: newEmployee.email || '',
         username: newEmployee.username,
         password: newEmployee.password,
         role: newEmployee.role,
@@ -987,6 +990,7 @@ export default function AdminDashboard() {
       setShowAddModal(false);
       setNewEmployee({
         name: '',
+        email: '',
         username: '',
         password: '',
         role: 'employee',
@@ -2134,9 +2138,10 @@ export default function AdminDashboard() {
                   ➕ Legg til ansatt
                 </button>
 
-                <div className="employees-table">
-                  <div className="table-header">
+                <div className="employees-table" style={{ overflowX: 'auto', minWidth: '100%' }}>
+                  <div className="table-header" style={{ minWidth: '2000px' }}>
                     <div className="col-name">Navn</div>
+                    <div className="col-email">Email</div>
                     <div className="col-username">Brukernavn</div>
                     <div className="col-password">Passord</div>
                     <div className="col-role">Rolle</div>
@@ -2148,8 +2153,9 @@ export default function AdminDashboard() {
                     <div className="col-actions">Handlinger</div>
                   </div>
                   {employees.map((emp) => (
-                    <div key={emp.id} className="table-row">
+                    <div key={emp.id} className="table-row" style={{ minWidth: '2000px' }}>
                       <div className="col-name">{emp.name}</div>
+                      <div className="col-email" style={{ fontFamily: 'monospace', fontSize: '0.9rem' }}>{emp.email || '-'}</div>
                       <div className="col-username" style={{ fontFamily: 'monospace', fontSize: '0.9rem' }}>{emp.username || '-'}</div>
                       <div className="col-password" style={{ fontFamily: 'monospace', fontSize: '0.9rem', maxWidth: '150px', wordBreak: 'break-all' }}>{emp.password || '-'}</div>
                       <div className="col-role">{emp.role || '-'}</div>
@@ -2232,6 +2238,15 @@ export default function AdminDashboard() {
                   type="text"
                   value={editingEmployee.name || ''}
                   onChange={(e) => setEditingEmployee({ ...editingEmployee, name: e.target.value })}
+                />
+              </div>
+              <div className="form-group">
+                <label>Email</label>
+                <input 
+                  type="email"
+                  value={editingEmployee.email || ''}
+                  onChange={(e) => setEditingEmployee({ ...editingEmployee, email: e.target.value })}
+                  placeholder="epost@bedrift.no"
                 />
               </div>
               <div className="form-group">
@@ -2348,6 +2363,15 @@ export default function AdminDashboard() {
                 />
               </div>
               <div className="form-group">
+                <label>Email</label>
+                <input 
+                  type="email"
+                  value={newEmployee.email || ''}
+                  onChange={(e) => setNewEmployee({ ...newEmployee, email: e.target.value })}
+                  placeholder="epost@bedrift.no"
+                />
+              </div>
+              <div className="form-group">
                 <label>Brukernavn *</label>
                 <input 
                   type="text"
@@ -2431,6 +2455,7 @@ export default function AdminDashboard() {
                   setShowAddModal(false);
                   setNewEmployee({
                     name: '',
+                    email: '',
                     username: '',
                     password: '',
                     role: 'employee',
