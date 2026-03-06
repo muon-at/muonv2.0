@@ -90,6 +90,7 @@ export default function AdminDashboard() {
   const [thresholdBadges, setThresholdBadges] = useState<{ [key: string]: Set<string> }>({
     FØRSTE_SALGET: new Set(),
     SALG_5: new Set(),
+    SALG_10: new Set(),
     SALG_15: new Set(),
     SALG_20: new Set(),
   });
@@ -97,6 +98,7 @@ export default function AdminDashboard() {
   const thresholdBadgesList = [
     { badge: 'FØRSTE_SALGET', emoji: '🎓', type: 'total', threshold: 1, label: 'Første salget' },
     { badge: 'SALG_5', emoji: '🚀', type: 'day', threshold: 5, label: '5 Salg på en dag' },
+    { badge: 'SALG_10', emoji: '🎯', type: 'day', threshold: 10, label: '10 Salg på en dag' },
     { badge: 'SALG_15', emoji: '🔥', type: 'day', threshold: 15, label: '15 Salg på en dag' },
     { badge: 'SALG_20', emoji: '💎', type: 'day', threshold: 20, label: '20 Salg på en dag' },
   ];
@@ -372,9 +374,9 @@ export default function AdminDashboard() {
           try {
             const mvpRef = collection(db, 'allente_badge_earners');
             
-            // CLEANUP: Remove old threshold badges (from 5/10/15 system)
+            // CLEANUP: Remove old threshold badges (from previous systems)
             const allBadges = await getDocs(mvpRef);
-            const oldBadges = ['SALG_10']; // Old thresholds to remove
+            const oldBadges: string[] = []; // No old badges to remove (5/10/15/20 is current system)
             
             // Delete old threshold badges
             const deletePromises: Promise<void>[] = [];
@@ -433,6 +435,7 @@ export default function AdminDashboard() {
             const thresholdEarners: { [key: string]: Set<string> } = {
               FØRSTE_SALGET: new Set(),
               SALG_5: new Set(),
+              SALG_10: new Set(),
               SALG_15: new Set(),
               SALG_20: new Set(),
             };
@@ -1513,6 +1516,7 @@ export default function AdminDashboard() {
                           {mvpDagWinners.has(row.selger) ? '⭐' : ''}
                           {thresholdBadges.FØRSTE_SALGET.has(row.selger) ? '🎓' : ''}
                           {thresholdBadges.SALG_5.has(row.selger) ? '🚀' : ''}
+                          {thresholdBadges.SALG_10.has(row.selger) ? '🎯' : ''}
                           {thresholdBadges.SALG_15.has(row.selger) ? '🔥' : ''}
                           {thresholdBadges.SALG_20.has(row.selger) ? '💎' : ''}
                         </div>
