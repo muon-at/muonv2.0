@@ -93,6 +93,10 @@
   text-align: left;
 }
 
+.chat-name.unread {
+  font-weight: 700;
+}
+
 .chat-unread {
   background: #ff4757;
   color: white;
@@ -136,6 +140,27 @@
   border-left: 4px solid #667eea;
 }
 
+.reply-context {
+  padding: 0.5rem;
+  background: rgba(102, 126, 234, 0.1);
+  border-left: 3px solid #667eea;
+  border-radius: 4px;
+  display: flex;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: #667eea;
+  margin-bottom: 0.5rem;
+}
+
+.reply-sender {
+  font-weight: 600;
+}
+
+.reply-content {
+  color: #999;
+  font-style: italic;
+}
+
 .message-header {
   display: flex;
   justify-content: space-between;
@@ -157,6 +182,51 @@
   color: #333;
   line-height: 1.5;
   word-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+.message-attachments {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+}
+
+.attachment {
+  padding: 0.5rem;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  max-width: 200px;
+}
+
+.attachment img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+}
+
+.message-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.reply-button,
+.reaction-button {
+  padding: 0.25rem 0.75rem;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+}
+
+.reply-button:hover,
+.reaction-button:hover {
+  background: #f0f0f0;
+  border-color: #667eea;
 }
 
 .message-reactions {
@@ -166,27 +236,125 @@
   margin-top: 0.5rem;
 }
 
-.reaction-button {
+.reaction-count {
   padding: 0.25rem 0.5rem;
   background: white;
   border: 1px solid #e2e8f0;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   transition: all 0.2s ease;
 }
 
-.reaction-button:hover {
+.reaction-count:hover {
   background: #f0f0f0;
   border-color: #667eea;
+}
+
+.reply-preview {
+  padding: 0.75rem 1.5rem;
+  background: #f0f0f0;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+  color: #667eea;
+}
+
+.reply-preview button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  color: #999;
+  padding: 0;
+}
+
+.reply-preview button:hover {
+  color: #333;
+}
+
+.gif-picker {
+  padding: 1rem;
+  background: #f9f9f9;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.gif-search-input {
+  padding: 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 0.9rem;
+}
+
+.gif-search-input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.gif-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.gif-thumbnail {
+  width: 100%;
+  height: auto;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.gif-thumbnail:hover {
+  transform: scale(1.05);
+}
+
+.close-gif-picker {
+  padding: 0.5rem;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.close-gif-picker:hover {
+  background: #764ba2;
 }
 
 .message-input-area {
   padding: 1.5rem;
   border-top: 1px solid #e2e8f0;
   display: flex;
-  gap: 1rem;
+  gap: 0.75rem;
   background: white;
+}
+
+.input-action-btn {
+  padding: 0.75rem;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+}
+
+.input-action-btn:hover {
+  background: #f0f0f0;
+  border-color: #667eea;
 }
 
 .message-input {
@@ -231,22 +399,26 @@
 
 /* Scrollbar styling */
 .chat-list::-webkit-scrollbar,
-.messages-area::-webkit-scrollbar {
+.messages-area::-webkit-scrollbar,
+.gif-picker::-webkit-scrollbar {
   width: 6px;
 }
 
 .chat-list::-webkit-scrollbar-track,
-.messages-area::-webkit-scrollbar-track {
+.messages-area::-webkit-scrollbar-track,
+.gif-picker::-webkit-scrollbar-track {
   background: #f0f0f0;
 }
 
 .chat-list::-webkit-scrollbar-thumb,
-.messages-area::-webkit-scrollbar-thumb {
+.messages-area::-webkit-scrollbar-thumb,
+.gif-picker::-webkit-scrollbar-thumb {
   background: #ccc;
   border-radius: 3px;
 }
 
 .chat-list::-webkit-scrollbar-thumb:hover,
-.messages-area::-webkit-scrollbar-thumb:hover {
+.messages-area::-webkit-scrollbar-thumb:hover,
+.gif-picker::-webkit-scrollbar-thumb:hover {
   background: #999;
 }

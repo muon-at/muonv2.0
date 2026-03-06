@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../lib/authContext';
 import { db } from '../lib/firebase';
-import { collection, getDocs, addDoc, onSnapshot, query, orderBy } from 'firebase/firestore';
+import { collection, getDocs, addDoc, onSnapshot, query, orderBy, updateDoc, doc, arrayUnion } from 'firebase/firestore';
 import '../styles/Chat.css';
 
 interface Channel {
@@ -12,12 +12,13 @@ interface Channel {
   unread: number;
 }
 
-// DM interface - coming soon
-// interface DM {
-//   id: string;
-//   participant: string;
-//   unread: number;
-// }
+interface DMThread {
+  id: string;
+  participants: string[];
+  lastMessage: string;
+  lastMessageTime: number;
+  unread: number;
+}
 
 interface Message {
   id: string;
@@ -25,6 +26,17 @@ interface Message {
   content: string;
   timestamp: number;
   reactions?: Record<string, string[]>;
+  replyTo?: {
+    id: string;
+    sender: string;
+    content: string;
+  };
+  attachments?: {
+    type: 'file' | 'gif';
+    url: string;
+    name?: string;
+  }[];
+  typingUsers?: string[];
 }
 
 export default function Chat() {
@@ -32,23 +44,36 @@ export default function Chat() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<'channels' | 'dms'>('channels');
   const [selectedChannel, setSelectedChannel] = useState<string | null>(null);
-  // const [selectedDM, setSelectedDM] = useState<string | null>(null);
+  const [selectedDM, setSelectedDM] = useState<string | null>(null);
   const [channels, setChannels] = useState<Channel[]>([]);
-  // const [dms, setDMs] = useState<DM[]>([]);
+  const [dms, setDMs] = useState<DMThread[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
+  const [replyingTo, setReplyingTo] = useState<Message | null>(null);
+  const [isPickingGif, setIsPickingGif] = useState(false);
+  const [gifSearch, setGifSearch] = useState('');
+  const [gifs, setGifs] = useState<any[]>([]);
+  const [isTyping, setIsTyping] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   // Load channels on mount
   useEffect(() => {
-    loadChannels();
+    const load = async () => {
+      await loadChannels();
+      await loadDMs();
+    };
+    load();
   }, [user]);
 
-  // Load messages when channel changes
+  // Load messages when channel/DM changes
   useEffect(() => {
     if (selectedChannel) {
       loadChannelMessages(selectedChannel);
+    } else if (selectedDM) {
+      loadDMMessages(selectedDM);
     }
-  }, [selectedChannel]);
+  }, [selectedChannel, selectedDM]);
 
   const loadChannels = async () => {
     try {
@@ -66,7 +91,7 @@ export default function Chat() {
             id: doc.id,
             name: data.name,
             type: data.type,
-            unread: 0, // TODO: implement unread count
+            unread: 0,
           });
         }
       });
@@ -77,10 +102,36 @@ export default function Chat() {
     }
   };
 
+  const loadDMs = async () => {
+    try {
+      const dmsRef = collection(db, 'chat_dms');
+      const snapshot = await getDocs(dmsRef);
+      
+      const userDMs: DMThread[] = [];
+      
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        if (data.participants && data.participants.includes(user?.name)) {
+          userDMs.push({
+            id: doc.id,
+            participants: data.participants,
+            lastMessage: data.lastMessage || '',
+            lastMessageTime: data.lastMessageTime || 0,
+            unread: (user?.name && data.unread?.[user.name]) || 0,
+          });
+        }
+      });
+      
+      setDMs(userDMs);
+    } catch (err) {
+      console.error('Error loading DMs:', err);
+    }
+  };
+
   const checkChannelAccess = (type: string, avdeling?: string): boolean => {
     switch (type) {
       case 'project':
-        return true; // All employees can see
+        return true;
       case 'team':
         return user?.role === 'teamlead' || user?.role === 'owner';
       case 'admin':
@@ -116,45 +167,132 @@ export default function Chat() {
     }
   };
 
-  // DM messages loading - coming soon
-  // const loadDMMessages = async (dmId: string) => {
-  //   try {
-  //     const messagesRef = collection(db, 'chat_dms', dmId, 'messages');
-  //     const q = query(messagesRef, orderBy('timestamp', 'asc'));
-  //     
-  //     const unsubscribe = onSnapshot(q, (snapshot) => {
-  //       const msgs: Message[] = [];
-  //       snapshot.forEach(doc => {
-  //         msgs.push({
-  //           id: doc.id,
-  //           ...doc.data() as any,
-  //         });
-  //       });
-  //       setMessages(msgs);
-  //     });
-  //     
-  //     return unsubscribe;
-  //   } catch (err) {
-  //     console.error('Error loading DM messages:', err);
-  //   }
-  // };
+  const loadDMMessages = async (dmId: string) => {
+    try {
+      const messagesRef = collection(db, 'chat_dms', dmId, 'messages');
+      const q = query(messagesRef, orderBy('timestamp', 'asc'));
+      
+      const unsubscribe = onSnapshot(q, (snapshot) => {
+        const msgs: Message[] = [];
+        snapshot.forEach(doc => {
+          msgs.push({
+            id: doc.id,
+            ...doc.data() as any,
+          });
+        });
+        setMessages(msgs);
+      });
+      
+      return unsubscribe;
+    } catch (err) {
+      console.error('Error loading DM messages:', err);
+    }
+  };
 
-  const sendMessage = async () => {
-    if (!newMessage.trim()) return;
+  const sendMessage = async (content?: string) => {
+    const messageContent = content || newMessage;
+    if (!messageContent.trim()) return;
     
     try {
       if (selectedChannel) {
         const messagesRef = collection(db, 'chat_channels', selectedChannel, 'messages');
         await addDoc(messagesRef, {
           sender: user?.name || 'Unknown',
-          content: newMessage,
+          content: messageContent,
           timestamp: Date.now(),
+          replyTo: replyingTo ? {
+            id: replyingTo.id,
+            sender: replyingTo.sender,
+            content: replyingTo.content,
+          } : undefined,
+        });
+      } else if (selectedDM) {
+        const messagesRef = collection(db, 'chat_dms', selectedDM, 'messages');
+        await addDoc(messagesRef, {
+          sender: user?.name || 'Unknown',
+          content: messageContent,
+          timestamp: Date.now(),
+          replyTo: replyingTo ? {
+            id: replyingTo.id,
+            sender: replyingTo.sender,
+            content: replyingTo.content,
+          } : undefined,
         });
       }
       
       setNewMessage('');
+      setReplyingTo(null);
     } catch (err) {
       console.error('Error sending message:', err);
+    }
+  };
+
+  const searchGifs = async (query: string) => {
+    if (!query.trim()) {
+      setGifs([]);
+      return;
+    }
+    
+    try {
+      // Using Giphy's public beta key for demo
+      const response = await fetch(
+        `https://api.giphy.com/v1/gifs/search?q=${encodeURIComponent(query)}&limit=8&api_key=dc6zaTOxFJmzC`
+      );
+      const data = await response.json();
+      setGifs(data.data || []);
+    } catch (err) {
+      console.error('Error searching GIFs:', err);
+    }
+  };
+
+  const addReaction = async (messageId: string, emoji: string) => {
+    try {
+      if (selectedChannel) {
+        const msgRef = doc(db, 'chat_channels', selectedChannel, 'messages', messageId);
+        const updateData: any = {};
+        updateData[`reactions.${emoji}`] = arrayUnion(user?.name || 'Unknown');
+        await updateDoc(msgRef, updateData);
+      } else if (selectedDM) {
+        const msgRef = doc(db, 'chat_dms', selectedDM, 'messages', messageId);
+        const updateData: any = {};
+        updateData[`reactions.${emoji}`] = arrayUnion(user?.name || 'Unknown');
+        await updateDoc(msgRef, updateData);
+      }
+    } catch (err) {
+      console.error('Error adding reaction:', err);
+    }
+  };
+
+  const handleTyping = () => {
+    if (!isTyping) {
+      setIsTyping(true);
+    }
+    
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+    
+    typingTimeoutRef.current = setTimeout(() => {
+      setIsTyping(false);
+    }, 3000);
+  };
+
+  const insertGif = (gif: any) => {
+    const gifUrl = gif.images.fixed_height.url;
+    sendMessage(`[GIF] ${gifUrl}`);
+    setIsPickingGif(false);
+    setGifSearch('');
+    setGifs([]);
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    // For demo, just add file name as message
+    sendMessage(`📎 File: ${file.name}`);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
     }
   };
 
@@ -202,9 +340,14 @@ export default function Chat() {
                 <div
                   key={channel.id}
                   className={`chat-item ${selectedChannel === channel.id ? 'active' : ''}`}
-                  onClick={() => setSelectedChannel(channel.id)}
+                  onClick={() => {
+                    setSelectedChannel(channel.id);
+                    setSelectedDM(null);
+                  }}
                 >
-                  <span className="chat-name"># {channel.name}</span>
+                  <span className={`chat-name ${channel.unread > 0 ? 'unread' : ''}`}>
+                    # {channel.name}
+                  </span>
                   {channel.unread > 0 && (
                     <span className="chat-unread">{channel.unread}</span>
                   )}
@@ -215,21 +358,50 @@ export default function Chat() {
 
           {activeTab === 'dms' && (
             <div className="chat-list">
-              <p style={{ padding: '1rem', color: '#999', fontSize: '0.85rem' }}>
-                DM-funksjonalitet kommer snart
-              </p>
+              {dms.length === 0 ? (
+                <p style={{ padding: '1rem', color: '#999', fontSize: '0.85rem' }}>
+                  Ingen DMs ennå
+                </p>
+              ) : (
+                dms.map(dm => {
+                  const otherParticipant = dm.participants.find(p => p !== user?.name) || 'Unknown';
+                  return (
+                    <div
+                      key={dm.id}
+                      className={`chat-item ${selectedDM === dm.id ? 'active' : ''}`}
+                      onClick={() => {
+                        setSelectedDM(dm.id);
+                        setSelectedChannel(null);
+                      }}
+                    >
+                      <span className={`chat-name ${dm.unread > 0 ? 'unread' : ''}`}>
+                        💬 {otherParticipant}
+                      </span>
+                      {dm.unread > 0 && (
+                        <span className="chat-unread">{dm.unread}</span>
+                      )}
+                    </div>
+                  );
+                })
+              )}
             </div>
           )}
         </div>
 
         {/* Message Area */}
         <div className="chat-main">
-          {selectedChannel ? (
+          {selectedChannel || selectedDM ? (
             <>
               {/* Messages */}
               <div className="messages-area">
                 {messages.map(msg => (
                   <div key={msg.id} className="message">
+                    {msg.replyTo && (
+                      <div className="reply-context">
+                        <span className="reply-sender">{msg.replyTo.sender}</span>
+                        <span className="reply-content">{msg.replyTo.content.substring(0, 50)}...</span>
+                      </div>
+                    )}
                     <div className="message-header">
                       <span className="message-sender">{msg.sender}</span>
                       <span className="message-time">
@@ -237,10 +409,46 @@ export default function Chat() {
                       </span>
                     </div>
                     <div className="message-content">{msg.content}</div>
+                    {msg.attachments && msg.attachments.length > 0 && (
+                      <div className="message-attachments">
+                        {msg.attachments.map((att, idx) => (
+                          <div key={idx} className="attachment">
+                            {att.type === 'gif' && <img src={att.url} alt="GIF" />}
+                            {att.type === 'file' && <span>📎 {att.name}</span>}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    <div className="message-actions">
+                      <button 
+                        className="reply-button"
+                        onClick={() => setReplyingTo(msg)}
+                      >
+                        ↩️ Reply
+                      </button>
+                      <button 
+                        className="reaction-button"
+                        onClick={() => addReaction(msg.id, '👍')}
+                      >
+                        👍
+                      </button>
+                      <button 
+                        className="reaction-button"
+                        onClick={() => addReaction(msg.id, '❤️')}
+                      >
+                        ❤️
+                      </button>
+                      <button 
+                        className="reaction-button"
+                        onClick={() => addReaction(msg.id, '😂')}
+                      >
+                        😂
+                      </button>
+                    </div>
                     {msg.reactions && (
                       <div className="message-reactions">
                         {Object.entries(msg.reactions).map(([emoji, users]) => (
-                          <button key={emoji} className="reaction-button">
+                          <button key={emoji} className="reaction-count">
                             {emoji} {users.length}
                           </button>
                         ))}
@@ -250,11 +458,75 @@ export default function Chat() {
                 ))}
               </div>
 
+              {/* Reply Context */}
+              {replyingTo && (
+                <div className="reply-preview">
+                  <span>Replying to <strong>{replyingTo.sender}</strong></span>
+                  <button onClick={() => setReplyingTo(null)}>✕</button>
+                </div>
+              )}
+
+              {/* GIF Picker */}
+              {isPickingGif && (
+                <div className="gif-picker">
+                  <input
+                    type="text"
+                    placeholder="Search GIFs..."
+                    value={gifSearch}
+                    onChange={(e) => {
+                      setGifSearch(e.target.value);
+                      searchGifs(e.target.value);
+                    }}
+                    className="gif-search-input"
+                  />
+                  <div className="gif-grid">
+                    {gifs.map((gif) => (
+                      <img
+                        key={gif.id}
+                        src={gif.images.fixed_height.url}
+                        alt="GIF"
+                        onClick={() => insertGif(gif)}
+                        className="gif-thumbnail"
+                      />
+                    ))}
+                  </div>
+                  <button 
+                    onClick={() => setIsPickingGif(false)}
+                    className="close-gif-picker"
+                  >
+                    Close
+                  </button>
+                </div>
+              )}
+
               {/* Input */}
               <div className="message-input-area">
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileUpload}
+                  style={{ display: 'none' }}
+                />
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="input-action-btn"
+                  title="Upload file"
+                >
+                  📎
+                </button>
+                <button
+                  onClick={() => setIsPickingGif(!isPickingGif)}
+                  className="input-action-btn"
+                  title="Pick GIF"
+                >
+                  🎬
+                </button>
                 <textarea
                   value={newMessage}
-                  onChange={(e) => setNewMessage(e.target.value)}
+                  onChange={(e) => {
+                    setNewMessage(e.target.value);
+                    handleTyping();
+                  }}
                   onKeyPress={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault();
@@ -265,7 +537,7 @@ export default function Chat() {
                   className="message-input"
                 />
                 <button
-                  onClick={sendMessage}
+                  onClick={() => sendMessage()}
                   className="send-button"
                   disabled={!newMessage.trim()}
                 >
