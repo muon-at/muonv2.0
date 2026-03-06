@@ -123,17 +123,22 @@ export default function AdminDashboard() {
           const startOfWeek = new Date(today);
           startOfWeek.setDate(today.getDate() - today.getDay());
           
-          // Parse contracts and group by seller
-          const sellerStats: { [key: string]: { month: number; week: number; total: number; bestWeek: number; bestMonth: number } } = {};
-          
+          // Convert snapshot to array for easier processing
+          const contracts: any[] = [];
           snapshot.forEach((doc) => {
-            const data = doc.data();
+            contracts.push(doc.data());
+          });
+          
+          // Parse contracts and group by seller
+          const sellerStats: { [key: string]: { month: number; week: number; total: number; weeks: { [key: string]: number }; months: { [key: string]: number } } } = {};
+          
+          contracts.forEach((data) => {
             const selger = data.selger || 'Ukjent';
             const orderedateStr = data.orderdato || '';
             
             // Initialize seller if not exists
             if (!sellerStats[selger]) {
-              sellerStats[selger] = { month: 0, week: 0, total: 0, bestWeek: 0, bestMonth: 0 };
+              sellerStats[selger] = { month: 0, week: 0, total: 0, weeks: {}, months: {} };
             }
             
             sellerStats[selger].total++;
@@ -142,7 +147,10 @@ export default function AdminDashboard() {
             if (orderedateStr) {
               const parts = orderedateStr.split('/');
               if (parts.length === 3) {
-                const orderDate = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+                const day = parseInt(parts[0]);
+                const month = parseInt(parts[1]);
+                const year = parseInt(parts[2]);
+                const orderDate = new Date(year, month - 1, day);
                 
                 // Count this month
                 if (orderDate >= startOfMonth && orderDate <= today) {
@@ -153,62 +161,38 @@ export default function AdminDashboard() {
                 if (orderDate >= startOfWeek && orderDate <= today) {
                   sellerStats[selger].week++;
                 }
-              }
-            }
-          });
-          
-          // Second pass: find best week and month for each seller
-          const sellerWeeks: { [key: string]: { [key: string]: number } } = {};
-          const sellerMonths: { [key: string]: { [key: string]: number } } = {};
-          
-          snapshot.forEach((doc) => {
-            const data = doc.data();
-            const selger = data.selger || 'Ukjent';
-            const orderedateStr = data.orderdato || '';
-            
-            if (orderedateStr) {
-              const parts = orderedateStr.split('/');
-              if (parts.length === 3) {
-                const orderDate = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
                 
                 // Track weeks
-                if (!sellerWeeks[selger]) sellerWeeks[selger] = {};
-                const weekNum = Math.floor((orderDate.getTime() - new Date(orderDate.getFullYear(), 0, 1).getTime()) / (7 * 24 * 60 * 60 * 1000));
-                const weekKey = `${orderDate.getFullYear()}-W${weekNum}`;
-                sellerWeeks[selger][weekKey] = (sellerWeeks[selger][weekKey] || 0) + 1;
+                const weekNum = Math.floor((orderDate.getTime() - new Date(year, 0, 1).getTime()) / (7 * 24 * 60 * 60 * 1000));
+                const weekKey = `${year}-W${weekNum}`;
+                sellerStats[selger].weeks[weekKey] = (sellerStats[selger].weeks[weekKey] || 0) + 1;
                 
                 // Track months
-                if (!sellerMonths[selger]) sellerMonths[selger] = {};
-                const monthKey = `${orderDate.getFullYear()}-${String(orderDate.getMonth() + 1).padStart(2, '0')}`;
-                sellerMonths[selger][monthKey] = (sellerMonths[selger][monthKey] || 0) + 1;
+                const monthKey = `${year}-${String(month).padStart(2, '0')}`;
+                sellerStats[selger].months[monthKey] = (sellerStats[selger].months[monthKey] || 0) + 1;
               }
-            }
-          });
-          
-          // Calculate best week and month
-          Object.keys(sellerStats).forEach((selger) => {
-            // Best week
-            if (sellerWeeks[selger]) {
-              const weeks = Object.values(sellerWeeks[selger]);
-              sellerStats[selger].bestWeek = weeks.length > 0 ? Math.max(...weeks) : 0;
-            }
-            
-            // Best month
-            if (sellerMonths[selger]) {
-              const months = Object.values(sellerMonths[selger]);
-              sellerStats[selger].bestMonth = months.length > 0 ? Math.max(...months) : 0;
             }
           });
           
           // Create array with all stats
-          const progresjonArray = Object.entries(sellerStats).map(([selger, stats]) => ({
-            selger,
-            month: stats.month,
-            week: stats.week,
-            total: stats.total,
-            bestWeek: stats.bestWeek,
-            bestMonth: stats.bestMonth,
-          }));
+          const progresjonArray = Object.entries(sellerStats).map(([selger, stats]) => {
+            // Find best week
+            const weeks = Object.values(stats.weeks);
+            const bestWeek = weeks.length > 0 ? Math.max(...weeks) : 0;
+            
+            // Find best month
+            const months = Object.values(stats.months);
+            const bestMonth = months.length > 0 ? Math.max(...months) : 0;
+            
+            return {
+              selger,
+              month: stats.month,
+              week: stats.week,
+              total: stats.total,
+              bestWeek,
+              bestMonth,
+            };
+          });
           
           setProgresjonData(progresjonArray.sort((a, b) => b.total - a.total));
         } catch (err) {
