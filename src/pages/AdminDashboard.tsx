@@ -2111,9 +2111,26 @@ export default function AdminDashboard() {
 
         {activeMainTab === 'organisasjon' && (
           <div className="tab-content">
-            <div className="org-header">
-              <h2>Ansatt Oversikt</h2>
-              <p className="org-subtitle">Håndter alle ansatte i systemet</p>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+              <div>
+                <h2 style={{ margin: 0, fontSize: '1.8rem', fontWeight: '700', color: '#333' }}>Ansattestyring</h2>
+                <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.95rem', color: '#666' }}>Administrere alle ansatte i Muon AS</p>
+              </div>
+              <button 
+                onClick={() => setShowAddModal(true)}
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  background: '#667eea',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  fontSize: '0.95rem',
+                }}
+              >
+                ➕ Legg til Ansatt
+              </button>
             </div>
 
             {loadingEmployees ? (
@@ -2122,23 +2139,19 @@ export default function AdminDashboard() {
               </p>
             ) : (
               <>
-                {/* Statistics Cards */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
-                  <div style={{ background: 'white', border: '2px solid #e2e8f0', borderRadius: '8px', padding: '1.5rem', textAlign: 'center' }}>
-                    <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.9rem', color: '#666', fontWeight: '600' }}>Total Ansatte</p>
-                    <p style={{ margin: 0, fontSize: '2rem', fontWeight: '700', color: '#667eea' }}>{employees.length}</p>
+                {/* Statistics Cards - Larger & Colorful */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.5rem', marginBottom: '2rem' }}>
+                  <div style={{ background: '#667eea', borderRadius: '12px', padding: '2rem', textAlign: 'center', color: 'white', boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)' }}>
+                    <p style={{ margin: '0 0 0.75rem 0', fontSize: '0.9rem', fontWeight: '600', opacity: 0.9 }}>Total Ansatte</p>
+                    <p style={{ margin: 0, fontSize: '3rem', fontWeight: '700' }}>{employees.length}</p>
                   </div>
-                  <div style={{ background: 'white', border: '2px solid #e2e8f0', borderRadius: '8px', padding: '1.5rem', textAlign: 'center' }}>
-                    <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.9rem', color: '#666', fontWeight: '600' }}>KRS</p>
-                    <p style={{ margin: 0, fontSize: '2rem', fontWeight: '700', color: '#667eea' }}>{employees.filter(e => e.department === 'KRS').length}</p>
+                  <div style={{ background: '#10b981', borderRadius: '12px', padding: '2rem', textAlign: 'center', color: 'white', boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)' }}>
+                    <p style={{ margin: '0 0 0.75rem 0', fontSize: '0.9rem', fontWeight: '600', opacity: 0.9 }}>Avdelinger</p>
+                    <p style={{ margin: 0, fontSize: '3rem', fontWeight: '700' }}>{new Set(employees.map(e => e.department)).size}</p>
                   </div>
-                  <div style={{ background: 'white', border: '2px solid #e2e8f0', borderRadius: '8px', padding: '1.5rem', textAlign: 'center' }}>
-                    <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.9rem', color: '#666', fontWeight: '600' }}>OSL</p>
-                    <p style={{ margin: 0, fontSize: '2rem', fontWeight: '700', color: '#667eea' }}>{employees.filter(e => e.department === 'OSL').length}</p>
-                  </div>
-                  <div style={{ background: 'white', border: '2px solid #e2e8f0', borderRadius: '8px', padding: '1.5rem', textAlign: 'center' }}>
-                    <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.9rem', color: '#666', fontWeight: '600' }}>Skien</p>
-                    <p style={{ margin: 0, fontSize: '2rem', fontWeight: '700', color: '#667eea' }}>{employees.filter(e => e.department === 'Skien').length}</p>
+                  <div style={{ background: '#a855f7', borderRadius: '12px', padding: '2rem', textAlign: 'center', color: 'white', boxShadow: '0 4px 12px rgba(168, 85, 247, 0.3)' }}>
+                    <p style={{ margin: '0 0 0.75rem 0', fontSize: '0.9rem', fontWeight: '600', opacity: 0.9 }}>Projekter</p>
+                    <p style={{ margin: 0, fontSize: '3rem', fontWeight: '700' }}>{new Set(employees.map(e => e.project)).size}</p>
                   </div>
                 </div>
 
@@ -2146,7 +2159,7 @@ export default function AdminDashboard() {
                 <div style={{ marginBottom: '1.5rem' }}>
                   <input
                     type="text"
-                    placeholder="🔍 Søk etter ansatt navn..."
+                    placeholder="Søk etter navn eller e-post..."
                     value={employeeSearchQuery}
                     onChange={(e) => setEmployeeSearchQuery(e.target.value)}
                     style={{
@@ -2157,71 +2170,71 @@ export default function AdminDashboard() {
                       fontSize: '0.95rem',
                       color: '#333',
                       boxSizing: 'border-box',
+                      backgroundColor: '#fff',
                     }}
                   />
                 </div>
 
-                <button 
-                  className="add-employee-btn"
-                  onClick={() => setShowAddModal(true)}
-                  style={{
-                    marginBottom: '1.5rem',
-                    padding: '0.75rem 1.5rem',
-                    background: '#667eea',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '6px',
-                    fontWeight: '600',
-                    cursor: 'pointer',
-                  }}
-                >
-                  ➕ Legg til ansatt
-                </button>
-
-                <div className="employees-table" style={{ overflowX: 'auto', minWidth: '100%' }}>
-                  <div className="table-header" style={{ minWidth: '2000px' }}>
+                <div className="employees-table" style={{ width: '100%', overflowX: 'auto' }}>
+                  <div className="table-header">
                     <div className="col-name">Navn</div>
-                    <div className="col-email">Email</div>
-                    <div className="col-username">Brukernavn</div>
-                    <div className="col-password">Passord</div>
+                    <div className="col-email">E-post</div>
                     <div className="col-role">Rolle</div>
                     <div className="col-project">Prosjekt</div>
                     <div className="col-dept">Avdeling</div>
-                    <div className="col-slack">Slack Navn</div>
-                    <div className="col-external">Ekstern Navn</div>
-                    <div className="col-tmg">TMG Navn</div>
+                    <div className="col-tmg">TMG-navn</div>
+                    <div className="col-slack">Stilling</div>
+                    <div className="col-external">Ekstern navn</div>
                     <div className="col-actions">Handlinger</div>
                   </div>
                   {employees
-                    .filter(emp => emp.name?.toLowerCase().includes(employeeSearchQuery.toLowerCase()))
+                    .filter(emp => emp.name?.toLowerCase().includes(employeeSearchQuery.toLowerCase()) || emp.email?.toLowerCase().includes(employeeSearchQuery.toLowerCase()))
                     .map((emp) => (
-                    <div key={emp.id} className="table-row" style={{ minWidth: '2000px' }}>
+                    <div key={emp.id} className="table-row">
                       <div className="col-name">{emp.name}</div>
-                      <div className="col-email" style={{ fontFamily: 'monospace', fontSize: '0.9rem' }}>{emp.email || '-'}</div>
-                      <div className="col-username" style={{ fontFamily: 'monospace', fontSize: '0.9rem' }}>{emp.username || '-'}</div>
-                      <div className="col-password" style={{ fontFamily: 'monospace', fontSize: '0.9rem', maxWidth: '150px', wordBreak: 'break-all' }}>{emp.password || '-'}</div>
-                      <div className="col-role">{emp.role || '-'}</div>
+                      <div className="col-email" style={{ fontSize: '0.9rem' }}>{emp.email || '-'}</div>
+                      <div className="col-role"><span style={{ background: '#f0f0f0', padding: '0.25rem 0.75rem', borderRadius: '12px', fontSize: '0.8rem', fontWeight: '500' }}>{emp.role || '-'}</span></div>
                       <div className="col-project">{emp.project || '-'}</div>
                       <div className="col-dept">{emp.department || '-'}</div>
+                      <div className="col-tmg">{emp.tmgName || '-'}</div>
                       <div className="col-slack">{emp.slackName || '-'}</div>
                       <div className="col-external">{emp.externalName || '-'}</div>
-                      <div className="col-tmg">{emp.tmgName || '-'}</div>
-                      <div className="col-actions">
+                      <div className="col-actions" style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
                         <button 
-                          className="action-btn edit-btn"
                           onClick={() => handleEditClick(emp)}
-                          style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem', padding: '0.25rem 0.5rem' }}
-                          title="Rediger"
+                          style={{ 
+                            background: '#f0f0f0', 
+                            border: 'none', 
+                            cursor: 'pointer', 
+                            padding: '0.5rem 1rem',
+                            borderRadius: '4px',
+                            fontSize: '0.85rem',
+                            fontWeight: '500',
+                            color: '#667eea',
+                            transition: 'all 0.2s'
+                          }}
+                          onMouseOver={(e) => (e.currentTarget.style.background = '#667eea', e.currentTarget.style.color = 'white')}
+                          onMouseOut={(e) => (e.currentTarget.style.background = '#f0f0f0', e.currentTarget.style.color = '#667eea')}
                         >
-                          ✏️
+                          Rediger
                         </button>
                         <button 
-                          className="action-btn delete-btn"
                           onClick={() => handleDeleteClick(emp.id, emp.name)}
-                          style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem', padding: '0.25rem 0.5rem', color: '#dc2626' }}
-                          title="Slett"
+                          style={{ 
+                            background: '#f0f0f0', 
+                            border: 'none', 
+                            cursor: 'pointer', 
+                            padding: '0.5rem 1rem',
+                            borderRadius: '4px',
+                            fontSize: '0.85rem',
+                            fontWeight: '500',
+                            color: '#dc2626',
+                            transition: 'all 0.2s'
+                          }}
+                          onMouseOver={(e) => (e.currentTarget.style.background = '#dc2626', e.currentTarget.style.color = 'white')}
+                          onMouseOut={(e) => (e.currentTarget.style.background = '#f0f0f0', e.currentTarget.style.color = '#dc2626')}
                         >
-                          🗑️
+                          Slett
                         </button>
                       </div>
                     </div>
