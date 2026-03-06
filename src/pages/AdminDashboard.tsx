@@ -78,6 +78,10 @@ export default function AdminDashboard() {
   const [activeAngringerFilters, setActiveAngringerFilters] = useState(angringerFilters);
   const [produkterData, setProdukterData] = useState<any[]>([]);
   const [loadingProdukter, setLoadingProdukter] = useState(false);
+  const [badgesData, setBadgesData] = useState<any[]>([]);
+  const [loadingBadges, setLoadingBadges] = useState(false);
+
+  const defaultBadges = ['👑', '🎓', '🏆', '⭐', '💎', '🔥', '🚀', '👑', '🎯', '💪', '☀️', '⚡', '🎭', '🏅', '🎖️'];
   const [filters, setFilters] = useState<KontraktsarkivFilters>({
     selger: '',
     avdeling: '',
@@ -101,6 +105,42 @@ export default function AdminDashboard() {
       fetchEmployees();
     }
   }, [activeMainTab]);
+
+  // Fetch badges data when BADGES tab is opened
+  useEffect(() => {
+    if (activeMainTab === 'allente' && activeAllenteTab === 'badges') {
+      setLoadingBadges(true);
+      const loadBadgesData = async () => {
+        try {
+          const badgesRef = collection(db, 'allente_badges');
+          const snapshot = await getDocs(badgesRef);
+          const badges: any[] = [];
+          
+          snapshot.forEach((doc) => {
+            badges.push({ id: doc.id, ...doc.data() });
+          });
+
+          // If no badges in DB, create from defaults
+          if (badges.length === 0) {
+            const defaultBadgesList = defaultBadges.map((emoji) => ({
+              emoji,
+              verdi: '',
+              beskrivelse: '',
+            }));
+            setBadgesData(defaultBadgesList);
+          } else {
+            setBadgesData(badges.sort((a, b) => a.emoji.localeCompare(b.emoji)));
+          }
+        } catch (err) {
+          console.error('Error fetching badges:', err);
+        } finally {
+          setLoadingBadges(false);
+        }
+      };
+      
+      loadBadgesData();
+    }
+  }, [activeMainTab, activeAllenteTab]);
 
   // Fetch produkter data when PRODUKT tab is opened
   useEffect(() => {
@@ -267,6 +307,48 @@ export default function AdminDashboard() {
     } catch (err) {
       console.error('Error saving employee:', err);
       alert('Feil ved lagring av ansatt');
+    }
+  };
+
+  const handleSaveBadges = async () => {
+    try {
+      const badgesRef = collection(db, 'allente_badges');
+      
+      for (const badge of badgesData) {
+        if (badge.emoji) {
+          const docRef = doc(db, 'allente_badges', badge.emoji);
+          const docSnapshot = await getDocs(badgesRef);
+          let exists = false;
+          
+          docSnapshot.forEach((d) => {
+            if (d.id === badge.emoji) {
+              exists = true;
+            }
+          });
+
+          if (exists) {
+            // Update existing
+            await updateDoc(docRef, {
+              verdi: badge.verdi || '',
+              beskrivelse: badge.beskrivelse || '',
+              updatedAt: new Date().toISOString(),
+            });
+          } else {
+            // Create new
+            await addDoc(badgesRef, {
+              emoji: badge.emoji,
+              verdi: badge.verdi || '',
+              beskrivelse: badge.beskrivelse || '',
+              createdAt: new Date().toISOString(),
+            });
+          }
+        }
+      }
+
+      alert('✅ Badges lagret!');
+    } catch (err) {
+      console.error('Error saving badges:', err);
+      alert('❌ Feil ved lagring');
     }
   };
 
@@ -993,6 +1075,99 @@ export default function AdminDashboard() {
               </div>
             )}
 
+            {/* BADGES Tab */}
+            {activeAllenteTab === 'badges' && (
+              <div className="tab-content">
+                <div className="content-title">
+                  <h3>Badges</h3>
+                  <p className="content-subtitle">Administrer badge verdier og beskrivelser</p>
+                </div>
+
+                {loadingBadges ? (
+                  <p style={{ textAlign: 'center', color: '#999', padding: '2rem' }}>
+                    Laster badges...
+                  </p>
+                ) : badgesData.length > 0 ? (
+                  <>
+                    <div className="badges-table">
+                      <div className="table-header">
+                        <div className="col-emoji">Emoji</div>
+                        <div className="col-verdi">Verdi</div>
+                        <div className="col-beskrivelse">Beskrivelse</div>
+                      </div>
+                      {badgesData.map((badge, idx) => (
+                        <div key={idx} className="table-row">
+                          <div className="col-emoji" style={{ fontSize: '2rem', textAlign: 'center' }}>
+                            {badge.emoji}
+                          </div>
+                          <div className="col-verdi">
+                            <input
+                              type="text"
+                              value={badge.verdi || ''}
+                              onChange={(e) => {
+                                const updated = [...badgesData];
+                                updated[idx].verdi = e.target.value;
+                                setBadgesData(updated);
+                              }}
+                              placeholder="f.eks 100 poeng"
+                              style={{
+                                width: '100%',
+                                padding: '0.5rem',
+                                border: '1px solid #e2e8f0',
+                                borderRadius: '4px',
+                              }}
+                            />
+                          </div>
+                          <div className="col-beskrivelse">
+                            <input
+                              type="text"
+                              value={badge.beskrivelse || ''}
+                              onChange={(e) => {
+                                const updated = [...badgesData];
+                                updated[idx].beskrivelse = e.target.value;
+                                setBadgesData(updated);
+                              }}
+                              placeholder="Hva betyr denne badge?"
+                              style={{
+                                width: '100%',
+                                padding: '0.5rem',
+                                border: '1px solid #e2e8f0',
+                                borderRadius: '4px',
+                              }}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <button
+                      onClick={handleSaveBadges}
+                      style={{
+                        marginTop: '1.5rem',
+                        padding: '0.75rem 1.5rem',
+                        background: '#667eea',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '6px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      💾 Lagre alle badges
+                    </button>
+
+                    <p style={{ marginTop: '1.5rem', color: '#999', fontSize: '0.9rem' }}>
+                      Total: {badgesData.length} badges
+                    </p>
+                  </>
+                ) : (
+                  <p style={{ textAlign: 'center', color: '#999', padding: '2rem' }}>
+                    Ingen badges funnet.
+                  </p>
+                )}
+              </div>
+            )}
+
             {/* PRODUKT Tab */}
             {activeAllenteTab === 'produkt' && (
               <div className="tab-content">
@@ -1085,7 +1260,7 @@ export default function AdminDashboard() {
             )}
 
             {/* Other tabs placeholder */}
-            {activeAllenteTab !== 'i-dag' && activeAllenteTab !== 'salg' && activeAllenteTab !== 'angring' && activeAllenteTab !== 'produkt' && (
+            {activeAllenteTab !== 'i-dag' && activeAllenteTab !== 'salg' && activeAllenteTab !== 'angring' && activeAllenteTab !== 'produkt' && activeAllenteTab !== 'badges' && (
               <div className="tab-content">
                 <p style={{ textAlign: 'center', color: '#999', padding: '2rem' }}>
                   {allenteTabs.find(t => t.id === activeAllenteTab)?.label} tab content coming soon...

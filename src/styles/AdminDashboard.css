@@ -996,3 +996,51 @@
   border-color: #667eea !important;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
+
+/* Badges Table */
+.badges-table {
+  background: white;
+  border-radius: 8px;
+  overflow-x: auto;
+  border: 1px solid #e2e8f0;
+}
+
+.badges-table .table-header {
+  background: #fffbf0;
+  display: grid;
+  grid-template-columns: 100px 250px 350px;
+  gap: 1rem;
+  padding: 1rem;
+  font-weight: 600;
+  color: #333;
+  font-size: 0.9rem;
+  border-bottom: 2px solid #e2e8f0;
+  position: sticky;
+  top: 0;
+}
+
+.badges-table .table-row {
+  display: grid;
+  grid-template-columns: 100px 250px 350px;
+  gap: 1rem;
+  padding: 1rem;
+  border-bottom: 1px solid #e2e8f0;
+  align-items: center;
+}
+
+.badges-table .col-emoji {
+  color: #333;
+  font-weight: 500;
+}
+
+.badges-table .col-verdi input,
+.badges-table .col-beskrivelse input {
+  font-size: 0.9rem;
+}
+
+.badges-table .col-verdi input:focus,
+.badges-table .col-beskrivelse input:focus {
+  outline: none;
+  border-color: #667eea !important;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
