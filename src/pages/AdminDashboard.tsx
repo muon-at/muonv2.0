@@ -563,24 +563,10 @@ export default function AdminDashboard() {
           const produkterMap = new Map<string, any>();
           
           const contracts = contractsSnapshot.docs;
-          contracts.forEach((doc, idx) => {
+          contracts.forEach((doc) => {
             const data = doc.data();
             const produkt = data.produkt || '';
-            
-            // Debug: Log first contract fields
-            if (idx === 0) {
-              console.log('🔍 First contract fields:', Object.keys(data).slice(0, 20));
-              console.log('📋 Full data sample:', {
-                produkt: data.produkt,
-                plattform: data.plattform,
-                chosenPlatform: data.chosenPlatform,
-                'Choosen Platform': data['Choosen Platform'],
-                'chosen_platform': data['chosen_platform'],
-              });
-            }
-            
-            // Try multiple field name variations
-            const plattform = data['Choosen Platform'] || data.chosenPlatform || data.chosen_platform || data.plattform || 'Ukjent';
+            const plattform = data.plattform || 'Ukjent';
             const key = `${produkt}|${plattform}`;
             
             if (produkt.trim() && !produkterMap.has(key)) {
