@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { collection, getDocs, doc, updateDoc, addDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, updateDoc, addDoc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import FileUploadModal from '../components/FileUploadModal';
 import '../styles/AdminDashboard.css';
@@ -84,6 +84,7 @@ export default function AdminDashboard() {
   const defaultBadges = ['👑', '🎓', '🏆', '⭐', '💎', '🔥', '🚀', '👑', '🎯', '💪', '☀️', '⚡', '🎭', '🏅', '🎖️'];
   const [progresjonData, setProgresjonData] = useState<any[]>([]);
   const [loadingProgresjon, setLoadingProgresjon] = useState(false);
+  const [badgeWinner, setBadgeWinner] = useState<string | null>(null);
   const [filters, setFilters] = useState<KontraktsarkivFilters>({
     selger: '',
     avdeling: '',
@@ -194,7 +195,43 @@ export default function AdminDashboard() {
             };
           });
           
-          setProgresjonData(progresjonArray.sort((a, b) => b.total - a.total));
+          const sorted = progresjonArray.sort((a, b) => b.total - a.total);
+          setProgresjonData(sorted);
+          
+          // Calculate badge winner (most total sales)
+          if (sorted.length > 0) {
+            const currentWinner = sorted[0].selger;
+            
+            // Check if winner changed
+            try {
+              const badgeRef = doc(db, 'allente_badge_winners', 'best_total');
+              const badgeSnap = await getDoc(badgeRef);
+              
+              if (badgeSnap.exists()) {
+                const previousWinner = badgeSnap.data().selger;
+                // If winner changed, update Firestore
+                if (previousWinner !== currentWinner) {
+                  await setDoc(badgeRef, {
+                    emoji: '🏆',
+                    selger: currentWinner,
+                    updatedAt: new Date().toISOString(),
+                  });
+                }
+                setBadgeWinner(badgeSnap.data().selger);
+              } else {
+                // First time - create record
+                await setDoc(badgeRef, {
+                  emoji: '🏆',
+                  selger: currentWinner,
+                  createdAt: new Date().toISOString(),
+                  updatedAt: new Date().toISOString(),
+                });
+                setBadgeWinner(currentWinner);
+              }
+            } catch (err) {
+              console.error('Error updating badge winner:', err);
+            }
+          }
         } catch (err) {
           console.error('Error fetching progresjon data:', err);
         } finally {
@@ -1200,6 +1237,7 @@ export default function AdminDashboard() {
                       <div className="col-total">Totalt</div>
                       <div className="col-best-week">Best Uke</div>
                       <div className="col-best-month">Best Måned</div>
+                      <div className="col-badges">Badges</div>
                     </div>
                     {progresjonData.map((row, idx) => (
                       <div key={idx} className="table-row">
@@ -1218,6 +1256,9 @@ export default function AdminDashboard() {
                         </div>
                         <div className="col-best-month" style={{ textAlign: 'center', fontWeight: '600', color: '#10b981' }}>
                           {row.bestMonth}
+                        </div>
+                        <div className="col-badges" style={{ textAlign: 'center', fontSize: '1.5rem' }}>
+                          {badgeWinner === row.selger ? '🏆' : ''}
                         </div>
                       </div>
                     ))}

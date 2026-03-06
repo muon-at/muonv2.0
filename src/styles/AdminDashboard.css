@@ -1058,7 +1058,7 @@
 .progresjon-table .table-header {
   background: #fffbf0;
   display: grid;
-  grid-template-columns: 200px 100px 100px 100px 100px 100px;
+  grid-template-columns: 200px 100px 100px 100px 100px 100px 80px;
   gap: 1rem;
   padding: 1rem;
   font-weight: 600;
@@ -1071,7 +1071,7 @@
 
 .progresjon-table .table-row {
   display: grid;
-  grid-template-columns: 200px 100px 100px 100px 100px 100px;
+  grid-template-columns: 200px 100px 100px 100px 100px 100px 80px;
   gap: 1rem;
   padding: 1rem;
   border-bottom: 1px solid #e2e8f0;
