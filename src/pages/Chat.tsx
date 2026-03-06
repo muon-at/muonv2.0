@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../lib/authContext';
 import { db } from '../lib/firebase';
-import { collection, getDocs, addDoc, onSnapshot, query, orderBy, updateDoc, doc, arrayUnion } from 'firebase/firestore';
+import { collection, getDocs, addDoc, onSnapshot, query, orderBy, updateDoc, doc, arrayUnion, getDoc, setDoc } from 'firebase/firestore';
 import ChannelModal from '../components/ChannelModal';
 import '../styles/Chat.css';
 
@@ -71,6 +71,8 @@ export default function Chat() {
   const [emojiPickerMessageId, setEmojiPickerMessageId] = useState<string | null>(null);
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
   const [editingMessageContent, setEditingMessageContent] = useState('');
+  const [topDepartment, setTopDepartment] = useState<string | null>(null); // Best department this week
+  const [employeeMap, setEmployeeMap] = useState<any>({}); // Map of externalName -> {department, name}
   const fileInputRef = useRef<HTMLInputElement>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
@@ -84,15 +86,88 @@ export default function Chat() {
   ];
   
 
-  // Load channels on mount
+  // Load channels on mount + calculate top department this week
   useEffect(() => {
     const load = async () => {
       await loadChannels();
       await loadDMs();
       await loadAllUsers();
+      await calculateTopDepartment();
     };
     load();
   }, [user]);
+
+  const calculateTopDepartment = async () => {
+    try {
+      // Load employees for mapping
+      const employeesRef = collection(db, 'employees');
+      const employeesSnap = await getDocs(employeesRef);
+      const empMap: any = {};
+      employeesSnap.forEach(doc => {
+        const emp = doc.data();
+        if (emp.externalName) {
+          empMap[emp.externalName] = {
+            department: emp.department || 'Ukjent',
+            name: emp.name || emp.externalName
+          };
+        }
+      });
+      setEmployeeMap(empMap);
+
+      // Load contracts and calculate this week sales per department
+      const contractsRef = collection(db, 'allente_kontraktsarkiv');
+      const contractsSnap = await getDocs(contractsRef);
+      
+      const today = new Date();
+      const weekStart = new Date(today);
+      weekStart.setDate(today.getDate() - today.getDay());
+      
+      const deptSales: any = {};
+      contractsSnap.forEach(doc => {
+        const contract = doc.data();
+        const cDate = parseDate(contract.dato);
+        
+        // Check if this week
+        if (cDate >= weekStart && cDate <= today) {
+          const dept = empMap[contract.selger]?.department || 'Ukjent';
+          deptSales[dept] = (deptSales[dept] || 0) + 1;
+        }
+      });
+
+      // Find top department
+      const topDept = Object.entries(deptSales).sort((a, b) => (b[1] as any) - (a[1] as any))[0]?.[0];
+      setTopDepartment(topDept || null);
+      console.log('👑 Top department this week:', topDept, deptSales);
+    } catch (err) {
+      console.error('Error calculating top department:', err);
+    }
+  };
+
+  // Parse dates in multiple formats
+  const parseDate = (dateStr: string): Date => {
+    if (!dateStr) return new Date(0);
+    const trimmed = dateStr.trim();
+    
+    const ddmmyyyyMatch = trimmed.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    if (ddmmyyyyMatch) {
+      const [, day, month, year] = ddmmyyyyMatch;
+      return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    }
+    
+    const ddmmyyyy2Match = trimmed.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
+    if (ddmmyyyy2Match) {
+      const [, day, month, year] = ddmmyyyy2Match;
+      return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    }
+    
+    const isoMatch = trimmed.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (isoMatch) {
+      const [, year, month, day] = isoMatch;
+      return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    }
+    
+    return new Date(dateStr);
+  };
 
   const loadAllUsers = async () => {
     try {
@@ -385,10 +460,45 @@ export default function Chat() {
         console.log('✅ Message sent successfully! Will auto-delete on:', deleteAtDate.toLocaleDateString());
       }
       
+      // Count emoji reactions
+      if (messageContent.includes('🔔')) {
+        await incrementEmojiCount('🔔');
+      }
+      if (messageContent.includes('💎')) {
+        await incrementEmojiCount('💎');
+      }
+      
       setNewMessage('');
       setReplyingTo(null);
     } catch (err) {
       console.error('❌ Error sending message:', err);
+    }
+  };
+
+  const incrementEmojiCount = async (emoji: string) => {
+    try {
+      const senderExternal = user?.name || 'Unknown';
+      const emojiCountsRef = doc(db, 'emoji_counts', 'chat_reactions');
+      
+      // Get or create document
+      const docSnap = await getDoc(emojiCountsRef);
+      if (docSnap.exists()) {
+        const currentCount = docSnap.data()?.[senderExternal]?.[emoji] || 0;
+        await updateDoc(emojiCountsRef, {
+          [`${senderExternal}.${emoji}`]: currentCount + 1,
+          [`${senderExternal}.lastUpdated`]: Date.now(),
+        });
+      } else {
+        await setDoc(emojiCountsRef, {
+          [senderExternal]: {
+            [emoji]: 1,
+            lastUpdated: Date.now(),
+          }
+        });
+      }
+      console.log(`✅ Emoji ${emoji} counted for ${senderExternal}`);
+    } catch (err) {
+      console.error(`❌ Error counting emoji ${emoji}:`, err);
     }
   };
 
@@ -1048,7 +1158,11 @@ export default function Chat() {
                       </div>
                     ) : (
                       <div className="message-header">
-                        <span className="message-sender">{msg.sender}</span>
+                        <span className="message-sender">
+                          {topDepartment && employeeMap[msg.sender]?.department === topDepartment ? '👑' : ''}
+                          {msg.sender}
+                          {topDepartment && employeeMap[msg.sender]?.department === topDepartment ? '👑' : ''}
+                        </span>
                         <span className="message-content" style={{
                           color: msg.isDeleted ? '#999' : '#333',
                           fontStyle: msg.isDeleted ? 'italic' : 'normal',
