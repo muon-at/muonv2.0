@@ -1008,7 +1008,7 @@
 .badges-table .table-header {
   background: #fffbf0;
   display: grid;
-  grid-template-columns: 100px 250px 350px;
+  grid-template-columns: 100px 150px 200px 300px;
   gap: 1rem;
   padding: 1rem;
   font-weight: 600;
@@ -1021,7 +1021,7 @@
 
 .badges-table .table-row {
   display: grid;
-  grid-template-columns: 100px 250px 350px;
+  grid-template-columns: 100px 150px 200px 300px;
   gap: 1rem;
   padding: 1rem;
   border-bottom: 1px solid #e2e8f0;
@@ -1033,11 +1033,13 @@
   font-weight: 500;
 }
 
+.badges-table .col-navn input,
 .badges-table .col-verdi input,
 .badges-table .col-beskrivelse input {
   font-size: 0.9rem;
 }
 
+.badges-table .col-navn input:focus,
 .badges-table .col-verdi input:focus,
 .badges-table .col-beskrivelse input:focus {
   outline: none;

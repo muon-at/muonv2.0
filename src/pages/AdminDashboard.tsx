@@ -224,6 +224,7 @@ export default function AdminDashboard() {
           if (badges.length === 0) {
             const defaultBadgesList = defaultBadges.map((emoji) => ({
               emoji,
+              navn: '',
               verdi: '',
               beskrivelse: '',
             }));
@@ -429,6 +430,7 @@ export default function AdminDashboard() {
           if (exists) {
             // Update existing
             await updateDoc(docRef, {
+              navn: badge.navn || '',
               verdi: badge.verdi || '',
               beskrivelse: badge.beskrivelse || '',
               updatedAt: new Date().toISOString(),
@@ -437,6 +439,7 @@ export default function AdminDashboard() {
             // Create new
             await addDoc(badgesRef, {
               emoji: badge.emoji,
+              navn: badge.navn || '',
               verdi: badge.verdi || '',
               beskrivelse: badge.beskrivelse || '',
               createdAt: new Date().toISOString(),
@@ -1244,6 +1247,7 @@ export default function AdminDashboard() {
                     <div className="badges-table">
                       <div className="table-header">
                         <div className="col-emoji">Emoji</div>
+                        <div className="col-navn">Navn</div>
                         <div className="col-verdi">Verdi</div>
                         <div className="col-beskrivelse">Beskrivelse</div>
                       </div>
@@ -1251,6 +1255,24 @@ export default function AdminDashboard() {
                         <div key={idx} className="table-row">
                           <div className="col-emoji" style={{ fontSize: '2rem', textAlign: 'center' }}>
                             {badge.emoji}
+                          </div>
+                          <div className="col-navn">
+                            <input
+                              type="text"
+                              value={badge.navn || ''}
+                              onChange={(e) => {
+                                const updated = [...badgesData];
+                                updated[idx].navn = e.target.value;
+                                setBadgesData(updated);
+                              }}
+                              placeholder="f.eks King"
+                              style={{
+                                width: '100%',
+                                padding: '0.5rem',
+                                border: '1px solid #e2e8f0',
+                                borderRadius: '4px',
+                              }}
+                            />
                           </div>
                           <div className="col-verdi">
                             <input
