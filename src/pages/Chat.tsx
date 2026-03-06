@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../lib/authContext';
 import { db } from '../lib/firebase';
 import { collection, getDocs, addDoc, onSnapshot, query, orderBy, updateDoc, doc, arrayUnion } from 'firebase/firestore';
+import ChannelModal from '../components/ChannelModal';
 import '../styles/Chat.css';
 
 interface Channel {
@@ -10,6 +11,7 @@ interface Channel {
   name: string;
   type: 'project' | 'team' | 'admin' | 'avdeling' | 'global';
   unread: number;
+  allowedUsers?: string[];
 }
 
 interface DMThread {
@@ -62,6 +64,7 @@ export default function Chat() {
   const [pinnedMessage, setPinnedMessage] = useState<Message | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredMessages, setFilteredMessages] = useState<Message[]>([]);
+  const [isChannelModalOpen, setIsChannelModalOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
@@ -119,7 +122,7 @@ export default function Chat() {
       
       snapshot.forEach(doc => {
         const data = doc.data();
-        const canAccess = checkChannelAccess(data.type, data.avdeling);
+        const canAccess = checkChannelAccess(data.type, data.avdeling, data.allowedUsers);
         
         if (canAccess) {
           allowedChannels.push({
@@ -127,6 +130,7 @@ export default function Chat() {
             name: data.name,
             type: data.type,
             unread: 0,
+            allowedUsers: data.allowedUsers,
           });
         }
       });
@@ -206,7 +210,12 @@ export default function Chat() {
     }
   };
 
-  const checkChannelAccess = (type: string, avdeling?: string): boolean => {
+  const checkChannelAccess = (type: string, avdeling?: string, allowedUsers?: string[]): boolean => {
+    // If allowedUsers is set, check if user is in the list
+    if (allowedUsers && allowedUsers.length > 0) {
+      return allowedUsers.includes(user?.name || '') || user?.role === 'owner';
+    }
+    
     switch (type) {
       case 'project':
         return true;
@@ -608,22 +617,52 @@ export default function Chat() {
   return (
     <div className="chat-container">
       {/* Header */}
-      <div className="chat-header">
-        <h1>💬 Chat</h1>
-        <button 
-          onClick={() => navigate('/min-side')}
-          style={{
-            padding: '0.5rem 1rem',
-            background: '#667eea',
-            color: '#fff',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-          }}
-        >
-          ← Min Side
-        </button>
+      <div className="chat-header" style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+      }}>
+        <h1 style={{ margin: 0 }}>💬 Chat</h1>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          {user?.role === 'owner' && (
+            <button 
+              onClick={() => setIsChannelModalOpen(true)}
+              style={{
+                padding: '0.5rem 1rem',
+                background: '#48bb78',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontWeight: 600,
+              }}
+            >
+              🆕 New Channel
+            </button>
+          )}
+          <button 
+            onClick={() => navigate('/min-side')}
+            style={{
+              padding: '0.5rem 1rem',
+              background: '#667eea',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+            }}
+          >
+            ← Min Side
+          </button>
+        </div>
       </div>
+
+      {/* Channel Creation Modal */}
+      <ChannelModal 
+        isOpen={isChannelModalOpen}
+        onClose={() => setIsChannelModalOpen(false)}
+        onChannelCreated={() => loadChannels()}
+        allUsers={allUsers}
+      />
 
       <div className="chat-content">
         {/* Sidebar */}
