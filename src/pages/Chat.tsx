@@ -37,6 +37,8 @@ interface Message {
     name?: string;
   }[];
   typingUsers?: string[];
+  seenBy?: string[];
+  isDeleted?: boolean;
 }
 
 export default function Chat() {
@@ -56,6 +58,10 @@ export default function Chat() {
   const [isTyping, setIsTyping] = useState(false);
   const [allUsers, setAllUsers] = useState<any[]>([]);
   const [dmSearchQuery, setDmSearchQuery] = useState('');
+  const [typingUsers, setTypingUsers] = useState<string[]>([]);
+  const [pinnedMessage, setPinnedMessage] = useState<Message | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredMessages, setFilteredMessages] = useState<Message[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
@@ -364,9 +370,75 @@ export default function Chat() {
     }
   };
 
+  const pinMessage = async (messageId: string, message: Message) => {
+    try {
+      if (selectedChannel) {
+        const channelRef = doc(db, 'chat_channels', selectedChannel);
+        await updateDoc(channelRef, {
+          pinnedMessageId: messageId,
+        });
+        setPinnedMessage(message);
+      } else if (selectedDM) {
+        const dmRef = doc(db, 'chat_dms', selectedDM);
+        await updateDoc(dmRef, {
+          pinnedMessageId: messageId,
+        });
+        setPinnedMessage(message);
+      }
+    } catch (err) {
+      console.error('Error pinning message:', err);
+    }
+  };
+
+  const unpinMessage = async () => {
+    try {
+      if (selectedChannel) {
+        const channelRef = doc(db, 'chat_channels', selectedChannel);
+        await updateDoc(channelRef, {
+          pinnedMessageId: null,
+        });
+      } else if (selectedDM) {
+        const dmRef = doc(db, 'chat_dms', selectedDM);
+        await updateDoc(dmRef, {
+          pinnedMessageId: null,
+        });
+      }
+      setPinnedMessage(null);
+    } catch (err) {
+      console.error('Error unpinning message:', err);
+    }
+  };
+
+  const deleteMessage = async (messageId: string) => {
+    // Only owner can delete
+    if (user?.role !== 'owner') {
+      alert('Only owners can delete messages');
+      return;
+    }
+    
+    try {
+      if (selectedChannel) {
+        const msgRef = doc(db, 'chat_channels', selectedChannel, 'messages', messageId);
+        await updateDoc(msgRef, {
+          content: '[Deleted]',
+          isDeleted: true,
+        });
+      } else if (selectedDM) {
+        const msgRef = doc(db, 'chat_dms', selectedDM, 'messages', messageId);
+        await updateDoc(msgRef, {
+          content: '[Deleted]',
+          isDeleted: true,
+        });
+      }
+    } catch (err) {
+      console.error('Error deleting message:', err);
+    }
+  };
+
   const handleTyping = () => {
     if (!isTyping) {
       setIsTyping(true);
+      broadcastTyping(true);
     }
     
     if (typingTimeoutRef.current) {
@@ -375,8 +447,104 @@ export default function Chat() {
     
     typingTimeoutRef.current = setTimeout(() => {
       setIsTyping(false);
+      broadcastTyping(false);
     }, 3000);
   };
+
+  const broadcastTyping = async (isTyping: boolean) => {
+    try {
+      if (selectedChannel) {
+        const typingRef = doc(db, 'chat_channels', selectedChannel, 'typing_status', user?.name || 'Unknown');
+        if (isTyping) {
+          await updateDoc(typingRef, {
+            user: user?.name || 'Unknown',
+            timestamp: Date.now(),
+          }).catch(() => {
+            // Document doesn't exist, will be created on read
+          });
+        }
+      }
+    } catch (err) {
+      // Silently fail - typing indicators are nice to have
+    }
+  };
+
+  // Listen for typing status in channel
+  useEffect(() => {
+    if (!selectedChannel) return;
+    
+    const typingRef = collection(db, 'chat_channels', selectedChannel, 'typing_status');
+    const unsubscribe = onSnapshot(typingRef, (snapshot) => {
+      const typing: string[] = [];
+      const now = Date.now();
+      
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        // Only show typing if timestamp is recent (within 3 seconds)
+        if (now - data.timestamp < 3000 && data.user !== user?.name) {
+          typing.push(data.user);
+        }
+      });
+      
+      setTypingUsers(typing);
+    });
+    
+    return () => unsubscribe();
+  }, [selectedChannel, user]);
+
+  // Mark messages as seen
+  const markMessageSeen = async (messageId: string) => {
+    try {
+      if (selectedChannel) {
+        const msgRef = doc(db, 'chat_channels', selectedChannel, 'messages', messageId);
+        await updateDoc(msgRef, {
+          seenBy: arrayUnion(user?.name || 'Unknown'),
+        }).catch(() => {
+          // Silently fail if document doesn't exist yet
+        });
+      } else if (selectedDM) {
+        const msgRef = doc(db, 'chat_dms', selectedDM, 'messages', messageId);
+        await updateDoc(msgRef, {
+          seenBy: arrayUnion(user?.name || 'Unknown'),
+        }).catch(() => {
+          // Silently fail if document doesn't exist yet
+        });
+      }
+    } catch (err) {
+      // Silently fail - read receipts are nice to have
+    }
+  };
+
+  // Auto-mark messages as seen when they appear
+  useEffect(() => {
+    if (messages.length === 0) return;
+    
+    const timer = setTimeout(() => {
+      messages.forEach(msg => {
+        if (msg.sender !== user?.name && !msg.seenBy?.includes(user?.name || 'Unknown')) {
+          markMessageSeen(msg.id);
+        }
+      });
+    }, 500);
+    
+    return () => clearTimeout(timer);
+  }, [messages, user, selectedChannel, selectedDM]);
+
+  // Filter messages by search query
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setFilteredMessages(messages);
+      return;
+    }
+    
+    const query = searchQuery.toLowerCase();
+    const filtered = messages.filter(msg => 
+      msg.content.toLowerCase().includes(query) ||
+      msg.sender.toLowerCase().includes(query)
+    );
+    
+    setFilteredMessages(filtered);
+  }, [messages, searchQuery]);
 
   const insertGif = (gif: any) => {
     const gifUrl = gif.images.fixed_height.url;
@@ -587,9 +755,58 @@ export default function Chat() {
         <div className="chat-main">
           {selectedChannel || selectedDM ? (
             <>
+              {/* Pinned Message */}
+              {pinnedMessage && (
+                <div style={{
+                  padding: '0.75rem 1rem',
+                  background: '#fff9e6',
+                  borderBottom: '2px solid #ffd700',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center'
+                }}>
+                  <div>
+                    <div style={{ fontSize: '0.85rem', color: '#666' }}>
+                      📌 Pinned: {pinnedMessage.sender}
+                    </div>
+                    <div style={{ fontSize: '0.9rem', color: '#333' }}>
+                      {pinnedMessage.content.substring(0, 60)}...
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => unpinMessage()}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      fontSize: '1rem',
+                      color: '#999'
+                    }}
+                  >
+                    ✕
+                  </button>
+                </div>
+              )}
+
+              {/* Search field */}
+              <input
+                type="text"
+                placeholder="Search messages..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                style={{
+                  padding: '0.5rem 1rem',
+                  borderBottom: '1px solid #e2e8f0',
+                  fontFamily: 'inherit',
+                  fontSize: '0.9rem',
+                  color: '#fff',
+                  background: '#2d3748',
+                }}
+              />
+
               {/* Messages */}
               <div className="messages-area">
-                {messages.map(msg => (
+                {filteredMessages.map(msg => (
                   <div key={msg.id} className="message">
                     {msg.replyTo && (
                       <div className="reply-context">
@@ -603,7 +820,13 @@ export default function Chat() {
                         {new Date(msg.timestamp).toLocaleTimeString()}
                       </span>
                     </div>
-                    <div className="message-content">{msg.content}</div>
+                    <div className="message-content" style={{
+                      color: msg.isDeleted ? '#999' : '#333',
+                      fontStyle: msg.isDeleted ? 'italic' : 'normal',
+                      opacity: msg.isDeleted ? 0.7 : 1,
+                    }}>
+                      {msg.content}
+                    </div>
                     {msg.attachments && msg.attachments.length > 0 && (
                       <div className="message-attachments">
                         {msg.attachments.map((att, idx) => (
@@ -614,12 +837,27 @@ export default function Chat() {
                         ))}
                       </div>
                     )}
+                    {msg.seenBy && msg.seenBy.length > 0 && msg.sender === user?.name && (
+                      <div style={{ 
+                        fontSize: '0.75rem', 
+                        color: '#999', 
+                        marginTop: '0.25rem'
+                      }}>
+                        ✔️ Seen by {msg.seenBy.length} {msg.seenBy.length === 1 ? 'person' : 'people'}
+                      </div>
+                    )}
                     <div className="message-actions">
                       <button 
                         className="reply-button"
                         onClick={() => setReplyingTo(msg)}
                       >
                         ↩️ Reply
+                      </button>
+                      <button 
+                        className="reply-button"
+                        onClick={() => pinMessage(msg.id, msg)}
+                      >
+                        📌 Pin
                       </button>
                       <button 
                         className="reaction-button"
@@ -639,6 +877,55 @@ export default function Chat() {
                       >
                         😂
                       </button>
+                      <button 
+                        className="reaction-button"
+                        onClick={() => addReaction(msg.id, '🔥')}
+                      >
+                        🔥
+                      </button>
+                      <button 
+                        className="reaction-button"
+                        onClick={() => addReaction(msg.id, '👏')}
+                      >
+                        👏
+                      </button>
+                      <button 
+                        className="reaction-button"
+                        onClick={() => addReaction(msg.id, '😍')}
+                      >
+                        😍
+                      </button>
+                      <button 
+                        className="reaction-button"
+                        onClick={() => addReaction(msg.id, '🎉')}
+                      >
+                        🎉
+                      </button>
+                      <button 
+                        className="reaction-button"
+                        onClick={() => addReaction(msg.id, '💯')}
+                      >
+                        💯
+                      </button>
+                      <button 
+                        className="reaction-button"
+                        onClick={() => addReaction(msg.id, '😢')}
+                      >
+                        😢
+                      </button>
+                      {user?.role === 'owner' && !msg.isDeleted && (
+                        <button
+                          className="reply-button"
+                          onClick={() => {
+                            if (confirm('Delete this message?')) {
+                              deleteMessage(msg.id);
+                            }
+                          }}
+                          style={{ color: '#ff4757' }}
+                        >
+                          🗑️ Delete
+                        </button>
+                      )}
                     </div>
                     {msg.reactions && (
                       <div className="message-reactions">
@@ -651,6 +938,20 @@ export default function Chat() {
                     )}
                   </div>
                 ))}
+                
+                {/* Typing Indicator */}
+                {typingUsers.length > 0 && (
+                  <div style={{ 
+                    padding: '0.5rem 1rem', 
+                    color: '#999', 
+                    fontSize: '0.85rem',
+                    fontStyle: 'italic'
+                  }}>
+                    {typingUsers.length === 1 
+                      ? `${typingUsers[0]} is typing...` 
+                      : `${typingUsers.join(', ')} are typing...`}
+                  </div>
+                )}
               </div>
 
               {/* Reply Context */}
