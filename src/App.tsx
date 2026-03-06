@@ -3,6 +3,7 @@ import { AuthProvider } from './lib/authContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import Login from './pages/Login';
 import MinSide from './pages/MinSide';
+import MinSideTest from './pages/MinSideTest';
 import Teamleder from './pages/Teamleder';
 import Admin from './pages/Admin';
 import AdminDashboard from './pages/AdminDashboard';
@@ -19,6 +20,14 @@ function App() {
             element={
               <ProtectedRoute requiredRole="employee">
                 <MinSide />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/min-side-test" 
+            element={
+              <ProtectedRoute requiredRole="employee">
+                <MinSideTest />
               </ProtectedRoute>
             } 
           />
