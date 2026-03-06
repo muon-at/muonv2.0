@@ -79,6 +79,12 @@ export default function Teamleder() {
         const contractsRef = collection(db, 'allente_kontraktsarkiv');
         const contractsSnap = await getDocs(contractsRef);
         const contracts = contractsSnap.docs.map(doc => doc.data());
+        
+        // DEBUG: Log first contract to see structure
+        if (contracts.length > 0) {
+          console.log('🔍 First contract structure:', contracts[0]);
+          console.log('🔍 Sample avdeling values:', contracts.slice(0, 5).map(c => c.avdeling));
+        }
 
         // Get targets
         const targetsRef = collection(db, 'allente_targets');
@@ -111,6 +117,9 @@ export default function Teamleder() {
           return cDate >= monthStart && cDate <= today;
         }).length;
 
+        console.log('🔔 TOTALS - Today:', todaySales, 'Week:', weekSales, 'Month:', monthSales);
+        console.log('✅ All contracts loaded:', contracts.length);
+
         setSalesToday(todaySales);
         setSalesWeek(weekSales);
         setSalesMonth(monthSales);
@@ -127,9 +136,17 @@ export default function Teamleder() {
           totalContracts: contracts.length
         });
 
+        // Debug: count contracts with each avdeling value
+        const avdelingCounts: any = {};
+        contracts.forEach(c => {
+          const av = c.avdeling || 'MISSING';
+          avdelingCounts[av] = (avdelingCounts[av] || 0) + 1;
+        });
+        console.log('📋 Avdeling distribution:', avdelingCounts);
+
         ['KRS', 'OSL', 'Skien'].forEach(dept => {
           const deptContracts = contracts.filter(c => c.avdeling === dept);
-          console.log(`📊 ${dept} total contracts:`, deptContracts.length);
+          console.log(`📊 ${dept} total contracts:`, deptContracts.length, 'looking for:', dept);
           
           const deptToday = deptContracts.filter(c => {
             const cDate = parseDate(c.dato);
