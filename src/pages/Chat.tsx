@@ -236,6 +236,18 @@ export default function Chat() {
     return emojiMap[lower] || '💬';
   };
 
+  const renderChannelEmoji = (emoji?: string) => {
+    const emojiStr = emoji || '💬';
+    
+    // Check if it's a data URL (custom emoji image)
+    if (emojiStr.startsWith('data:') || emojiStr.startsWith('http')) {
+      return <img src={emojiStr} alt="emoji" style={{ width: '1.5rem', height: '1.5rem', borderRadius: '4px' }} />;
+    }
+    
+    // Regular emoji
+    return emojiStr;
+  };
+
   const checkChannelAccess = (type: string, avdeling?: string, allowedUsers?: string[]): boolean => {
     // If allowedUsers is set, check if user is in the list
     if (allowedUsers && allowedUsers.length > 0) {
@@ -719,8 +731,11 @@ export default function Chat() {
                     setSelectedDM(null);
                   }}
                 >
-                  <span className={`chat-name ${channel.unread > 0 ? 'unread' : ''}`}>
-                    {channel.emoji} {channel.name}
+                  <span className={`chat-name ${channel.unread > 0 ? 'unread' : ''}`} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <span style={{ fontSize: '1.2rem', display: 'flex', alignItems: 'center', minWidth: '1.5rem' }}>
+                      {renderChannelEmoji(channel.emoji)}
+                    </span>
+                    {channel.name}
                   </span>
                   {channel.unread > 0 && (
                     <span className="chat-unread">{channel.unread}</span>
@@ -832,8 +847,8 @@ export default function Chat() {
                   alignItems: 'center',
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                    <span style={{ fontSize: '1.5rem' }}>
-                      {channels.find(c => c.id === selectedChannel)?.emoji}
+                    <span style={{ fontSize: '1.5rem', display: 'flex', alignItems: 'center' }}>
+                      {renderChannelEmoji(channels.find(c => c.id === selectedChannel)?.emoji)}
                     </span>
                     <div>
                       <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 600 }}>

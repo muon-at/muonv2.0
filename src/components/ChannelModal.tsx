@@ -15,8 +15,35 @@ export default function ChannelModal({ isOpen, onClose, onChannelCreated, allUse
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [channelEmoji, setChannelEmoji] = useState('💬');
   const [loading, setLoading] = useState(false);
+  const [customEmojiUrl, setCustomEmojiUrl] = useState<string | null>(null);
 
-  const commonEmojis = ['💬', '👥', '👔', '📊', '🔐', '📢', '💰', '🎯', '🏢', '⚙️', '🎲', '🛠️', '📱', '📋', '🎉', '🔥'];
+  const commonEmojis = [
+    '💬', '👥', '👔', '📊', '🔐', '📢', '💰', '🎯', '🏢', '⚙️', 
+    '🎲', '🛠️', '📱', '📋', '🎉', '🔥', '🚀', '⭐', '✨', '💎',
+    '🎓', '📚', '🎨', '🎭', '🎪', '🎬', '🎤', '🎧', '🎸', '🎹',
+    '⚽', '🏀', '🎾', '🏐', '🏈', '⛳', '🎯', '🎳', '🎮', '🎰',
+    '🍕', '🍔', '🍟', '🍗', '🌮', '🍜', '🍱', '🍣', '🍤', '🍰',
+    '☕', '🍵', '🍶', '🍷', '🍾', '🍻', '🥂', '🥃', '🍪', '🎂'
+  ];
+
+  const handleCustomEmojiUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      // For now, just use a data URL - in production you'd upload to Firebase Storage
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const dataUrl = event.target?.result as string;
+        setCustomEmojiUrl(dataUrl);
+        setChannelEmoji(dataUrl);
+      };
+      reader.readAsDataURL(file);
+    } catch (err) {
+      console.error('Error uploading emoji:', err);
+      alert('Error uploading emoji');
+    }
+  };
 
   const handleCreateChannel = async () => {
     if (!channelName.trim()) {
@@ -39,6 +66,7 @@ export default function ChannelModal({ isOpen, onClose, onChannelCreated, allUse
       setChannelType('project');
       setSelectedUsers([]);
       setChannelEmoji('💬');
+      setCustomEmojiUrl(null);
       onChannelCreated();
       onClose();
     } catch (err) {
@@ -99,22 +127,31 @@ export default function ChannelModal({ isOpen, onClose, onChannelCreated, allUse
         {/* Channel Emoji */}
         <div style={{ marginBottom: '1rem' }}>
           <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>
-            Channel Emoji
+            Channel Emoji (50+ options)
           </label>
           <div style={{
-            display: 'flex',
+            display: 'grid',
+            gridTemplateColumns: 'repeat(8, 1fr)',
             gap: '0.5rem',
-            flexWrap: 'wrap',
+            marginBottom: '1rem',
+            maxHeight: '200px',
+            overflowY: 'auto',
+            padding: '0.5rem',
+            border: '1px solid #e2e8f0',
+            borderRadius: '6px',
           }}>
             {commonEmojis.map(emoji => (
               <button
                 key={emoji}
-                onClick={() => setChannelEmoji(emoji)}
+                onClick={() => {
+                  setChannelEmoji(emoji);
+                  setCustomEmojiUrl(null);
+                }}
                 style={{
                   fontSize: '1.5rem',
                   padding: '0.5rem',
-                  background: channelEmoji === emoji ? '#667eea' : '#f0f0f0',
-                  border: 'none',
+                  background: channelEmoji === emoji && !customEmojiUrl ? '#667eea' : '#f0f0f0',
+                  border: channelEmoji === emoji && !customEmojiUrl ? '2px solid #667eea' : 'none',
                   borderRadius: '6px',
                   cursor: 'pointer',
                   transition: 'all 0.2s',
@@ -123,6 +160,55 @@ export default function ChannelModal({ isOpen, onClose, onChannelCreated, allUse
                 {emoji}
               </button>
             ))}
+          </div>
+          
+          {/* Custom Emoji Upload */}
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={{ 
+              display: 'block', 
+              marginBottom: '0.5rem', 
+              fontWeight: 600,
+              fontSize: '0.9rem',
+              color: '#666'
+            }}>
+              Or upload your own emoji (PNG/JPG)
+            </label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleCustomEmojiUpload}
+              style={{
+                padding: '0.5rem',
+                border: '1px solid #e2e8f0',
+                borderRadius: '6px',
+                width: '100%',
+                boxSizing: 'border-box',
+              }}
+            />
+            {customEmojiUrl && (
+              <div style={{
+                marginTop: '0.5rem',
+                padding: '0.5rem',
+                background: '#f0f0f0',
+                borderRadius: '6px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+              }}>
+                <img 
+                  src={customEmojiUrl} 
+                  alt="custom" 
+                  style={{ 
+                    width: '30px', 
+                    height: '30px',
+                    borderRadius: '4px',
+                  }} 
+                />
+                <span style={{ fontSize: '0.85rem', color: '#666' }}>
+                  Custom emoji selected ✓
+                </span>
+              </div>
+            )}
           </div>
         </div>
 
