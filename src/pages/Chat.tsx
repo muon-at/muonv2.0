@@ -734,7 +734,7 @@ export default function Chat() {
                 >
                   <div 
                     className={`emoji-circle ${channel.unread > 0 ? 'unread' : ''}`}
-                    title={channel.name}
+                    data-tooltip={channel.name}
                     style={{
                       background: selectedChannel === channel.id ? '#764ba2' : '#667eea',
                     }}
@@ -814,7 +814,7 @@ export default function Chat() {
                           >
                             <div 
                               className={`emoji-circle ${dm.unread > 0 ? 'unread' : ''}`}
-                              title={otherParticipant}
+                              data-tooltip={otherParticipant}
                               style={{
                                 background: selectedDM === dm.id ? '#764ba2' : '#667eea',
                                 fontSize: '1.2rem',

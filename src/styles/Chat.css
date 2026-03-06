@@ -431,6 +431,30 @@
   transform: scale(1.1);
 }
 
+/* Custom tooltip - appears instantly on hover */
+.emoji-circle::before {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: -32px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.95);
+  color: white;
+  padding: 0.4rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.05s ease;
+  z-index: 1000;
+  font-weight: 600;
+}
+
+.emoji-circle:hover::before {
+  opacity: 1;
+}
+
 /* Pulsing unread indicator */
 .emoji-circle.unread {
   animation: pulse-ring 2s infinite;
