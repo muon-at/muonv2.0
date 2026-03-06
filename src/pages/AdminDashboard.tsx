@@ -2192,9 +2192,9 @@ export default function AdminDashboard() {
                   />
                 </div>
 
-                <div style={{ overflowX: 'auto', width: '100%', marginBottom: '1rem' }}>
-                  <div className="employees-table" style={{ minWidth: '2200px', width: '100%' }}>
-                    <div className="table-header" style={{ display: 'grid', gridTemplateColumns: '180px 200px 100px 140px 120px 140px 120px 180px 150px', gap: '0.5rem', padding: '0.75rem 0.5rem', background: '#f9fafb', borderRadius: '6px 6px 0 0', fontWeight: '700', fontSize: '0.9rem' }}>
+                <div style={{ width: '100%', marginBottom: '1rem', overflowX: 'auto' }}>
+                  <div className="employees-table" style={{ width: '100%', minWidth: '1100px' }}>
+                    <div className="table-header" style={{ display: 'grid', gridTemplateColumns: '140px 220px 80px 90px 85px 100px 95px 180px 110px', gap: '0.5rem', padding: '0.75rem 0.5rem', background: '#f9fafb', borderRadius: '6px 6px 0 0', fontWeight: '700', fontSize: '0.9rem', position: 'sticky', top: 0 }}>
                       <div>Navn</div>
                       <div>E-post</div>
                       <div>Rolle</div>
@@ -2223,16 +2223,16 @@ export default function AdminDashboard() {
                           }
                         };
                         return (
-                      <div key={emp.id} style={{ display: 'grid', gridTemplateColumns: '180px 200px 100px 140px 120px 140px 120px 180px 150px', gap: '0.5rem', padding: '0.75rem 0.5rem', background: 'white', borderBottom: '1px solid #e5e7eb', alignItems: 'center', fontWeight: '600', fontSize: '0.9rem' }}>
-                        <div style={{ fontWeight: '700', color: '#1f2937' }}>{emp.name && emp.name !== 'N/A' ? emp.name : '⚠️ Ingen navn'}</div>
-                        <div style={{ fontSize: '0.85rem', color: '#4b5563' }}>{emp.email || '-'}</div>
+                      <div key={emp.id} style={{ display: 'grid', gridTemplateColumns: '140px 220px 80px 90px 85px 100px 95px 180px 110px', gap: '0.5rem', padding: '0.75rem 0.5rem', background: 'white', borderBottom: '1px solid #e5e7eb', alignItems: 'center', fontWeight: '600', fontSize: '0.9rem' }}>
+                        <div style={{ fontWeight: '700', color: '#1f2937', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{emp.name && emp.name !== 'N/A' ? emp.name : '⚠️ Ingen navn'}</div>
+                        <div style={{ fontSize: '0.85rem', color: '#4b5563', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{emp.email || '-'}</div>
                         <div><span style={{ background: getRoleColor(emp.role), color: 'white', padding: '0.3rem 0.6rem', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '600', whiteSpace: 'nowrap' }}>{getRoleLabel(emp.role)}</span></div>
-                        <div style={{ color: '#1f2937' }}>{emp.project || '-'}</div>
-                        <div style={{ color: '#1f2937' }}>{emp.department || '-'}</div>
-                        <div style={{ color: '#1f2937' }}>{emp.tmgName || '-'}</div>
-                        <div style={{ color: '#1f2937' }}>{emp.stilling || '-'}</div>
-                        <div style={{ color: '#1f2937' }}>{emp.externalName || '-'}</div>
-                        <div style={{ display: 'flex', gap: '1rem', fontSize: '0.85rem' }}>
+                        <div style={{ color: '#1f2937', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{emp.project || '-'}</div>
+                        <div style={{ color: '#1f2937', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{emp.department || '-'}</div>
+                        <div style={{ color: '#1f2937', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{emp.tmgName || '-'}</div>
+                        <div style={{ color: '#1f2937', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{emp.stilling || '-'}</div>
+                        <div style={{ color: '#1f2937', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{emp.externalName || '-'}</div>
+                        <div style={{ display: 'flex', gap: '0.75rem', fontSize: '0.85rem', justifyContent: 'space-between' }}>
                           <button 
                             onClick={() => handleEditClick(emp)}
                             style={{ 
@@ -2243,7 +2243,8 @@ export default function AdminDashboard() {
                               textDecoration: 'underline',
                               padding: '0',
                               fontWeight: '600',
-                              fontSize: '0.85rem'
+                              fontSize: '0.85rem',
+                              whiteSpace: 'nowrap'
                             }}
                           >
                             Rediger
@@ -2258,7 +2259,8 @@ export default function AdminDashboard() {
                               textDecoration: 'underline',
                               padding: '0',
                               fontWeight: '600',
-                              fontSize: '0.85rem'
+                              fontSize: '0.85rem',
+                              whiteSpace: 'nowrap'
                             }}
                           >
                             Slett
