@@ -190,9 +190,25 @@ export default function AdminDashboard() {
         console.log(`    [${i}] dato="${c.dato}" → parsed=${new Date(c.dato)}`);
       });
 
+      // Parse date in DD/MM/YYYY format
+      const parseDate = (dateStr: string): Date | null => {
+        if (!dateStr) return null;
+        
+        // Try DD/MM/YYYY format
+        const ddmmyyyy = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(dateStr);
+        if (ddmmyyyy) {
+          const [, day, month, year] = ddmmyyyy;
+          return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+        }
+        
+        // Fallback to standard parse
+        return new Date(dateStr);
+      };
+
       const filtered = contracts.filter(c => {
         if (!c.dato) return false;
-        const cDate = new Date(c.dato);
+        const cDate = parseDate(c.dato);
+        if (!cDate || isNaN(cDate.getTime())) return false;
         const match = cDate >= fromDate && cDate <= toDate;
         return match;
       });
