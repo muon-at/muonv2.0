@@ -98,6 +98,10 @@ export default function Teamleder() {
           avdeling: employeeMap[c.selger] || c.avdeling || 'Annet'
         }));
         
+        // Find missing sellers
+        const uniqueSellers = new Set(contracts.map(c => c.selger));
+        const missingSellers = Array.from(uniqueSellers).filter(seller => !employeeMap[seller]);
+        console.log('⚠️ SELLERS NOT IN EMPLOYEES LIST:', missingSellers);
         console.log('📋 Enriched contracts with departments (first 3):', contracts.slice(0, 3));
 
         // Get targets
