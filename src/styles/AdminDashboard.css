@@ -960,7 +960,7 @@
 .produkter-table .table-header {
   background: #fffbf0;
   display: grid;
-  grid-template-columns: 400px 200px 200px;
+  grid-template-columns: 300px 150px 200px 200px;
   gap: 1rem;
   padding: 1rem;
   font-weight: 600;
@@ -973,7 +973,7 @@
 
 .produkter-table .table-row {
   display: grid;
-  grid-template-columns: 400px 200px 200px;
+  grid-template-columns: 300px 150px 200px 200px;
   gap: 1rem;
   padding: 1rem;
   border-bottom: 1px solid #e2e8f0;
@@ -983,6 +983,12 @@
 .produkter-table .col-produktnavn {
   color: #333;
   font-weight: 500;
+}
+
+.produkter-table .col-plattform {
+  color: #667eea;
+  font-weight: 600;
+  text-align: center;
 }
 
 .produkter-table .col-cpo input,

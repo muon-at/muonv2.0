@@ -557,33 +557,48 @@ export default function AdminDashboard() {
       setLoadingProdukter(true);
       const loadProdukterData = async () => {
         try {
-          // Get unique products from contracts
+          // Get unique Produkt + Plattform combinations from contracts
           const contractsRef = collection(db, 'allente_kontraktsarkiv');
           const contractsSnapshot = await getDocs(contractsRef);
-          const uniqueProdukter = new Set<string>();
+          const produkterMap = new Map<string, any>();
           
           contractsSnapshot.forEach((doc) => {
             const produkt = doc.data().produkt || '';
-            if (produkt.trim()) {
-              uniqueProdukter.add(produkt);
+            const plattform = doc.data().plattform || 'Ukjent';
+            const key = `${produkt}|${plattform}`;
+            
+            if (produkt.trim() && !produkterMap.has(key)) {
+              produkterMap.set(key, {
+                navn: produkt,
+                plattform: plattform,
+                cpo: '',
+                provisjon: '',
+              });
             }
           });
 
           // Get CPO/Provisjon data from Firestore
-          const produkterRef = collection(db, 'allente_produkter');
-          const produkterSnapshot = await getDocs(produkterRef);
-          const produkterMap = new Map<string, any>();
+          const cpoRef = collection(db, 'allente_produkter');
+          const cpoSnapshot = await getDocs(cpoRef);
           
-          produkterSnapshot.forEach((doc) => {
-            produkterMap.set(doc.id, doc.data());
+          cpoSnapshot.forEach((doc) => {
+            const data = doc.data();
+            // Update all matching produkter with same navn
+            produkterMap.forEach((value) => {
+              if (value.navn === data.navn) {
+                value.cpo = data.cpo || '';
+                value.provisjon = data.provisjon || '';
+              }
+            });
           });
 
-          // Build products list with CPO/Provisjon
-          const products = Array.from(uniqueProdukter).map((navn) => ({
-            navn,
-            cpo: produkterMap.get(navn)?.cpo || '',
-            provisjon: produkterMap.get(navn)?.provisjon || '',
-          })).sort((a, b) => a.navn.localeCompare(b.navn));
+          // Build products list sorted by navn then plattform
+          const products = Array.from(produkterMap.values()).sort((a, b) => {
+            if (a.navn !== b.navn) {
+              return a.navn.localeCompare(b.navn);
+            }
+            return a.plattform.localeCompare(b.plattform);
+          });
           
           setProdukterData(products);
         } catch (err) {
@@ -1701,12 +1716,16 @@ export default function AdminDashboard() {
                     <div className="produkter-table">
                       <div className="table-header">
                         <div className="col-produktnavn">Produkt</div>
+                        <div className="col-plattform">Plattform</div>
                         <div className="col-cpo">CPO</div>
                         <div className="col-provisjon">Provisjon</div>
                       </div>
                       {produkterData.map((produkt, idx) => (
                         <div key={idx} className="table-row">
                           <div className="col-produktnavn">{produkt.navn}</div>
+                          <div className="col-plattform" style={{ fontWeight: '600', color: '#667eea' }}>
+                            {produkt.plattform}
+                          </div>
                           <div className="col-cpo">
                             <input
                               type="text"
