@@ -86,6 +86,7 @@ export default function AdminDashboard() {
   const [loadingProgresjon, setLoadingProgresjon] = useState(false);
   const [badgeWinner, setBadgeWinner] = useState<string | null>(null);
   const [mvpMånedWinners, setMvpMånedWinners] = useState<Set<string>>(new Set());
+  const [mvpDagWinners, setMvpDagWinners] = useState<Set<string>>(new Set());
   const [filters, setFilters] = useState<KontraktsarkivFilters>({
     selger: '',
     avdeling: '',
@@ -234,9 +235,24 @@ export default function AdminDashboard() {
             }
           }
           
-          // Calculate MVP MÅNED badge
+          // Calculate MVP MÅNED and MVP DAG badges
           try {
-            // Group contracts by month and seller
+            const mvpRef = collection(db, 'allente_badge_earners');
+            
+            // Load all existing badge winners
+            const allBadges = await getDocs(mvpRef);
+            const mvpMånedEarners = new Set<string>();
+            const mvpDagEarners = new Set<string>();
+            
+            allBadges.forEach((doc) => {
+              if (doc.data().badge === 'MVP_MÅNED') {
+                mvpMånedEarners.add(doc.data().selger);
+              } else if (doc.data().badge === 'MVP_DAG') {
+                mvpDagEarners.add(doc.data().selger);
+              }
+            });
+            
+            // --- MVP MÅNED ---
             const monthlyStats: { [key: string]: { [key: string]: number } } = {};
             
             contracts.forEach((data) => {
@@ -258,19 +274,7 @@ export default function AdminDashboard() {
               }
             });
             
-            // Find best seller each month and award badge
-            const mvpEarners = new Set<string>();
-            
-            // Load existing MVP MÅNED winners
-            const mvpRef = collection(db, 'allente_badge_earners');
-            const mvpSnap = await getDocs(mvpRef);
-            mvpSnap.forEach((doc) => {
-              if (doc.data().badge === 'MVP_MÅNED') {
-                mvpEarners.add(doc.data().selger);
-              }
-            });
-            
-            // Award badge for each month
+            // Award MVP MÅNED for each month
             for (const monthKey in monthlyStats) {
               const sellers = monthlyStats[monthKey];
               let bestSeller = '';
@@ -283,8 +287,7 @@ export default function AdminDashboard() {
                 }
               }
               
-              // If best seller doesn't have badge yet, award it
-              if (bestSeller && !mvpEarners.has(bestSeller)) {
+              if (bestSeller && !mvpMånedEarners.has(bestSeller)) {
                 await addDoc(mvpRef, {
                   badge: 'MVP_MÅNED',
                   emoji: '👑',
@@ -293,13 +296,63 @@ export default function AdminDashboard() {
                   sales: maxSales,
                   awardedAt: new Date().toISOString(),
                 });
-                mvpEarners.add(bestSeller);
+                mvpMånedEarners.add(bestSeller);
               }
             }
             
-            setMvpMånedWinners(mvpEarners);
+            // --- MVP DAG ---
+            const dailyStats: { [key: string]: { [key: string]: number } } = {};
+            
+            contracts.forEach((data) => {
+              const selger = data.selger || 'Ukjent';
+              const dateStr = data.dato || data.orderdato || '';
+              
+              if (dateStr) {
+                const parts = dateStr.split('/');
+                if (parts.length === 3) {
+                  const day = parseInt(parts[0]);
+                  const month = parseInt(parts[1]);
+                  const year = parseInt(parts[2]);
+                  const dayKey = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                  
+                  if (!dailyStats[dayKey]) {
+                    dailyStats[dayKey] = {};
+                  }
+                  dailyStats[dayKey][selger] = (dailyStats[dayKey][selger] || 0) + 1;
+                }
+              }
+            });
+            
+            // Award MVP DAG for each day
+            for (const dayKey in dailyStats) {
+              const sellers = dailyStats[dayKey];
+              let bestSeller = '';
+              let maxSales = 0;
+              
+              for (const selger in sellers) {
+                if (sellers[selger] > maxSales) {
+                  maxSales = sellers[selger];
+                  bestSeller = selger;
+                }
+              }
+              
+              if (bestSeller && !mvpDagEarners.has(bestSeller)) {
+                await addDoc(mvpRef, {
+                  badge: 'MVP_DAG',
+                  emoji: '⭐',
+                  selger: bestSeller,
+                  dayKey: dayKey,
+                  sales: maxSales,
+                  awardedAt: new Date().toISOString(),
+                });
+                mvpDagEarners.add(bestSeller);
+              }
+            }
+            
+            setMvpMånedWinners(mvpMånedEarners);
+            setMvpDagWinners(mvpDagEarners);
           } catch (err) {
-            console.error('Error calculating MVP MÅNED:', err);
+            console.error('Error calculating MVP badges:', err);
           }
         } catch (err) {
           console.error('Error fetching progresjon data:', err);
@@ -1329,6 +1382,7 @@ export default function AdminDashboard() {
                         <div className="col-badges" style={{ textAlign: 'center', fontSize: '1.5rem', letterSpacing: '0.25rem' }}>
                           {badgeWinner === row.selger ? '🏆' : ''}
                           {mvpMånedWinners.has(row.selger) ? '👑' : ''}
+                          {mvpDagWinners.has(row.selger) ? '⭐' : ''}
                         </div>
                       </div>
                     ))}
