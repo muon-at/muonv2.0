@@ -132,13 +132,18 @@ export default function AdminDashboard() {
           // Parse contracts and group by seller
           const sellerStats: { [key: string]: { month: number; week: number; total: number; weeks: { [key: string]: number }; months: { [key: string]: number } } } = {};
           
+          // Log first contract for inspection
+          if (contracts.length > 0) {
+            console.log('🔍 First contract full:', JSON.stringify(contracts[0], null, 2));
+          }
+          
           contracts.forEach((data, idx) => {
             const selger = data.selger || 'Ukjent';
             const orderedateStr = data.orderdato || '';
             
             // Debug first 2 contracts
             if (idx < 2) {
-              console.log(`📋 Contract ${idx}:`, { selger, orderedato: orderedateStr, keys: Object.keys(data).slice(0, 5) });
+              console.log(`📋 Contract ${idx}: selger="${selger}", orderdato="${orderedateStr}" (type: ${typeof orderedateStr})`);
             }
             
             // Initialize seller if not exists
@@ -149,7 +154,7 @@ export default function AdminDashboard() {
             sellerStats[selger].total++;
             
             // Parse date (DD/MM/YYYY format)
-            if (orderedateStr) {
+            if (orderedateStr && typeof orderedateStr === 'string') {
               const parts = orderedateStr.split('/');
               if (parts.length === 3) {
                 const day = parseInt(parts[0]);
@@ -159,13 +164,12 @@ export default function AdminDashboard() {
                 
                 // Debug first contract parsing
                 if (idx === 0) {
-                  console.log('🗓️ First contract parsed:', {
-                    raw: orderedateStr,
-                    parts: parts,
-                    day,
-                    month,
-                    year,
+                  console.log('🗓️ First contract date parse:', {
+                    orderedateStr,
+                    parts,
+                    parsed: { day, month, year },
                     orderDate: orderDate.toISOString().split('T')[0],
+                    isValid: !isNaN(orderDate.getTime()),
                   });
                 }
                 
@@ -1229,26 +1233,31 @@ export default function AdminDashboard() {
                       <div className="col-best-week">Best Uke</div>
                       <div className="col-best-month">Best Måned</div>
                     </div>
-                    {progresjonData.map((row, idx) => (
-                      <div key={idx} className="table-row">
-                        <div className="col-selger">{row.selger}</div>
-                        <div className="col-week" style={{ textAlign: 'center', fontWeight: '600', color: '#667eea' }}>
-                          {row.week}
+                    {progresjonData.map((row, idx) => {
+                      if (idx === 0) {
+                        console.log('🧮 First row data:', row);
+                      }
+                      return (
+                        <div key={idx} className="table-row">
+                          <div className="col-selger">{row.selger}</div>
+                          <div className="col-week" style={{ textAlign: 'center', fontWeight: '600', color: '#667eea' }}>
+                            {row.week}
+                          </div>
+                          <div className="col-month" style={{ textAlign: 'center', fontWeight: '600', color: '#667eea' }}>
+                            {row.month}
+                          </div>
+                          <div className="col-total" style={{ textAlign: 'center', fontWeight: '600', color: '#764ba2' }}>
+                            {row.total}
+                          </div>
+                          <div className="col-best-week" style={{ textAlign: 'center', fontWeight: '600', color: '#10b981' }}>
+                            {row.bestWeek}
+                          </div>
+                          <div className="col-best-month" style={{ textAlign: 'center', fontWeight: '600', color: '#10b981' }}>
+                            {row.bestMonth}
+                          </div>
                         </div>
-                        <div className="col-month" style={{ textAlign: 'center', fontWeight: '600', color: '#667eea' }}>
-                          {row.month}
-                        </div>
-                        <div className="col-total" style={{ textAlign: 'center', fontWeight: '600', color: '#764ba2' }}>
-                          {row.total}
-                        </div>
-                        <div className="col-best-week" style={{ textAlign: 'center', fontWeight: '600', color: '#10b981' }}>
-                          {row.bestWeek}
-                        </div>
-                        <div className="col-best-month" style={{ textAlign: 'center', fontWeight: '600', color: '#10b981' }}>
-                          {row.bestMonth}
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 ) : (
                   <p style={{ textAlign: 'center', color: '#999', padding: '2rem' }}>
