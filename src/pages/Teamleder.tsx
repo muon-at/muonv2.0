@@ -342,7 +342,7 @@ export default function Teamleder() {
                 border: '2px solid #667eea',
                 borderRadius: '8px',
               }}>
-                <h3 style={{ marginBottom: '1.5rem', fontSize: '1.2rem' }}>{dept}</h3>
+                <h3 style={{ marginBottom: '1.5rem', fontSize: '1.2rem', color: '#333', fontWeight: '700' }}>{dept}</h3>
                 
                 <div style={{ marginBottom: '1rem' }}>
                   <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', fontSize: '0.9rem' }}>Dagsmål</label>
