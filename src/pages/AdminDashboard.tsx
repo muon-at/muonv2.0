@@ -1312,7 +1312,13 @@ export default function AdminDashboard() {
             {activeAllenteTab === 'salg' && (
               <div className="tab-content">
                 <div className="content-title">
-                  <h3>Kontraktsarkiv {salgData.length > 0 && <span style={{ color: '#667eea', fontSize: '0.8em' }}>({getFilteredSalgData().length} av {salgData.length})</span>}</h3>
+                  <h3>
+                    Kontraktsarkiv {salgData.length > 0 && <span style={{ color: '#667eea', fontSize: '0.8em' }}>({getFilteredSalgData().length} av {salgData.length})</span>}
+                    {(() => {
+                      const annetCount = salgData.filter(r => r.avdeling === 'Annet').length;
+                      return annetCount > 0 && <span style={{ marginLeft: '1rem', color: '#ff4757', fontWeight: '700', fontSize: '0.9em' }}>⚠️ {annetCount} med Annet avdeling</span>;
+                    })()}
+                  </h3>
                   <p className="content-subtitle">Fullstendig oversikt over alle kontrakter</p>
                 </div>
 
@@ -1351,6 +1357,22 @@ export default function AdminDashboard() {
                           ))}
                         </select>
                       </div>
+
+                      <button
+                        onClick={() => setFilters({ ...filters, avdeling: 'Annet' })}
+                        style={{
+                          padding: '0.5rem 1rem',
+                          background: filters.avdeling === 'Annet' ? '#667eea' : '#f0f0f0',
+                          color: filters.avdeling === 'Annet' ? 'white' : '#333',
+                          border: 'none',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                          fontWeight: '600',
+                          fontSize: '0.9rem',
+                        }}
+                      >
+                        ⚠️ Vis Annet
+                      </button>
 
                       <div className="filter-group">
                         <label>Produkt:</label>
