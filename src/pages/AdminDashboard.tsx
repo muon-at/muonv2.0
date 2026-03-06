@@ -132,19 +132,9 @@ export default function AdminDashboard() {
           // Parse contracts and group by seller
           const sellerStats: { [key: string]: { month: number; week: number; total: number; weeks: { [key: string]: number }; months: { [key: string]: number } } } = {};
           
-          // Log first contract for inspection
-          if (contracts.length > 0) {
-            console.log('🔍 First contract full:', JSON.stringify(contracts[0], null, 2));
-          }
-          
-          contracts.forEach((data, idx) => {
+          contracts.forEach((data) => {
             const selger = data.selger || 'Ukjent';
             const orderedateStr = data.dato || data.orderdato || '';
-            
-            // Debug first 2 contracts
-            if (idx < 2) {
-              console.log(`📋 Contract ${idx}: selger="${selger}", orderdato="${orderedateStr}" (type: ${typeof orderedateStr})`);
-            }
             
             // Initialize seller if not exists
             if (!sellerStats[selger]) {
@@ -161,17 +151,6 @@ export default function AdminDashboard() {
                 const month = parseInt(parts[1]);
                 const year = parseInt(parts[2]);
                 const orderDate = new Date(year, month - 1, day);
-                
-                // Debug first contract parsing
-                if (idx === 0) {
-                  console.log('🗓️ First contract date parse:', {
-                    orderedateStr,
-                    parts,
-                    parsed: { day, month, year },
-                    orderDate: orderDate.toISOString().split('T')[0],
-                    isValid: !isNaN(orderDate.getTime()),
-                  });
-                }
                 
                 // Count this month
                 if (orderDate >= startOfMonth && orderDate <= today) {
@@ -196,7 +175,7 @@ export default function AdminDashboard() {
           });
           
           // Create array with all stats
-          const progresjonArray = Object.entries(sellerStats).map(([selger, stats], index) => {
+          const progresjonArray = Object.entries(sellerStats).map(([selger, stats]) => {
             // Find best week
             const weeks = Object.values(stats.weeks);
             const bestWeek = weeks.length > 0 ? Math.max(...weeks) : 0;
@@ -204,17 +183,6 @@ export default function AdminDashboard() {
             // Find best month
             const months = Object.values(stats.months);
             const bestMonth = months.length > 0 ? Math.max(...months) : 0;
-            
-            // Debug: Log first 3 sellers
-            if (index < 3) {
-              console.log(`📊 ${selger}:`, {
-                total: stats.total,
-                weeks: Object.keys(stats.weeks).length > 0 ? Object.keys(stats.weeks)[0] + '=' + Object.values(stats.weeks)[0] : 'empty',
-                months: Object.keys(stats.months).length > 0 ? Object.keys(stats.months)[0] + '=' + Object.values(stats.months)[0] : 'empty',
-                bestWeek,
-                bestMonth,
-              });
-            }
             
             return {
               selger,
@@ -1233,31 +1201,26 @@ export default function AdminDashboard() {
                       <div className="col-best-week">Best Uke</div>
                       <div className="col-best-month">Best Måned</div>
                     </div>
-                    {progresjonData.map((row, idx) => {
-                      if (idx === 0) {
-                        console.log('🧮 First row data:', row);
-                      }
-                      return (
-                        <div key={idx} className="table-row">
-                          <div className="col-selger">{row.selger}</div>
-                          <div className="col-week" style={{ textAlign: 'center', fontWeight: '600', color: '#667eea' }}>
-                            {row.week}
-                          </div>
-                          <div className="col-month" style={{ textAlign: 'center', fontWeight: '600', color: '#667eea' }}>
-                            {row.month}
-                          </div>
-                          <div className="col-total" style={{ textAlign: 'center', fontWeight: '600', color: '#764ba2' }}>
-                            {row.total}
-                          </div>
-                          <div className="col-best-week" style={{ textAlign: 'center', fontWeight: '600', color: '#10b981' }}>
-                            {row.bestWeek}
-                          </div>
-                          <div className="col-best-month" style={{ textAlign: 'center', fontWeight: '600', color: '#10b981' }}>
-                            {row.bestMonth}
-                          </div>
+                    {progresjonData.map((row, idx) => (
+                      <div key={idx} className="table-row">
+                        <div className="col-selger">{row.selger}</div>
+                        <div className="col-week" style={{ textAlign: 'center', fontWeight: '600', color: '#667eea' }}>
+                          {row.week}
                         </div>
-                      );
-                    })}
+                        <div className="col-month" style={{ textAlign: 'center', fontWeight: '600', color: '#667eea' }}>
+                          {row.month}
+                        </div>
+                        <div className="col-total" style={{ textAlign: 'center', fontWeight: '600', color: '#764ba2' }}>
+                          {row.total}
+                        </div>
+                        <div className="col-best-week" style={{ textAlign: 'center', fontWeight: '600', color: '#10b981' }}>
+                          {row.bestWeek}
+                        </div>
+                        <div className="col-best-month" style={{ textAlign: 'center', fontWeight: '600', color: '#10b981' }}>
+                          {row.bestMonth}
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 ) : (
                   <p style={{ textAlign: 'center', color: '#999', padding: '2rem' }}>
