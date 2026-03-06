@@ -949,16 +949,16 @@ export default function Chat() {
                     )}
                     <div className="message-header">
                       <span className="message-sender">{msg.sender}</span>
+                      <span className="message-content" style={{
+                        color: msg.isDeleted ? '#999' : '#333',
+                        fontStyle: msg.isDeleted ? 'italic' : 'normal',
+                        opacity: msg.isDeleted ? 0.7 : 1,
+                      }}>
+                        {msg.content}
+                      </span>
                       <span className="message-time">
                         {new Date(msg.timestamp).toLocaleTimeString()}
                       </span>
-                    </div>
-                    <div className="message-content" style={{
-                      color: msg.isDeleted ? '#999' : '#333',
-                      fontStyle: msg.isDeleted ? 'italic' : 'normal',
-                      opacity: msg.isDeleted ? 0.7 : 1,
-                    }}>
-                      {msg.content}
                     </div>
                     {msg.attachments && msg.attachments.length > 0 && (
                       <div className="message-attachments">
