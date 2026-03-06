@@ -2139,19 +2139,23 @@ export default function AdminDashboard() {
               </p>
             ) : (
               <>
-                {/* Statistics Cards - Larger & Colorful */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.5rem', marginBottom: '2rem' }}>
+                {/* Statistics Cards - 4 Columns */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem', marginBottom: '2rem' }}>
                   <div style={{ background: '#667eea', borderRadius: '12px', padding: '2rem', textAlign: 'center', color: 'white', boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)' }}>
-                    <p style={{ margin: '0 0 0.75rem 0', fontSize: '0.9rem', fontWeight: '600', opacity: 0.9 }}>Total Ansatte</p>
+                    <p style={{ margin: '0 0 0.75rem 0', fontSize: '0.9rem', fontWeight: '600', opacity: 0.9 }}>TOTALT</p>
                     <p style={{ margin: 0, fontSize: '3rem', fontWeight: '700' }}>{employees.length}</p>
                   </div>
                   <div style={{ background: '#10b981', borderRadius: '12px', padding: '2rem', textAlign: 'center', color: 'white', boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)' }}>
-                    <p style={{ margin: '0 0 0.75rem 0', fontSize: '0.9rem', fontWeight: '600', opacity: 0.9 }}>Avdelinger</p>
-                    <p style={{ margin: 0, fontSize: '3rem', fontWeight: '700' }}>{new Set(employees.map(e => e.department)).size}</p>
+                    <p style={{ margin: '0 0 0.75rem 0', fontSize: '0.9rem', fontWeight: '600', opacity: 0.9 }}>KRS</p>
+                    <p style={{ margin: 0, fontSize: '3rem', fontWeight: '700' }}>{employees.filter(e => e.department === 'KRS').length}</p>
                   </div>
-                  <div style={{ background: '#a855f7', borderRadius: '12px', padding: '2rem', textAlign: 'center', color: 'white', boxShadow: '0 4px 12px rgba(168, 85, 247, 0.3)' }}>
-                    <p style={{ margin: '0 0 0.75rem 0', fontSize: '0.9rem', fontWeight: '600', opacity: 0.9 }}>Projekter</p>
-                    <p style={{ margin: 0, fontSize: '3rem', fontWeight: '700' }}>{new Set(employees.map(e => e.project)).size}</p>
+                  <div style={{ background: '#f59e0b', borderRadius: '12px', padding: '2rem', textAlign: 'center', color: 'white', boxShadow: '0 4px 12px rgba(245, 158, 11, 0.3)' }}>
+                    <p style={{ margin: '0 0 0.75rem 0', fontSize: '0.9rem', fontWeight: '600', opacity: 0.9 }}>SKIEN</p>
+                    <p style={{ margin: 0, fontSize: '3rem', fontWeight: '700' }}>{employees.filter(e => e.department === 'Skien').length}</p>
+                  </div>
+                  <div style={{ background: '#3b82f6', borderRadius: '12px', padding: '2rem', textAlign: 'center', color: 'white', boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)' }}>
+                    <p style={{ margin: '0 0 0.75rem 0', fontSize: '0.9rem', fontWeight: '600', opacity: 0.9 }}>OSL</p>
+                    <p style={{ margin: 0, fontSize: '3rem', fontWeight: '700' }}>{employees.filter(e => e.department === 'OSL').length}</p>
                   </div>
                 </div>
 
