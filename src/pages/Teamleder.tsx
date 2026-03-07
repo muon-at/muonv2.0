@@ -317,14 +317,6 @@ export default function Teamleder() {
             <p className="subtitle">Oversikt og styring av ditt team</p>
           </div>
         </div>
-        <div className="header-buttons">
-          <button 
-            className="back-btn-standard"
-            onClick={() => window.history.back()}
-          >
-            ← Tilbake
-          </button>
-        </div>
       </div>
 
       {/* Tab Navigation */}

@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { collection, getDocs, doc, updateDoc, addDoc, getDoc, setDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import FileUploadModal from '../components/FileUploadModal';
@@ -45,7 +44,6 @@ interface KontraktsarkivFilters {
 
 export default function AdminDashboard() {
   console.log('✅ AdminDashboard component mounted!');
-  const navigate = useNavigate();
   const [activeMainTab, setActiveMainTab] = useState('allente');
   const [activeAllenteTab, setActiveAllenteTab] = useState('i-dag');
   const [dashboardFromDate, setDashboardFromDate] = useState('');
@@ -1233,14 +1231,6 @@ export default function AdminDashboard() {
             <h1>⚙️ Admin Dashboard</h1>
             <p className="subtitle">Sentralisert oversikt over kontrakter og brukerstatistikk</p>
           </div>
-        </div>
-        <div className="header-buttons-admin">
-          <button 
-            className="back-btn-admin"
-            onClick={() => navigate('/teamleder')}
-          >
-            ← Tilbake
-          </button>
         </div>
       </div>
 
