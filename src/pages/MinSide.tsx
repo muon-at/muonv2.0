@@ -121,20 +121,17 @@ export default function MinSide() {
 
   return (
     <div className="minside-container">
-      {/* HEADER - PROFILE STYLE */}
-      <div className="minside-header">
-        <div className="minside-header-content">
-          <div className="header-profile-section">
-            <div className="header-avatar">
-              {user?.name?.charAt(0).toUpperCase()}
-            </div>
-            <div className="header-info">
-              <h1 className="header-name">{user?.name}</h1>
-              <p className="header-meta">{user?.role} • {user?.department}</p>
-            </div>
+      {/* HEADER - SAME AS ADMIN & TEAMLEDER */}
+      <div className="page-header-standard">
+        <div className="header-left">
+          <div>
+            <h1>👤 Min Side</h1>
+            <p className="subtitle">Din personlige oversikt og prestasjonsbadges</p>
           </div>
+        </div>
+        <div className="header-buttons">
           <button 
-            className="back-btn-header"
+            className="back-btn-standard"
             onClick={() => window.history.back()}
           >
             ← Tilbake
