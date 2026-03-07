@@ -1540,27 +1540,6 @@ export default function Chat() {
                           marginBottom: isFirstFromSender ? '1rem' : '0.25rem',
                           paddingLeft: '0.5rem'
                         }}>
-                          {/* Avatar - only show on first message from sender */}
-                          <div style={{
-                            height: '40px',
-                            borderRadius: '50%',
-                            background: '#667eea',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            color: '#fff',
-                            fontWeight: 600,
-                            fontSize: '0.9rem',
-                            flexShrink: 0,
-                            opacity: isFirstFromSender ? 1 : 0,
-                            width: isFirstFromSender ? '40px' : '0px',
-                            marginRight: isFirstFromSender ? '0.5rem' : '-0.5rem',
-                            transition: 'all 0.2s',
-                            overflow: 'hidden'
-                          }}>
-                            {msg.sender?.charAt(0).toUpperCase()}
-                          </div>
-
                           {/* Message content */}
                           <div style={{ flex: 1 }}>
                             {/* Header: Name + Time (only on first message from sender) */}
