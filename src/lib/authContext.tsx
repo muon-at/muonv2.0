@@ -28,16 +28,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
 
   useEffect(() => {
-    // Load user from localStorage on mount
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch (err) {
-        localStorage.removeItem('user');
-      }
-    }
-    // No auto-login - must authenticate with real credentials
+    // Force logout on mount - must login with credentials every time
+    // (for development/testing with multiple users)
+    localStorage.removeItem('user');
+    localStorage.removeItem('auth');
+    setUser(null);
+    console.log('🔐 Fresh start - login required');
   }, []);
 
   const login = (name: string, id: string, role: string, fullEmployee?: any) => {
