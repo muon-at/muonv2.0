@@ -10,7 +10,24 @@ interface SalesRecord {
   id?: string;
 }
 
-const allBadges = ['🏆', '🎓', '🚀', '🎯', '🔥', '⚡', '💎', '👑', '🌟', '🎪', '🎨', '🎭', '🎬', '🎸', '🎺'];
+interface BadgeDefinition {
+  emoji: string;
+  navn: string;
+  verdi: string;
+  beskrivelse: string;
+}
+
+// Badge definitions - only show badges with descriptions (from Admin panel)
+const badgeDefinitions: BadgeDefinition[] = [
+  { emoji: '🏆', navn: 'BEST', verdi: 'Løpende', beskrivelse: 'Den som har flest salg totalt (kun en)' },
+  { emoji: '👑', navn: 'MVP MÅNED', verdi: 'Historisk', beskrivelse: 'Har vært best i minst en måned' },
+  { emoji: '⭐', navn: 'MVP DAG', verdi: 'Historisk', beskrivelse: 'Har vært best på minst en dag' },
+  { emoji: '🎓', navn: 'FØRSTE SALGET', verdi: '1+', beskrivelse: '1+ salg totalt' },
+  { emoji: '🚀', navn: '5 SALG', verdi: '5+', beskrivelse: '5+ salg på EN dag' },
+  { emoji: '🎯', navn: '10 SALG', verdi: '10+', beskrivelse: '10+ salg på EN dag' },
+  { emoji: '🔥', navn: '15 SALG', verdi: '15+', beskrivelse: '15+ salg på EN dag' },
+  { emoji: '💎', navn: '20 SALG', verdi: '20+', beskrivelse: '20+ salg på EN dag' },
+];
 
 const parseDate = (dateStr: string): Date => {
   if (!dateStr) return new Date(0);
@@ -102,33 +119,78 @@ export default function MinSide() {
         { value: total, label: 'Altid', color: '#A855C9', icon: '⭐' },
       ]);
 
-      // Calculate badges - track which ones are earned
+      // Calculate all employee stats for comparison
+      const employeeStats: { [name: string]: { today: number; month: number; total: number } } = {};
+      
+      contracts.forEach(c => {
+        const selger = c.selger || '';
+        const date = parseDate(c.dato || '');
+        
+        if (!employeeStats[selger]) {
+          employeeStats[selger] = { today: 0, month: 0, total: 0 };
+        }
+        
+        if (date && date.getTime() === today.getTime()) {
+          employeeStats[selger].today++;
+        }
+        if (date && date >= monthStart && date <= today) {
+          employeeStats[selger].month++;
+        }
+        employeeStats[selger].total++;
+      });
+
+      // Find best performers
+      let bestOverall = '';
+      let maxTotal = -1;
+      let bestThisMonth = '';
+      let maxMonth = -1;
+      let bestToday = '';
+      let maxToday = -1;
+
+      Object.entries(employeeStats).forEach(([name, stats]) => {
+        if (stats.total > maxTotal) {
+          maxTotal = stats.total;
+          bestOverall = name;
+        }
+        if (stats.month > maxMonth) {
+          maxMonth = stats.month;
+          bestThisMonth = name;
+        }
+        if (stats.today > maxToday) {
+          maxToday = stats.today;
+          bestToday = name;
+        }
+      });
+
+      // Calculate badges based on definitions
       const earnedBadgesList: { badge: string; earned: boolean }[] = [];
       
-      // Badge 0: 🏆 (Trophy) - 100+ total
-      earnedBadgesList.push({ badge: allBadges[0], earned: total >= 100 });
-      
-      // Badge 1: 🎓 (Education) - 1+ total
-      earnedBadgesList.push({ badge: allBadges[1], earned: total > 0 });
-      
-      // Badge 2: 🚀 (Rocket) - 5+ today
-      earnedBadgesList.push({ badge: allBadges[2], earned: salesToday >= 5 });
-      
-      // Badge 3: 🎯 (Target) - 10+ today
-      earnedBadgesList.push({ badge: allBadges[3], earned: salesToday >= 10 });
-      
-      // Badge 4: 🔥 (Fire) - 15+ today
-      earnedBadgesList.push({ badge: allBadges[4], earned: salesToday >= 15 });
-      
-      // Badge 5: ⚡ (Lightning) - 20+ today
-      earnedBadgesList.push({ badge: allBadges[5], earned: salesToday >= 20 });
-      
-      // Additional badges (all unearned for now - can add logic later)
-      for (let i = 6; i < allBadges.length; i++) {
-        earnedBadgesList.push({ badge: allBadges[i], earned: false });
-      }
+      badgeDefinitions.forEach(def => {
+        let earned = false;
+        const externalName = user?.externalName || '';
+        
+        if (def.navn === 'BEST') {
+          earned = externalName !== '' && employeeStats[externalName]?.total > 0 && bestOverall === externalName;
+        } else if (def.navn === 'MVP MÅNED') {
+          earned = externalName !== '' && employeeStats[externalName]?.month > 0 && bestThisMonth === externalName;
+        } else if (def.navn === 'MVP DAG') {
+          earned = externalName !== '' && employeeStats[externalName]?.today > 0 && bestToday === externalName;
+        } else if (def.navn === 'FØRSTE SALGET') {
+          earned = total > 0;
+        } else if (def.navn === '5 SALG') {
+          earned = salesToday >= 5;
+        } else if (def.navn === '10 SALG') {
+          earned = salesToday >= 10;
+        } else if (def.navn === '15 SALG') {
+          earned = salesToday >= 15;
+        } else if (def.navn === '20 SALG') {
+          earned = salesToday >= 20;
+        }
+        
+        earnedBadgesList.push({ badge: def.emoji, earned });
+      });
 
-      console.log('📊 Min Side Badges:', { salesToday, total, earnedBadgesList });
+      console.log('📊 Min Side Badges:', { salesToday, total, employeeStats, earnedBadgesList });
       setEarnedBadges(earnedBadgesList.map(b => b.badge));
       
       // Store earned status map for styling
