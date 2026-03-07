@@ -99,6 +99,8 @@ export default function MinSide() {
         const emoji = badgeData.emoji;
         const selger = badgeData.selger || '';
         
+        console.log(`  📋 Badge ${emoji}: selger="${selger}"`);
+        
         // Check if this badge belongs to current user
         // Handle both "Name" and "Name / rolle" formats
         const matches = 
@@ -106,10 +108,13 @@ export default function MinSide() {
           selger.includes(externalName) || 
           selger.startsWith(externalName + ' /');
         
-        if (matches && statusMap[emoji] !== undefined) {
-          statusMap[emoji] = true;
-          userEarnedBadges.push(emoji);
-          console.log(`  ✅ ${emoji} earned for ${selger}`);
+        if (matches) {
+          console.log(`    ✅ MATCH for ${externalName}! statusMap[${emoji}]=${statusMap[emoji]}`);
+          if (statusMap[emoji] !== undefined) {
+            statusMap[emoji] = true;
+            userEarnedBadges.push(emoji);
+            console.log(`      → Added to earned badges`);
+          }
         }
       });
       
