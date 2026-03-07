@@ -11,10 +11,19 @@
 /* MIN SIDE HEADER - LARGE TEXT */
 .minside-header-large h1 {
   font-size: 3rem !important;
+  margin: 0;
+  color: white;
 }
 
 .minside-header-large .subtitle {
   font-size: 1.8rem !important;
+  color: white;
+}
+
+/* BADGES IN HEADER */
+.minside-header-large span {
+  color: white !important;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 }
 
 /* TABS - SAME AS ADMIN DASHBOARD */

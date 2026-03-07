@@ -110,6 +110,7 @@ export default function MinSide() {
       if (total > 0) badges.push(allBadges[1]); // 🎓
       if (total > 100) badges.push(allBadges[0]); // 🏆
 
+      console.log('📊 Min Side Badges:', { salesToday, total, badges });
       setEarnedBadges(badges);
       setLoading(false);
     } catch (err) {
@@ -120,22 +121,26 @@ export default function MinSide() {
 
   if (loading) return <div className="minside-container"><div style={{ padding: '2rem', textAlign: 'center' }}>Laster...</div></div>;
 
+  console.log('🏅 Rendering MinSide with earnedBadges:', earnedBadges);
+
   return (
     <div className="minside-container">
       {/* HEADER - SHOW USER NAME + ROLE + EARNED BADGES */}
       <div className="page-header-standard minside-header-large">
         <div className="header-left">
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', flexWrap: 'wrap' }}>
               <h1>{user?.name}</h1>
               {/* Earned Badges in Header */}
-              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                {earnedBadges.map((badge, idx) => (
-                  <span key={idx} style={{ fontSize: '1.5rem' }} title={`Badge ${idx + 1}`}>
-                    {badge}
-                  </span>
-                ))}
-              </div>
+              {earnedBadges.length > 0 && (
+                <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                  {earnedBadges.map((badge, idx) => (
+                    <span key={idx} style={{ fontSize: '2rem', lineHeight: '1' }} title={`Badge ${idx + 1}`}>
+                      {badge}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
             <p className="subtitle">{user?.role}</p>
           </div>
