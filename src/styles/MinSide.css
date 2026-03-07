@@ -40,10 +40,11 @@
 
 .header-name-centered {
   margin: 0;
+  margin-left: 50px;
   font-size: 2.5rem;
   font-weight: 700;
   color: white;
-  text-align: center;
+  text-align: left;
 }
 
 .page-header-standard h1 {
