@@ -1,5 +1,6 @@
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../lib/authContext';
+import { RightNavBar } from './RightNavBar';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -29,5 +30,12 @@ export function ProtectedRoute({ children, requiredRole = 'employee' }: Protecte
     return <Navigate to="/min-side" replace />;
   }
 
-  return <>{children}</>;
+  return (
+    <div style={{ display: 'flex', height: '100vh' }}>
+      <div style={{ flex: 1, marginRight: '80px', overflow: 'auto' }}>
+        {children}
+      </div>
+      <RightNavBar />
+    </div>
+  );
 }
