@@ -91,10 +91,10 @@
   color: #666;
 }
 
-/* SVG ICONS - Dobbelt så store, sentrert inni circle */
+/* SVG ICONS */
 .nav-icon {
-  width: 112px;
-  height: 112px;
+  width: 56px;
+  height: 56px;
   stroke: #999;
   color: #999;
   display: flex;
