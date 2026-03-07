@@ -836,6 +836,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  color: #333;
 }
 
 .form-group:nth-child(1),
@@ -846,7 +847,7 @@
 
 .form-group label {
   font-weight: 600;
-  color: #333;
+  color: #1f2937 !important;
   font-size: 0.9rem;
 }
 
@@ -858,7 +859,7 @@
   font-size: 0.9rem;
   font-family: inherit;
   background: #f8fafc;
-  color: #333;
+  color: #1f2937 !important;
 }
 
 .form-group input:focus,
@@ -867,18 +868,22 @@
   border-color: #667eea;
   background: white;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-  color: #333;
+  color: #1f2937 !important;
+}
+
+.form-group input::placeholder {
+  color: #999;
 }
 
 /* Dropdown option styling */
 .form-group select option {
-  color: #333;
+  color: #1f2937;
   background: white;
 }
 
 .form-group select option:checked {
   background: #667eea;
-  color: #333;
+  color: white;
 }
 
 /* Angringer Table */
