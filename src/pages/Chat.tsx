@@ -78,6 +78,7 @@ export default function Chat() {
   const [employeeMap, setEmployeeMap] = useState<any>({}); // Map of externalName -> {department, name}
   const fileInputRef = useRef<HTMLInputElement>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const unsubscribeRef = useRef<(() => void) | undefined>(undefined);
 
   // Emoji command mapping (e.g., :bell: → 🔔)
   const emojiCommandMap: Record<string, string> = {
@@ -404,11 +405,27 @@ export default function Chat() {
 
   // Load messages when channel/DM changes
   useEffect(() => {
+    // Cleanup previous listener
+    if (unsubscribeRef.current) {
+      console.log('🔌 Unsubscribing from previous listener');
+      unsubscribeRef.current();
+      unsubscribeRef.current = undefined;
+    }
+    
     if (selectedChannel) {
+      console.log('📥 useEffect: Loading messages for channel:', selectedChannel);
       loadChannelMessages(selectedChannel);
     } else if (selectedDM) {
+      console.log('📥 useEffect: Loading messages for DM:', selectedDM);
       loadDMMessages(selectedDM);
     }
+    
+    // Cleanup on unmount
+    return () => {
+      if (unsubscribeRef.current) {
+        unsubscribeRef.current();
+      }
+    };
   }, [selectedChannel, selectedDM]);
 
   const loadChannels = async () => {
@@ -678,7 +695,8 @@ export default function Chat() {
         setMessages(msgs);
       });
       
-      return unsubscribe;
+      // Store unsubscribe in ref for cleanup
+      unsubscribeRef.current = unsubscribe;
     } catch (err) {
       console.error('❌ Error loading channel messages:', err);
     }
@@ -700,7 +718,8 @@ export default function Chat() {
         setMessages(msgs);
       });
       
-      return unsubscribe;
+      // Store unsubscribe in ref for cleanup
+      unsubscribeRef.current = unsubscribe;
     } catch (err) {
       console.error('Error loading DM messages:', err);
     }
