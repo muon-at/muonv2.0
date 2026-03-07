@@ -106,7 +106,7 @@ export const RightNavBar: React.FC = () => {
         {/* KRS CHAT - Circle with text */}
         <button 
           className="nav-button"
-          onClick={() => navigate('/chat')}
+          onClick={() => navigate('/chat', { state: { selectedChannel: 'dept-krs' } })}
           title="KRS Chat"
         >
           <div className="avdeling-circle">KRS</div>
@@ -116,7 +116,7 @@ export const RightNavBar: React.FC = () => {
         {/* OSL CHAT - Circle with text */}
         <button 
           className="nav-button"
-          onClick={() => navigate('/chat')}
+          onClick={() => navigate('/chat', { state: { selectedChannel: 'dept-osl' } })}
           title="OSL Chat"
         >
           <div className="avdeling-circle">OSL</div>
@@ -127,8 +127,8 @@ export const RightNavBar: React.FC = () => {
         {user?.department && user.department !== 'MUON' && (
           <button 
             className="nav-button"
-            onClick={() => navigate('/chat')}
-            title={`${user.department} Chat`}
+            onClick={() => navigate('/chat', { state: { selectedChannel: `dept-${(user.department || '').toLowerCase()}` } })}
+            title={`${user?.department} Chat`}
           >
             <div className="avdeling-circle">{user.department === 'KRS' ? 'KRS' : user.department === 'OSL' ? 'OSL' : 'SKN'}</div>
             <div className="nav-tooltip">{user.department}</div>
@@ -169,7 +169,7 @@ export const RightNavBar: React.FC = () => {
         {(user?.role === 'owner' || user?.role === 'teamlead') && (
           <button 
             className="nav-button"
-            onClick={() => navigate('/chat')}
+            onClick={() => navigate('/chat', { state: { selectedChannel: 'team' } })}
             title="Teamledere"
           >
             <div className="icon-circle">
@@ -185,7 +185,7 @@ export const RightNavBar: React.FC = () => {
         {(user?.role === 'owner') && (
           <button 
             className="nav-button"
-            onClick={() => navigate('/chat')}
+            onClick={() => navigate('/chat', { state: { selectedChannel: 'admin' } })}
             title="Admin Chat"
           >
             <div className="icon-circle">
