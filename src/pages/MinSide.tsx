@@ -55,8 +55,16 @@ export default function MinSide() {
         contracts.push({ id: doc.id, ...data });
       });
 
+      console.log('🔍 MinSide Debug:', {
+        userExternalName: user?.externalName,
+        totalContracts: contracts.length,
+        uniqueSellers: [...new Set(contracts.map(c => c.selger))],
+      });
+
       // Filter for this employee
       const employeeContracts = contracts.filter(c => c.selger === user?.externalName);
+      
+      console.log('📊 Employee Contracts:', employeeContracts.length);
 
       // Calculate stats
       const now = new Date();
