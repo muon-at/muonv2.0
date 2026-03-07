@@ -76,16 +76,86 @@ export default function Chat() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
+  // Emoji command mapping (e.g., :bell: → 🔔)
+  const emojiCommandMap: Record<string, string> = {
+    'bell': '🔔',
+    'gem': '💎',
+    'gift': '🎁',
+    'thumbsup': '👍',
+    'heart': '❤️',
+    'laughing': '😂',
+    'fire': '🔥',
+    'clap': '👏',
+    'love': '😍',
+    'tada': '🎉',
+    '100': '💯',
+    'cry': '😢',
+    'rage': '😡',
+    'scream': '😱',
+    'thinking': '🤔',
+    'sunglasses': '😎',
+    'raised_hands': '🙌',
+    'muscle': '💪',
+    'target': '🎯',
+    'sparkles': '✨',
+    'confetti': '🎊',
+    'balloon': '🎈',
+    'rocket': '🚀',
+    'boom': '💥',
+    'ok_hand': '👌',
+    'pray': '🙏',
+    'x': '❌',
+    'check': '✅',
+    'mask': '🎭',
+    'circus': '🎪',
+    'art': '🎨',
+    'movie': '🎬',
+    'microphone': '🎤',
+    'guitar': '🎸',
+    'piano': '🎹',
+    'trumpet': '🎺',
+    'soccer': '⚽',
+    'basketball': '🏀',
+    'dice': '🎲',
+    'cards': '🃏',
+    'pizza': '🍕',
+    'burger': '🍔',
+    'fries': '🍟',
+    'chicken': '🍗',
+    'taco': '🌮',
+    'ramen': '🍜',
+    'bento': '🍱',
+    'cake': '🍰',
+    'cookie': '🍪',
+    'coffee': '☕',
+    'wine': '🍷',
+    'cocktail': '🍸',
+    'tropical_drink': '🍹',
+    'beer': '🍺',
+    'cake2': '🎂',
+    'cupcake': '🧁',
+    'salad': '🥗',
+    'paella': '🥘',
+    'curry': '🍛',
+  };
+
+  // Reverse mapping for picker display
+  const emojiWithCommands = Object.entries(emojiCommandMap).map(([cmd, emoji]) => ({
+    emoji,
+    command: cmd
+  }));
+
   const quickEmojis = ['🔔', '💎', '🎁']; // Quick emoji buttons for chat
-  
-  const emojiList = [
-    '👍', '❤️', '😂', '🔥', '👏', '😍', '🎉', '💯', '😢', '😡',
-    '😱', '🤔', '😎', '🙌', '💪', '🎯', '✨', '🎊', '🎈', '🚀',
-    '💥', '👌', '🙏', '💯', '❌', '✅', '🔔', '🎭', '🎪', '🎨',
-    '🎬', '🎤', '🎸', '🎹', '🎺', '⚽', '🏀', '🎲', '🃏', '🎯',
-    '🍕', '🍔', '🍟', '🍗', '🌮', '🍜', '🍱', '🍰', '🍪', '☕',
-    '🍷', '🍸', '🍹', '🍺', '🌮', '🎂', '🧁', '🥗', '🥘', '🍛'
-  ];
+
+  // Function to expand emoji commands in message
+  const expandEmojiCommands = (text: string): string => {
+    let result = text;
+    Object.entries(emojiCommandMap).forEach(([cmd, emoji]) => {
+      const cmdPattern = new RegExp(`:${cmd}:`, 'g');
+      result = result.replace(cmdPattern, emoji);
+    });
+    return result;
+  };
   
 
   // Load channels on mount + calculate top department this week
@@ -505,7 +575,9 @@ export default function Chat() {
   };
 
   const sendMessage = async (content?: string) => {
-    const messageContent = content || newMessage;
+    let messageContent = content || newMessage;
+    // Expand emoji commands (e.g., :bell: → 🔔)
+    messageContent = expandEmojiCommands(messageContent);
     console.log('📤 Send clicked! Message:', messageContent, 'Channel:', selectedChannel);
     if (!messageContent.trim()) return;
     
@@ -1519,18 +1591,23 @@ export default function Chat() {
                 </button>
               </div>
               <div className="emoji-picker-grid">
-                {emojiList.map(emoji => (
+                {emojiWithCommands.map(({emoji, command}) => (
                   <button
                     key={emoji}
                     className="emoji-picker-item"
                     onClick={() => {
                       if (emojiPickerMessageId) {
                         addReaction(emojiPickerMessageId, emoji);
+                      } else {
+                        // Insert emoji command into message input
+                        setNewMessage(newMessage + `:${command}:`);
                       }
                       setEmojiPickerOpen(false);
                     }}
+                    title={`:${command}:`}
                   >
-                    {emoji}
+                    <div style={{ fontSize: '1.5rem', marginBottom: '0.25rem' }}>{emoji}</div>
+                    <div style={{ fontSize: '0.65rem', color: '#666', fontWeight: 500 }}>:{command}:</div>
                   </button>
                 ))}
               </div>
