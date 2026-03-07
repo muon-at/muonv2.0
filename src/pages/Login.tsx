@@ -38,12 +38,27 @@ export default function Login() {
       const snapshot = await getDocs(employeesRef);
       
       let foundEmployee: any = null;
+      const normalizedEmail = email.trim().toLowerCase();
+      const trimmedPassword = password.trim();
+      
+      console.log('🔍 Login attempt:', { email: normalizedEmail, passwordLength: trimmedPassword.length });
       
       snapshot.forEach((doc) => {
         const data = doc.data();
+        const dbEmail = (data.email || '').trim().toLowerCase();
+        const dbPassword = (data.password || '').trim();
         
-        // Check if email matches and password is correct
-        if (data.email === email && data.password === password && !data.archived) {
+        console.log('🔄 Checking:', { 
+          name: data.name, 
+          dbEmail, 
+          inputEmail: normalizedEmail,
+          emailMatch: dbEmail === normalizedEmail,
+          passwordMatch: dbPassword === trimmedPassword,
+          archived: data.archived
+        });
+        
+        // Check if email matches and password is correct (case-insensitive email)
+        if (dbEmail === normalizedEmail && dbPassword === trimmedPassword && !data.archived) {
           console.log('✅ LOGIN SUCCESS:', data.name);
           foundEmployee = { id: doc.id, ...data };
         }
@@ -63,7 +78,8 @@ export default function Login() {
         }
       } else {
         setError('Feil e-post eller passord');
-        console.log('❌ Login failed for:', email);
+        console.log('❌ Login failed for:', normalizedEmail);
+        console.log('💾 Available employees:', snapshot.size);
       }
     } catch (err) {
       console.error('Login error:', err);
