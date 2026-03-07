@@ -121,12 +121,12 @@ export default function MinSide() {
 
   return (
     <div className="minside-container">
-      {/* HEADER - SAME AS ADMIN & TEAMLEDER */}
+      {/* HEADER - SHOW USER INFO */}
       <div className="page-header-standard">
         <div className="header-left">
           <div>
-            <h1>👤 Min Side</h1>
-            <p className="subtitle">Din personlige oversikt og prestasjonsbadges</p>
+            <h1>👤 {user?.name}</h1>
+            <p className="subtitle">{user?.role} • {user?.department}</p>
           </div>
         </div>
       </div>
