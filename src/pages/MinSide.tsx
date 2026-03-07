@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../lib/authContext';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, doc, setDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import '../styles/MinSide.css';
 
@@ -67,7 +67,41 @@ export default function MinSide() {
 
   useEffect(() => {
     loadEmployeeData();
+    // Load cached badges from Firestore
+    loadCachedBadges();
   }, [user]);
+
+  const loadCachedBadges = async () => {
+    try {
+      const externalName = user?.externalName || '';
+      if (!externalName) return;
+      
+      const badgesRef = collection(db, 'employee_badges');
+      const snapshot = await getDocs(badgesRef);
+      
+      snapshot.forEach(doc => {
+        if (doc.id === externalName) {
+          const badgeMap = doc.data().badges || {};
+          console.log('📥 Loaded cached badges from Firestore for', externalName, badgeMap);
+        }
+      });
+    } catch (err) {
+      console.error('Error loading cached badges:', err);
+    }
+  };
+
+  const saveBadges = async (badgeMap: { [key: string]: boolean }) => {
+    try {
+      const externalName = user?.externalName || '';
+      if (!externalName) return;
+      
+      const badgesRef = doc(db, 'employee_badges', externalName);
+      await setDoc(badgesRef, { badges: badgeMap, updatedAt: new Date() });
+      console.log('💾 Saved badges to Firestore for', externalName);
+    } catch (err) {
+      console.error('Error saving badges:', err);
+    }
+  };
 
   const loadEmployeeData = async () => {
     try {
@@ -216,6 +250,10 @@ export default function MinSide() {
       });
       setBadgeStatus(statusMap);
       console.log('✅ Badge Status Map:', statusMap);
+      
+      // Save badges to Firestore for persistence across pages
+      await saveBadges(statusMap);
+      
       setLoading(false);
     } catch (err) {
       console.error('Error loading employee data:', err);
