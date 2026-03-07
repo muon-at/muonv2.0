@@ -81,6 +81,7 @@
 .avdeling-circle {
   width: 56px;
   height: 56px;
+  aspect-ratio: 1 / 1;
   border-radius: 50%;
   background: #f0f0f0;
   border: 2px solid #999;
@@ -90,6 +91,7 @@
   font-size: 0.9rem;
   font-weight: 700;
   color: #999;
+  flex-shrink: 0;
 }
 
 .nav-tooltip {
