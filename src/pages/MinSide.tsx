@@ -76,19 +76,35 @@ export default function MinSide() {
       const externalName = user?.externalName || '';
       if (!externalName) return;
       
-      // Try to load from employee_badges collection (Admin stores here)
-      const badgesRef = collection(db, 'employee_badges');
+      // Load badges from allente_badges collection (where Admin Dashboard stores them)
+      const badgesRef = collection(db, 'allente_badges');
       const snapshot = await getDocs(badgesRef);
       
+      const userEarnedBadges: string[] = [];
+      const statusMap: { [key: string]: boolean } = {};
+      
+      // Initialize all badges as unearned
+      badgeDefinitions.forEach(def => {
+        statusMap[def.emoji] = false;
+      });
+      
+      // Mark earned badges
       snapshot.forEach(doc => {
-        if (doc.id === externalName) {
-          const badgeMap = doc.data().badges || {};
-          console.log('📥 Loaded cached badges from Firestore for', externalName, badgeMap);
-          // If found, use these instead of calculating
-          setEarnedBadges(Object.keys(badgeMap).filter(key => badgeMap[key]));
-          setBadgeStatus(badgeMap);
+        const badgeData = doc.data();
+        const emoji = badgeData.emoji;
+        
+        // Check if this badge belongs to current user (by checking selger field)
+        if (badgeData.selger === externalName || badgeData.selger?.includes(externalName)) {
+          if (statusMap[emoji] !== undefined) {
+            statusMap[emoji] = true;
+            userEarnedBadges.push(emoji);
+          }
         }
       });
+      
+      console.log('📥 Loaded badges from allente_badges for', externalName, userEarnedBadges);
+      setEarnedBadges(userEarnedBadges);
+      setBadgeStatus(statusMap);
     } catch (err) {
       console.error('Error loading cached badges:', err);
     }
