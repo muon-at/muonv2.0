@@ -156,6 +156,51 @@ export default function Chat() {
     });
     return result;
   };
+
+  // Get date label for messages (TODAY, YESTERDAY, or date string)
+  const getDateLabel = (timestamp: any): string => {
+    if (!timestamp) return '';
+    
+    const messageDate = new Date(timestamp.seconds ? timestamp.seconds * 1000 : timestamp);
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    
+    // Check if same date (ignoring time)
+    const messageDateOnly = new Date(messageDate.getFullYear(), messageDate.getMonth(), messageDate.getDate());
+    const todayDateOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const yesterdayDateOnly = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate());
+    
+    if (messageDateOnly.getTime() === todayDateOnly.getTime()) {
+      return 'TODAY';
+    } else if (messageDateOnly.getTime() === yesterdayDateOnly.getTime()) {
+      return 'YESTERDAY';
+    } else {
+      // Format as "Monday 3.3" or similar
+      const dayName = messageDate.toLocaleDateString('no-NO', { weekday: 'long' });
+      const date = messageDate.toLocaleDateString('no-NO', { month: 'numeric', day: 'numeric' });
+      return `${dayName.charAt(0).toUpperCase() + dayName.slice(1)} ${date}`;
+    }
+  };
+
+  // Group messages by date
+  const getMessagesGroupedByDate = (messages: Message[]): {date: string, messages: Message[]}[] => {
+    const groups: {[key: string]: Message[]} = {};
+    
+    messages.forEach(msg => {
+      const dateLabel = getDateLabel(msg.timestamp);
+      if (!groups[dateLabel]) {
+        groups[dateLabel] = [];
+      }
+      groups[dateLabel].push(msg);
+    });
+    
+    // Return as array, keeping order
+    return Object.entries(groups).map(([date, msgs]) => ({
+      date,
+      messages: msgs
+    }));
+  };
   
 
   // Load channels on mount + calculate top department this week
@@ -1267,8 +1312,32 @@ export default function Chat() {
 
               {/* Messages */}
               <div className="messages-area">
-                {filteredMessages.map(msg => (
-                  <div key={msg.id} className="message">
+                {getMessagesGroupedByDate(filteredMessages).map((group, groupIdx) => (
+                  <div key={groupIdx}>
+                    {/* Date Separator */}
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      margin: '1.5rem 0 1rem',
+                      gap: '1rem'
+                    }}>
+                      <div style={{ flex: 1, height: '1px', background: '#ddd' }}></div>
+                      <span style={{
+                        fontSize: '0.85rem',
+                        fontWeight: 600,
+                        color: '#666',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px',
+                        whiteSpace: 'nowrap'
+                      }}>
+                        {group.date}
+                      </span>
+                      <div style={{ flex: 1, height: '1px', background: '#ddd' }}></div>
+                    </div>
+
+                    {/* Messages for this date */}
+                    {group.messages.map(msg => (
+                      <div key={msg.id} className="message">
                     {msg.replyTo && (
                       <div className="reply-context">
                         <span className="reply-sender">{msg.replyTo.sender}</span>
@@ -1441,6 +1510,8 @@ export default function Chat() {
                         ))}
                       </div>
                     )}
+                  </div>
+                    ))}
                   </div>
                 ))}
                 
