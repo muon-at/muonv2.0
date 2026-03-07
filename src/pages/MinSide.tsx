@@ -61,8 +61,13 @@ export default function MinSide() {
         uniqueSellers: [...new Set(contracts.map(c => c.selger))],
       });
 
-      // Filter for this employee
-      const employeeContracts = contracts.filter(c => c.selger === user?.externalName);
+      // Filter for this employee (handle "Name / role" format)
+      const employeeContracts = contracts.filter(c => {
+        const selger = c.selger || '';
+        const externalName = user?.externalName || '';
+        // Match exact or "Name / role" format
+        return selger === externalName || selger.startsWith(externalName + ' /');
+      });
       
       console.log('📊 Employee Contracts:', employeeContracts.length);
 
