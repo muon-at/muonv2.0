@@ -297,7 +297,7 @@
   border-radius: 0;
   font-family: inherit;
   font-size: 0.9rem;
-  color: #fff;
+  color: #000 !important;
   background: transparent;
 }
 
@@ -379,11 +379,23 @@
   border-radius: 0;
   font-family: inherit;
   font-size: 0.95rem;
-  color: #fff;
+  color: #000 !important;
   background: transparent;
   resize: none;
   max-height: 100px;
   min-height: 40px;
+}
+
+.message-input::placeholder {
+  color: #999;
+}
+
+.message-input:-webkit-autofill,
+.message-input:-webkit-autofill:hover,
+.message-input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px white inset !important;
+  -webkit-text-fill-color: #000 !important;
+  color: #000 !important;
 }
 
 .message-input:focus {
