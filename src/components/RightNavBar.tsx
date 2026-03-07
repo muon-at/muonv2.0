@@ -106,21 +106,21 @@ export const RightNavBar: React.FC = () => {
         <button 
           className="nav-button"
           onClick={() => navigate('/chat', { state: { selectedChannel: 'global' } })}
-          title="Global Chat"
+          title="Global"
         >
           <div className="icon-circle">
             <svg className="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
             </svg>
           </div>
-          <div className="nav-tooltip">Global Chat</div>
+          <div className="nav-tooltip">Global</div>
         </button>
 
         {/* KRS CHAT - Circle with text */}
         <button 
           className="nav-button"
           onClick={() => navigate('/chat', { state: { selectedChannel: 'dept-krs' } })}
-          title="KRS Chat"
+          title="KRS"
         >
           <div className="avdeling-circle">KRS</div>
           <div className="nav-tooltip">KRS</div>
@@ -130,7 +130,7 @@ export const RightNavBar: React.FC = () => {
         <button 
           className="nav-button"
           onClick={() => navigate('/chat', { state: { selectedChannel: 'dept-osl' } })}
-          title="OSL Chat"
+          title="OSL"
         >
           <div className="avdeling-circle">OSL</div>
           <div className="nav-tooltip">OSL</div>
@@ -141,7 +141,7 @@ export const RightNavBar: React.FC = () => {
           <button 
             className="nav-button"
             onClick={() => navigate('/chat', { state: { selectedChannel: 'dept-skien' } })}
-            title="SKN Chat"
+            title="SKN"
           >
             <div className="avdeling-circle">SKN</div>
             <div className="nav-tooltip">SKN</div>
@@ -182,14 +182,14 @@ export const RightNavBar: React.FC = () => {
               const projectId = user.project === 'MUON' ? 'allente' : (user.project || '').toLowerCase();
               navigate('/chat', { state: { selectedChannel: `project-${projectId}` } });
             }}
-            title={user.project === 'MUON' ? 'Allente Chat' : `${user.project} Chat`}
+            title={user.project === 'MUON' ? 'Allente' : user?.project || 'Prosjekt'}
           >
             <div className="icon-circle">
               <svg className="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
               </svg>
             </div>
-            <div className="nav-tooltip">{user?.project === 'MUON' ? 'Allente Chat' : (user?.project ? `${user.project} Chat` : 'Prosjekt')}</div>
+            <div className="nav-tooltip">{user?.project === 'MUON' ? 'Allente' : (user?.project || 'Prosjekt')}</div>
           </button>
         )}
 
@@ -214,7 +214,7 @@ export const RightNavBar: React.FC = () => {
           <button 
             className="nav-button"
             onClick={() => navigate('/chat', { state: { selectedChannel: 'admin' } })}
-            title="Admin Chat"
+            title="Admin"
           >
             <div className="icon-circle">
               <svg className="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
