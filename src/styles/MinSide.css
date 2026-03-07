@@ -31,20 +31,19 @@
   gap: 1.5rem;
 }
 
-/* MIN SIDE CUSTOM HEADER - LEFT ALIGNED USER NAME */
+/* MIN SIDE CUSTOM HEADER - CENTERED USER NAME */
 .minside-header-custom {
-  justify-content: flex-start;
+  justify-content: center;
   align-items: center;
   min-height: 120px;
 }
 
 .header-name-centered {
   margin: 0;
-  margin-left: 50px;
   font-size: 2.5rem;
   font-weight: 700;
   color: white;
-  text-align: left;
+  text-align: center;
 }
 
 .page-header-standard h1 {
