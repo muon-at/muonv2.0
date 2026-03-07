@@ -122,11 +122,21 @@ export default function MinSide() {
 
   return (
     <div className="minside-container">
-      {/* HEADER - SHOW USER NAME + ROLE */}
+      {/* HEADER - SHOW USER NAME + ROLE + EARNED BADGES */}
       <div className="page-header-standard minside-header-large">
         <div className="header-left">
           <div>
-            <h1>{user?.name}</h1>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <h1>{user?.name}</h1>
+              {/* Earned Badges in Header */}
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                {earnedBadges.map((badge, idx) => (
+                  <span key={idx} style={{ fontSize: '1.5rem' }} title={`Badge ${idx + 1}`}>
+                    {badge}
+                  </span>
+                ))}
+              </div>
+            </div>
             <p className="subtitle">{user?.role}</p>
           </div>
         </div>
