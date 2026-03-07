@@ -38,12 +38,34 @@ export default function Login() {
       const snapshot = await getDocs(employeesRef);
       
       let foundEmployee: any = null;
+      let debugInfo = { checked: 0, usernameMatch: false, passwordMatch: false, archived: false };
+      
       snapshot.forEach((doc) => {
         const data = doc.data();
-        if (data.username === username && data.password === password && !data.archived) {
-          foundEmployee = { id: doc.id, ...data };
+        debugInfo.checked++;
+        
+        if (data.username === username) {
+          debugInfo.usernameMatch = true;
+          console.log('✅ Username matched:', data.name);
+          
+          if (data.password === password) {
+            debugInfo.passwordMatch = true;
+            console.log('✅ Password matched');
+            
+            if (!data.archived) {
+              console.log('✅ Not archived - LOGIN SUCCESS');
+              foundEmployee = { id: doc.id, ...data };
+            } else {
+              debugInfo.archived = true;
+              console.log('❌ User is archived');
+            }
+          } else {
+            console.log('❌ Password mismatch. Expected:', data.password, 'Got:', password);
+          }
         }
       });
+
+      console.log('🔍 Debug Info:', debugInfo);
 
       if (foundEmployee) {
         // Check if default password - must change it
