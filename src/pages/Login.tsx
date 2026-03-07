@@ -45,9 +45,16 @@ export default function Login() {
       });
 
       if (foundEmployee) {
-        // Successful login - store employee data
-        login(foundEmployee.name, foundEmployee.id, foundEmployee.role, foundEmployee);
-        navigate('/min-side');
+        // Check if default password - must change it
+        if (foundEmployee.password === '1234' || !foundEmployee.passwordChanged) {
+          // Store employee for password reset page
+          localStorage.setItem('tempEmployee', JSON.stringify(foundEmployee));
+          navigate('/reset-password');
+        } else {
+          // Normal login
+          login(foundEmployee.name, foundEmployee.id, foundEmployee.role, foundEmployee);
+          navigate('/min-side');
+        }
       } else {
         setError('Feil brukernavn eller passord');
       }
