@@ -179,8 +179,9 @@ export const RightNavBar: React.FC = () => {
           <button 
             className="nav-button"
             onClick={() => {
-              const projectId = user.project === 'MUON' ? 'allente' : (user.project || '').toLowerCase();
-              navigate('/chat', { state: { selectedChannel: `project-${projectId}` } });
+              // BOTH MUON and Allente users go to project-allente channel
+              // This allows organization-wide Allente discussions
+              navigate('/chat', { state: { selectedChannel: 'project-allente' } });
             }}
             title="Allente"
           >

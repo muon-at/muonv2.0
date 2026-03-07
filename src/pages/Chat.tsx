@@ -381,12 +381,6 @@ export default function Chat() {
       // Find the channel with matching type or id
       let channelToSelect = channels.find(c => c.id === state.selectedChannel || c.type === state.selectedChannel);
       
-      // Fallback: For Allente, also check project-muon (legacy ID)
-      if (!channelToSelect && state.selectedChannel === 'project-allente') {
-        console.log('🔄 Fallback: Looking for legacy project-muon...');
-        channelToSelect = channels.find(c => c.id === 'project-muon' || c.name === 'Allente');
-      }
-      
       if (channelToSelect) {
         console.log('✅ CHANNEL SELECTED:', {
           user: user?.name,
@@ -454,16 +448,17 @@ export default function Chat() {
 
       // Create project channel for user's project if it exists and doesn't have a channel yet
       if (user?.project) {
-        // Map MUON to allente
-        const projectName = user.project === 'MUON' ? 'Allente' : user.project;
-        const projectId = `project-${projectName.toLowerCase()}`;
+        // BOTH MUON and Allente users share the same project-allente channel
+        // This allows MUON (owner) and Allente (employees) to chat together
+        const projectName = 'Allente'; // Always use Allente channel name
+        const projectId = 'project-allente'; // Always use project-allente channel ID
+        
         if (!existingIds.has(projectId)) {
-          const projectEmoji = projectName === 'Allente' ? '📊' : '💼';
           await setDoc(doc(db, 'chat_channels', projectId), {
             name: projectName,
             type: 'project',
             project: projectName,
-            emoji: projectEmoji,
+            emoji: '📊',
             createdAt: new Date().toISOString(),
             messages: [],
           });
@@ -638,20 +633,24 @@ export default function Chat() {
     switch (type) {
       case 'project':
         // User can access project channels matching their project
-        // Map MUON to Allente (both directions for flexibility)
-        const userProject = (user as any)?.project === 'MUON' ? 'Allente' : (user as any)?.project;
+        // Special case: BOTH MUON (owner) and Allente (employees) share the Allente channel
+        const userProject = (user as any)?.project;
         const channelProject = project === 'Muon' || project === 'MUON' ? 'Allente' : project;
+        
         console.log('🔐 Project access check:', {
           userProject,
           channelProject,
           userRole: user?.role,
-          match: userProject === channelProject || user?.role === 'owner',
-          isAllente: channelProject === 'Allente'
+          isAllenteChannel: channelProject === 'Allente',
+          match: userProject === channelProject || (channelProject === 'Allente' && (userProject === 'MUON' || userProject === 'Allente')) || user?.role === 'owner'
         });
-        // Allente is open to all employees (public group)
+        
+        // Allente channel is shared: BOTH MUON (owner) and Allente (employees) can access
         if (channelProject === 'Allente') {
-          return true; // Everyone can see Allente
+          return userProject === 'MUON' || userProject === 'Allente' || user?.role === 'owner';
         }
+        
+        // Other projects: match user project
         return userProject === channelProject || user?.role === 'owner';
       case 'team':
         return user?.role === 'teamlead' || user?.role === 'owner';
