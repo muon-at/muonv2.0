@@ -64,6 +64,7 @@ export default function Chat() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredMessages, setFilteredMessages] = useState<Message[]>([]);
   const [isChannelModalOpen, setIsChannelModalOpen] = useState(false);
+  const [isDMModalOpen, setIsDMModalOpen] = useState(false);
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
   const [emojiPickerMessageId, setEmojiPickerMessageId] = useState<string | null>(null);
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
@@ -195,6 +196,16 @@ export default function Chat() {
   // Auto-select channel if passed via navigation state (e.g., clicking Global in navbar)
   useEffect(() => {
     const state = location.state as any;
+    
+    // Handle selectedDM state
+    if (state?.selectedDM === 'list') {
+      setIsDMModalOpen(true);
+      setSelectedChannel(null);
+      setSelectedDM(null);
+      return;
+    }
+    
+    // Handle selectedChannel state
     if (state?.selectedChannel && channels.length > 0) {
       // Find the channel with matching type or id
       const channelToSelect = channels.find(c => c.id === state.selectedChannel || c.type === state.selectedChannel);
@@ -315,7 +326,6 @@ export default function Chat() {
     }
   };
 
-  // @ts-ignore - Removed - sidebar no longer used
   const startOrOpenDM = async (otherUser: any) => {
     try {
       const participants = [user?.name || 'Unknown', otherUser.name].sort();
@@ -327,7 +337,7 @@ export default function Chat() {
       let existingDMId: string | null = null;
       snapshot.forEach(doc => {
         const data = doc.data();
-        const dmParticipants = data.participants.sort();
+        const dmParticipants = (data.participants || []).sort();
         if (JSON.stringify(dmParticipants) === JSON.stringify(participants)) {
           existingDMId = doc.id;
         }
@@ -901,6 +911,74 @@ export default function Chat() {
         onChannelCreated={() => loadChannels()}
         allUsers={allUsers}
       />
+
+      {/* DM Selection Modal */}
+      {isDMModalOpen && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+        }}>
+          <div style={{
+            background: 'white',
+            borderRadius: '8px',
+            padding: '2rem',
+            maxWidth: '400px',
+            maxHeight: '80vh',
+            overflow: 'auto',
+            boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+          }}>
+            <h2 style={{ margin: '0 0 1.5rem', color: '#333' }}>Start Direct Message</h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              {allUsers.filter(u => u.name !== user?.name).map(u => (
+                <button
+                  key={u.name}
+                  onClick={() => {
+                    startOrOpenDM(u);
+                    setIsDMModalOpen(false);
+                  }}
+                  style={{
+                    padding: '0.75rem 1rem',
+                    background: '#f0f0f0',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    transition: 'background 0.2s',
+                  }}
+                  onMouseOver={(e) => (e.currentTarget.style.background = '#e0e0e0')}
+                  onMouseOut={(e) => (e.currentTarget.style.background = '#f0f0f0')}
+                >
+                  <strong>{u.name}</strong>
+                  <div style={{ fontSize: '0.85rem', color: '#666' }}>{u.role}</div>
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={() => setIsDMModalOpen(false)}
+              style={{
+                marginTop: '1.5rem',
+                padding: '0.75rem 1.5rem',
+                background: '#999',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                width: '100%',
+              }}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="chat-content">
 
