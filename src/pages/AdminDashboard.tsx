@@ -297,13 +297,13 @@ export default function AdminDashboard() {
     return counts;
   };
 
-  // Set up real-time listener for Allente chat
+  // Set up real-time listener for Allente chat + save to Firestore
   useEffect(() => {
     try {
       const messagesRef = collection(db, 'chat_channels', 'project-allente', 'messages');
       const q = query(messagesRef, orderBy('timestamp', 'asc'));
       
-      const unsubscribe = onSnapshot(q, (snapshot) => {
+      const unsubscribe = onSnapshot(q, async (snapshot) => {
         const messages: any[] = [];
         snapshot.forEach(doc => {
           messages.push(doc.data());
@@ -312,6 +312,23 @@ export default function AdminDashboard() {
         const counts = countTodayEmojis(messages);
         console.log('🔔 Real-time emoji update:', counts);
         setEmojiCounts(counts);
+        
+        // Save to Firestore for persistence
+        try {
+          const today = new Date();
+          const dateKey = today.toISOString().split('T')[0]; // YYYY-MM-DD
+          const emojiCountsRef = doc(db, 'emoji_counts_daily', dateKey);
+          
+          await setDoc(emojiCountsRef, {
+            date: dateKey,
+            counts: counts,
+            updatedAt: new Date(),
+          });
+          
+          console.log('💾 Emoji counts saved to Firestore for', dateKey);
+        } catch (saveErr) {
+          console.error('Error saving emoji counts:', saveErr);
+        }
       });
       
       return () => unsubscribe();
