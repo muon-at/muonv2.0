@@ -875,6 +875,35 @@
   color: #999;
 }
 
+/* Fix autofill white text */
+.form-group input:-webkit-autofill,
+.form-group input:-webkit-autofill:hover,
+.form-group input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px white inset !important;
+  -webkit-text-fill-color: #1f2937 !important;
+  color: #1f2937 !important;
+}
+
+/* Generic input color override */
+.edit-form input,
+.login-form input {
+  color: #1f2937 !important;
+}
+
+.edit-form input:-webkit-autofill,
+.edit-form input:-webkit-autofill:hover,
+.edit-form input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px white inset !important;
+  -webkit-text-fill-color: #1f2937 !important;
+}
+
+.login-form input:-webkit-autofill,
+.login-form input:-webkit-autofill:hover,
+.login-form input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px white inset !important;
+  -webkit-text-fill-color: #1f2937 !important;
+}
+
 /* Dropdown option styling */
 .form-group select option {
   color: #1f2937;
