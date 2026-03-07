@@ -1116,7 +1116,7 @@ export default function Chat() {
                     </span>
                     <div>
                       <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 600 }}>
-                        {channels.find(c => c.id === selectedChannel)?.name}
+                        {selectedChannel === 'project-allente' ? 'Allente' : channels.find(c => c.id === selectedChannel)?.name}
                       </h2>
                       <span style={{ fontSize: '0.85rem', opacity: 0.9 }}>
                         {channels.find(c => c.id === selectedChannel)?.type}
