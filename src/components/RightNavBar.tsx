@@ -92,12 +92,12 @@ export const RightNavBar: React.FC = () => {
         {/* CHAT SECTION HEADER */}
         <div style={{
           textAlign: 'center',
-          color: '#667eea',
-          fontSize: '0.75rem',
+          color: '#999',
+          fontSize: '0.7rem',
           fontWeight: '700',
           letterSpacing: '1px',
-          margin: '1rem 0 0.5rem',
-          opacity: 0.7,
+          margin: '0.5rem 0 0.25rem',
+          opacity: 0.8,
         }}>
           CHAT
         </div>
