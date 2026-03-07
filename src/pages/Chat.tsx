@@ -239,6 +239,23 @@ export default function Chat() {
         }
       }
 
+      // Create project channel for user's project if it exists and doesn't have a channel yet
+      if (user?.project && user.project !== 'MUON') {
+        const projectId = `project-${user.project.toLowerCase()}`;
+        if (!existingIds.has(projectId)) {
+          const projectEmoji = user.project === 'Allente' ? '📊' : '💼';
+          await setDoc(doc(db, 'chat_channels', projectId), {
+            name: user.project,
+            type: 'project',
+            project: user.project,
+            emoji: projectEmoji,
+            createdAt: new Date().toISOString(),
+            messages: [],
+          });
+          existingIds.add(projectId);
+        }
+      }
+
       // Load all channels
       const snapshot = await getDocs(channelsRef);
       
@@ -246,7 +263,7 @@ export default function Chat() {
       
       snapshot.forEach(doc => {
         const data = doc.data();
-        const canAccess = checkChannelAccess(data.type, data.avdeling, data.allowedUsers);
+        const canAccess = checkChannelAccess(data.type, data.avdeling, data.allowedUsers, data.project);
         
         if (canAccess) {
           allowedChannels.push({
@@ -377,7 +394,7 @@ export default function Chat() {
     return emojiStr;
   };
 
-  const checkChannelAccess = (type: string, avdeling?: string, allowedUsers?: string[]): boolean => {
+  const checkChannelAccess = (type: string, avdeling?: string, allowedUsers?: string[], project?: string): boolean => {
     // If allowedUsers is set, check if user is in the list
     if (allowedUsers && allowedUsers.length > 0) {
       return allowedUsers.includes(user?.name || '') || user?.role === 'owner';
@@ -385,7 +402,8 @@ export default function Chat() {
     
     switch (type) {
       case 'project':
-        return true;
+        // User can access project channels matching their project
+        return (user as any)?.project === project || user?.role === 'owner';
       case 'team':
         return user?.role === 'teamlead' || user?.role === 'owner';
       case 'admin':

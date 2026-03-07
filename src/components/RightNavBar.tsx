@@ -138,7 +138,7 @@ export const RightNavBar: React.FC = () => {
         {/* DM - Chat message icon */}
         <button 
           className="nav-button"
-          onClick={() => navigate('/chat')}
+          onClick={() => navigate('/chat', { state: { selectedDM: 'list' } })}
           title="Direct Messages"
         >
           <div className="icon-circle">
@@ -153,7 +153,7 @@ export const RightNavBar: React.FC = () => {
         {user?.project && (
           <button 
             className="nav-button"
-            onClick={() => navigate('/chat')}
+            onClick={() => navigate('/chat', { state: { selectedChannel: `project-${(user.project || '').toLowerCase()}` } })}
             title={`${user.project} Chat`}
           >
             <div className="icon-circle">
