@@ -45,7 +45,7 @@ interface KontraktsarkivFilters {
 export default function AdminDashboard() {
   console.log('✅ AdminDashboard component mounted!');
   const [activeMainTab, setActiveMainTab] = useState('allente');
-  const [activeAllenteTab, setActiveAllenteTab] = useState('i-dag');
+  const [activeAllenteTab, setActiveAllenteTab] = useState('salg');
   const [dashboardFromDate, setDashboardFromDate] = useState('');
   const [dashboardToDate, setDashboardToDate] = useState('');
   const [dashboardData, setDashboardData] = useState<any>(null);
@@ -1042,13 +1042,6 @@ export default function AdminDashboard() {
     }
   };
 
-  // Mock data
-  const salesData = [
-    { ansatt: 'Fayez Fadie', salg: 0, slack: 'Fayez' },
-    { ansatt: 'Steffen Støylen', salg: 0, slack: 'Steffen' },
-    { ansatt: 'Benjamin Johannessen', salg: 0, slack: 'Benjamin' },
-  ];
-
   const mainTabs = [
     { id: 'dashboard', label: '📊 Dashboard' },
     { id: 'organisasjon', label: '👥 Organisasjon' },
@@ -1056,7 +1049,6 @@ export default function AdminDashboard() {
   ];
 
   const allenteTabs = [
-    { id: 'i-dag', label: 'I DAG' },
     { id: 'salg', label: 'SALG' },
     { id: 'stats', label: 'STATS' },
     { id: 'angring', label: 'ANGRING' },
@@ -1297,44 +1289,7 @@ export default function AdminDashboard() {
               ))}
             </div>
 
-            {/* I DAG Content */}
-            {activeAllenteTab === 'i-dag' && (
-              <div className="tab-content">
-                <div className="content-title">
-                  <h3>Salg i dag – Allente</h3>
-                  <p className="content-subtitle">Henter live data fra aliente Slack-kanal (🔔 + 📱 = 1 salg)</p>
-                </div>
-
-                <div className="info-box">
-                  <span className="info-icon">💡</span>
-                  <p>
-                    <strong>Hvordan det fungerer:</strong> Post salg i #allente med emojis (🔔 eller 📱 = 1 salg hver). Tabellen oppdateres live.
-                  </p>
-                </div>
-
-                <button className="update-btn">↻ Oppdater nå</button>
-
-                {/* Sales Table */}
-                <div className="sales-table">
-                  <div className="table-header">
-                    <div className="col-ansatt">Ansatt</div>
-                    <div className="col-salg">Salg i dag</div>
-                    <div className="col-slack">Slack-navn</div>
-                  </div>
-                  {salesData.map((row, idx) => (
-                    <div key={idx} className="table-row">
-                      <div className="col-ansatt">{row.ansatt}</div>
-                      <div className="col-salg">
-                        <span className="salg-badge">{row.salg}</span>
-                      </div>
-                      <div className="col-slack">{row.slack}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Other tabs placeholder */}
+            {/* SALG Tab */}
             {/* SALG Tab */}
             {activeAllenteTab === 'salg' && (
               <div className="tab-content">
