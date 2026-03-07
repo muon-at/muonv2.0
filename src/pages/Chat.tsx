@@ -206,7 +206,29 @@ export default function Chat() {
 
   const loadChannels = async () => {
     try {
+      // Ensure department channels exist
+      const departments = ['KRS', 'OSL', 'Skien'];
       const channelsRef = collection(db, 'chat_channels');
+      const existingSnap = await getDocs(channelsRef);
+      const existingIds = new Set(existingSnap.docs.map(d => d.id));
+      
+      // Create department channels if they don't exist
+      for (const dept of departments) {
+        const deptId = `dept-${dept.toLowerCase()}`;
+        if (!existingIds.has(deptId)) {
+          const deptEmoji = dept === 'KRS' ? '🏝️' : dept === 'OSL' ? '🏢' : '🏭';
+          await setDoc(doc(db, 'chat_channels', deptId), {
+            name: dept,
+            type: 'avdeling',
+            avdeling: dept,
+            emoji: deptEmoji,
+            createdAt: new Date().toISOString(),
+            messages: [],
+          });
+        }
+      }
+
+      // Load all channels
       const snapshot = await getDocs(channelsRef);
       
       const allowedChannels: Channel[] = [];
@@ -227,7 +249,12 @@ export default function Chat() {
         }
       });
       
+      // Sort: global/project first, then department, then others
+      const typeOrder = { 'global': 0, 'project': 1, 'avdeling': 2, 'team': 3, 'admin': 4 };
+      allowedChannels.sort((a, b) => (typeOrder[a.type as keyof typeof typeOrder] || 5) - (typeOrder[b.type as keyof typeof typeOrder] || 5));
+      
       setChannels(allowedChannels);
+      console.log('📋 Channels loaded:', allowedChannels.length, 'channels');
     } catch (err) {
       console.error('Error loading channels:', err);
     }
