@@ -42,6 +42,7 @@ export default function MinSide() {
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<any[]>([]);
   const [earnedBadges, setEarnedBadges] = useState<string[]>([]);
+  const [badgeStatus, setBadgeStatus] = useState<{ [key: string]: boolean }>({});
   const [weeklyGoal, setWeeklyGoal] = useState<number>(0);
   const [monthlyGoal, setMonthlyGoal] = useState<number>(0);
   const [showGoalEdit, setShowGoalEdit] = useState(false);
@@ -101,17 +102,42 @@ export default function MinSide() {
         { value: total, label: 'Altid', color: '#A855C9', icon: '⭐' },
       ]);
 
-      // Calculate badges
-      const badges: string[] = [];
-      if (salesToday >= 5) badges.push(allBadges[2]); // 🚀
-      if (salesToday >= 10) badges.push(allBadges[3]); // 🎯
-      if (salesToday >= 15) badges.push(allBadges[4]); // 🔥
-      if (salesToday >= 20) badges.push(allBadges[5]); // ⚡
-      if (total > 0) badges.push(allBadges[1]); // 🎓
-      if (total > 100) badges.push(allBadges[0]); // 🏆
+      // Calculate badges - track which ones are earned
+      const earnedBadgesList: { badge: string; earned: boolean }[] = [];
+      
+      // Badge 0: 🏆 (Trophy) - 100+ total
+      earnedBadgesList.push({ badge: allBadges[0], earned: total >= 100 });
+      
+      // Badge 1: 🎓 (Education) - 1+ total
+      earnedBadgesList.push({ badge: allBadges[1], earned: total > 0 });
+      
+      // Badge 2: 🚀 (Rocket) - 5+ today
+      earnedBadgesList.push({ badge: allBadges[2], earned: salesToday >= 5 });
+      
+      // Badge 3: 🎯 (Target) - 10+ today
+      earnedBadgesList.push({ badge: allBadges[3], earned: salesToday >= 10 });
+      
+      // Badge 4: 🔥 (Fire) - 15+ today
+      earnedBadgesList.push({ badge: allBadges[4], earned: salesToday >= 15 });
+      
+      // Badge 5: ⚡ (Lightning) - 20+ today
+      earnedBadgesList.push({ badge: allBadges[5], earned: salesToday >= 20 });
+      
+      // Additional badges (all unearned for now - can add logic later)
+      for (let i = 6; i < allBadges.length; i++) {
+        earnedBadgesList.push({ badge: allBadges[i], earned: false });
+      }
 
-      console.log('📊 Min Side Badges:', { salesToday, total, badges });
-      setEarnedBadges(badges);
+      console.log('📊 Min Side Badges:', { salesToday, total, earnedBadgesList });
+      setEarnedBadges(earnedBadgesList.map(b => b.badge));
+      
+      // Store earned status map for styling
+      const statusMap: { [key: string]: boolean } = {};
+      earnedBadgesList.forEach(b => {
+        statusMap[b.badge] = b.earned;
+      });
+      setBadgeStatus(statusMap);
+      console.log('✅ Badge Status Map:', statusMap);
       setLoading(false);
     } catch (err) {
       console.error('Error loading employee data:', err);
@@ -131,14 +157,27 @@ export default function MinSide() {
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', flexWrap: 'wrap' }}>
               <h1>{user?.name}</h1>
-              {/* Earned Badges in Header */}
+              {/* All Badges in Header - Earned and Unearned */}
               {earnedBadges.length > 0 && (
                 <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
-                  {earnedBadges.map((badge, idx) => (
-                    <span key={idx} style={{ fontSize: '2rem', lineHeight: '1' }} title={`Badge ${idx + 1}`}>
-                      {badge}
-                    </span>
-                  ))}
+                  {earnedBadges.map((badge, idx) => {
+                    const isEarned = badgeStatus[badge] !== false; // Treat undefined as earned for backwards compat
+                    return (
+                      <span 
+                        key={idx} 
+                        style={{ 
+                          fontSize: '2rem', 
+                          lineHeight: '1',
+                          opacity: isEarned ? 1 : 0.3,
+                          filter: isEarned ? 'none' : 'grayscale(100%)',
+                          transition: 'opacity 0.3s ease'
+                        }} 
+                        title={isEarned ? `Badge ${idx + 1} - Earned` : `Badge ${idx + 1} - Locked`}
+                      >
+                        {badge}
+                      </span>
+                    );
+                  })}
                 </div>
               )}
             </div>
