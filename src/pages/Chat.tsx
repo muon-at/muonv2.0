@@ -903,33 +903,6 @@ export default function Chat() {
 
   return (
     <div className="chat-container">
-      {/* Header */}
-      <div className="chat-header" style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-      }}>
-        <div style={{ width: '200px' }}></div>
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
-          {user?.role === 'owner' && (
-            <button 
-              onClick={() => setIsChannelModalOpen(true)}
-              style={{
-                padding: '0.5rem 1rem',
-                background: '#48bb78',
-                color: '#fff',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                fontWeight: 600,
-              }}
-            >
-              🆕 New Channel
-            </button>
-          )}
-        </div>
-      </div>
-
       {/* Channel Creation Modal */}
       <ChannelModal 
         isOpen={isChannelModalOpen}
