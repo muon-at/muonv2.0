@@ -40,7 +40,7 @@ export const RightNavBar: React.FC = () => {
     {
       emoji: '👔',
       label: 'Teamlederpanel',
-      path: '/teamlead',
+      path: '/teamleder',
       requiresRole: ['owner', 'teamlead'],
     },
     {
