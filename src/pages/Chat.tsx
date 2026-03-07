@@ -370,13 +370,17 @@ export default function Chat() {
     
     // Handle selectedChannel state - ALWAYS switch out of DM mode when channel is selected
     if (state?.selectedChannel && channels.length > 0) {
+      console.log('🔍 Looking for channel:', state.selectedChannel, 'in', channels.length, 'available channels');
       // Find the channel with matching type or id
       const channelToSelect = channels.find(c => c.id === state.selectedChannel || c.type === state.selectedChannel);
       if (channelToSelect) {
+        console.log('✅ Found channel:', channelToSelect.name, 'with ID:', channelToSelect.id);
         setSelectedChannel(channelToSelect.id);
         setSelectedDM(null);
         setSelectedDMUser(null);
         setIsDMMode(false);  // EXIT DM MODE when selecting a channel
+      } else {
+        console.log('❌ Channel not found! Available channels:', channels.map(c => ({ id: c.id, name: c.name, type: c.type })));
       }
     }
   }, [location.state, channels]);
@@ -628,6 +632,7 @@ export default function Chat() {
 
   const loadChannelMessages = async (channelId: string) => {
     try {
+      console.log('📨 Loading messages from channel:', channelId);
       const messagesRef = collection(db, 'chat_channels', channelId, 'messages');
       const q = query(messagesRef, orderBy('timestamp', 'asc'));
       
@@ -639,6 +644,7 @@ export default function Chat() {
             ...doc.data() as any,
           });
         });
+        console.log('📦 Loaded', msgs.length, 'messages from', channelId);
         setMessages(msgs);
       });
       
@@ -683,7 +689,9 @@ export default function Chat() {
     
     try {
       if (selectedChannel) {
-        console.log('📝 Sending to channel:', selectedChannel);
+        // Find channel name for debugging
+        const channelName = channels.find(c => c.id === selectedChannel)?.name;
+        console.log('📝 Sending to channel:', selectedChannel, '(' + channelName + ')');
         const messagesRef = collection(db, 'chat_channels', selectedChannel, 'messages');
         const msgData: any = {
           sender: user?.name || 'Unknown',
