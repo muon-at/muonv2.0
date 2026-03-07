@@ -689,6 +689,7 @@ export default function Chat() {
         });
         console.log('📦 Loaded', msgs.length, 'messages from channel', channelId, 'for user', user?.name);
         if (msgs.length > 0) {
+          console.log('📋 MESSAGE SENDERS IN CHANNEL:', msgs.map(m => ({ sender: m.sender, content: m.content.substring(0, 30), time: m.timestamp })));
           console.log('First message:', msgs[0]);
           console.log('Last message:', msgs[msgs.length - 1]);
         }
@@ -756,6 +757,14 @@ export default function Chat() {
           timestamp: Date.now(),
           deleteAt: deleteAtDate, // Auto-delete after 90 days
         };
+        
+        console.log('💾 ACTUAL MESSAGE DATA BEING SAVED:', {
+          sender: msgData.sender,
+          content: msgData.content,
+          currentUserName: user?.name,
+          currentUserEmail: user?.email,
+          currentUser: user
+        });
         if (replyingTo) {
           msgData.replyTo = {
             id: replyingTo.id,
