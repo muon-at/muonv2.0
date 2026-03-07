@@ -40,8 +40,19 @@
 }
 
 .nav-button:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.1);
   transform: scale(1.1);
+}
+
+.nav-button:hover .nav-icon {
+  stroke: #666;
+  color: #666;
+}
+
+.nav-button:hover .avdeling-circle {
+  border-color: #666;
+  color: #666;
+  background: #e8e8e8;
 }
 
 .nav-button:active {
@@ -53,6 +64,32 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* SVG ICONS */
+.nav-icon {
+  width: 28px;
+  height: 28px;
+  stroke: #999;
+  color: #999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* AVDELING CIRCLE */
+.avdeling-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #f0f0f0;
+  border: 2px solid #999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #999;
 }
 
 .nav-tooltip {
