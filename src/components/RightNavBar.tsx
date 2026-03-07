@@ -103,8 +103,28 @@ export const RightNavBar: React.FC = () => {
           <div className="nav-tooltip">Global Chat</div>
         </button>
 
-        {/* AVDELING CHAT - Circle with text */}
-        {user?.department && (
+        {/* KRS CHAT - Circle with text */}
+        <button 
+          className="nav-button"
+          onClick={() => navigate('/chat')}
+          title="KRS Chat"
+        >
+          <div className="avdeling-circle">KRS</div>
+          <div className="nav-tooltip">KRS</div>
+        </button>
+
+        {/* OSL CHAT - Circle with text */}
+        <button 
+          className="nav-button"
+          onClick={() => navigate('/chat')}
+          title="OSL Chat"
+        >
+          <div className="avdeling-circle">OSL</div>
+          <div className="nav-tooltip">OSL</div>
+        </button>
+
+        {/* AVDELING CHAT - Circle with text (user's department) */}
+        {user?.department && user.department !== 'MUON' && (
           <button 
             className="nav-button"
             onClick={() => navigate('/chat')}
@@ -114,6 +134,20 @@ export const RightNavBar: React.FC = () => {
             <div className="nav-tooltip">{user.department}</div>
           </button>
         )}
+
+        {/* DM - Chat message icon */}
+        <button 
+          className="nav-button"
+          onClick={() => navigate('/chat')}
+          title="Direct Messages"
+        >
+          <div className="icon-circle">
+            <svg className="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+          </div>
+          <div className="nav-tooltip">DM</div>
+        </button>
 
         {/* PROSJEKT CHAT - Briefcase icon */}
         {user?.project && (
