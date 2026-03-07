@@ -180,6 +180,8 @@ export default function MinSide() {
         // Track sales by day to find best day
         if (dateStr) {
           employeeStats[selger].salesByDay[dateStr] = (employeeStats[selger].salesByDay[dateStr] || 0) + 1;
+        } else if (selger.includes('Oliver')) {
+          console.log(`⚠️ Oliver contract with no valid date:`, { dato: c.dato, parsed: date });
         }
       });
       
@@ -187,6 +189,12 @@ export default function MinSide() {
       Object.keys(employeeStats).forEach(selger => {
         const salesByDay = employeeStats[selger].salesByDay;
         employeeStats[selger].bestDay = Math.max(0, ...Object.values(salesByDay));
+        
+        // Debug log for Oliver
+        if (selger.includes('Oliver')) {
+          console.log(`🔍 Oliver's salesByDay:`, salesByDay);
+          console.log(`🔍 Oliver's bestDay:`, employeeStats[selger].bestDay);
+        }
       });
 
       // Find best performers
@@ -217,6 +225,12 @@ export default function MinSide() {
       const externalName = user?.externalName || '';
       
       const userBestDay = employeeStats[externalName]?.bestDay || 0;
+      
+      console.log(`🔍 Looking up externalName="${externalName}" in employeeStats:`, {
+        found: employeeStats[externalName] ? 'YES' : 'NO',
+        userStats: employeeStats[externalName],
+        allKeys: Object.keys(employeeStats).filter(k => k.includes(user?.name || ''))
+      });
       
       badgeDefinitions.forEach(def => {
         let earned = false;
