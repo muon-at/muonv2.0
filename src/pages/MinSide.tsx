@@ -76,6 +76,7 @@ export default function MinSide() {
       const externalName = user?.externalName || '';
       if (!externalName) return;
       
+      // Try to load from employee_badges collection (Admin stores here)
       const badgesRef = collection(db, 'employee_badges');
       const snapshot = await getDocs(badgesRef);
       
@@ -83,6 +84,9 @@ export default function MinSide() {
         if (doc.id === externalName) {
           const badgeMap = doc.data().badges || {};
           console.log('📥 Loaded cached badges from Firestore for', externalName, badgeMap);
+          // If found, use these instead of calculating
+          setEarnedBadges(Object.keys(badgeMap).filter(key => badgeMap[key]));
+          setBadgeStatus(badgeMap);
         }
       });
     } catch (err) {
@@ -200,33 +204,17 @@ export default function MinSide() {
       const earnedBadgesList: { badge: string; earned: boolean }[] = [];
       const externalName = user?.externalName || '';
       
-      console.log('🔍 Badge Calculation Debug:', {
-        userName: user?.name,
-        externalName,
-        salesToday,
-        total,
-        bestOverall,
-        bestThisMonth,
-        bestToday,
-        userStats: employeeStats[externalName],
-        allStats: employeeStats,
-      });
-      
       badgeDefinitions.forEach(def => {
         let earned = false;
         
         if (def.navn === 'BEST') {
           earned = externalName !== '' && employeeStats[externalName]?.total > 0 && bestOverall === externalName;
-          console.log(`  🏆 BEST: externalName="${externalName}", bestOverall="${bestOverall}", earned=${earned}`);
         } else if (def.navn === 'MVP MÅNED') {
           earned = externalName !== '' && employeeStats[externalName]?.month > 0 && bestThisMonth === externalName;
-          console.log(`  👑 MVP MÅNED: externalName="${externalName}", bestThisMonth="${bestThisMonth}", earned=${earned}`);
         } else if (def.navn === 'MVP DAG') {
           earned = externalName !== '' && employeeStats[externalName]?.today > 0 && bestToday === externalName;
-          console.log(`  ⭐ MVP DAG: externalName="${externalName}", bestToday="${bestToday}", earned=${earned}`);
         } else if (def.navn === 'FØRSTE SALGET') {
           earned = total > 0;
-          console.log(`  🎓 FØRSTE SALGET: total=${total}, earned=${earned}`);
         } else if (def.navn === '5 SALG') {
           earned = salesToday >= 5;
         } else if (def.navn === '10 SALG') {
@@ -240,7 +228,7 @@ export default function MinSide() {
         earnedBadgesList.push({ badge: def.emoji, earned });
       });
 
-      console.log('📊 Final Earned Badges:', earnedBadgesList);
+      console.log('✅ Badges calculated and saving to Firestore:', earnedBadgesList);
       setEarnedBadges(earnedBadgesList.map(b => b.badge));
       
       // Store earned status map for styling
