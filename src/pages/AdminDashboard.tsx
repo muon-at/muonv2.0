@@ -61,7 +61,6 @@ export default function AdminDashboard() {
   const [newEmployee, setNewEmployee] = useState({
     name: '',
     email: '',
-    username: '',
     password: '',
     role: 'employee',
     project: 'Allente',
@@ -850,7 +849,6 @@ export default function AdminDashboard() {
       await updateDoc(empRef, {
         name: editingEmployee.name || '',
         email: editingEmployee.email || '',
-        username: editingEmployee.username || '',
         password: editingEmployee.password || '',
         role: editingEmployee.role || '',
         project: editingEmployee.project || '',
@@ -962,10 +960,6 @@ export default function AdminDashboard() {
       alert('Navn er påkrevd');
       return;
     }
-    if (!newEmployee.username?.trim()) {
-      alert('Brukernavn er påkrevd');
-      return;
-    }
     if (!newEmployee.password?.trim()) {
       alert('Passord er påkrevd');
       return;
@@ -976,7 +970,6 @@ export default function AdminDashboard() {
       const docRef = await addDoc(empCollection, {
         name: newEmployee.name,
         email: newEmployee.email || '',
-        username: newEmployee.username,
         password: newEmployee.password,
         role: newEmployee.role,
         project: newEmployee.project || '',
@@ -995,7 +988,6 @@ export default function AdminDashboard() {
       setNewEmployee({
         name: '',
         email: '',
-        username: '',
         password: '',
         role: 'employee',
         project: 'Allente',
@@ -2336,15 +2328,6 @@ export default function AdminDashboard() {
                 />
               </div>
               <div className="form-group">
-                <label>Brukernavn *</label>
-                <input 
-                  type="text"
-                  value={editingEmployee.username || ''}
-                  onChange={(e) => setEditingEmployee({ ...editingEmployee, username: e.target.value })}
-                  placeholder="f.eks sebastian.moen"
-                />
-              </div>
-              <div className="form-group">
                 <label>Passord *</label>
                 <input 
                   type="password"
@@ -2473,15 +2456,6 @@ export default function AdminDashboard() {
                 />
               </div>
               <div className="form-group">
-                <label>Brukernavn *</label>
-                <input 
-                  type="text"
-                  value={newEmployee.username || ''}
-                  onChange={(e) => setNewEmployee({ ...newEmployee, username: e.target.value })}
-                  placeholder="f.eks sebastian.moen"
-                />
-              </div>
-              <div className="form-group">
                 <label>Passord *</label>
                 <input 
                   type="password"
@@ -2572,7 +2546,6 @@ export default function AdminDashboard() {
                   setNewEmployee({
                     name: '',
                     email: '',
-                    username: '',
                     password: '',
                     role: 'employee',
                     project: 'Allente',
