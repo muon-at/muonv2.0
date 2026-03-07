@@ -224,23 +224,38 @@ export default function MinSide() {
       const earnedBadgesList: { badge: string; earned: boolean }[] = [];
       const externalName = user?.externalName || '';
       
-      const userBestDay = employeeStats[externalName]?.bestDay || 0;
+      // Find matching employee in stats (might be "Name / rolle" format)
+      let userStatsKey = externalName;
+      if (!employeeStats[externalName]) {
+        // Try to find by name prefix (handle "Name / rolle" format)
+        const matchingKey = Object.keys(employeeStats).find(k => 
+          k.startsWith(externalName) || k.includes(externalName)
+        );
+        if (matchingKey) {
+          userStatsKey = matchingKey;
+        }
+      }
+      
+      const userBestDay = employeeStats[userStatsKey]?.bestDay || 0;
       
       console.log(`🔍 Looking up externalName="${externalName}" in employeeStats:`, {
-        found: employeeStats[externalName] ? 'YES' : 'NO',
-        userStats: employeeStats[externalName],
-        allKeys: Object.keys(employeeStats).filter(k => k.includes(user?.name || ''))
+        externalName,
+        userStatsKey,
+        found: employeeStats[userStatsKey] ? 'YES' : 'NO',
+        userStats: employeeStats[userStatsKey],
+        userBestDay,
+        sampleKeys: Object.keys(employeeStats).slice(0, 3)
       });
       
       badgeDefinitions.forEach(def => {
         let earned = false;
         
         if (def.navn === 'BEST') {
-          earned = externalName !== '' && employeeStats[externalName]?.total > 0 && bestOverall === externalName;
+          earned = userStatsKey !== '' && employeeStats[userStatsKey]?.total > 0 && bestOverall === userStatsKey;
         } else if (def.navn === 'MVP MÅNED') {
-          earned = externalName !== '' && employeeStats[externalName]?.month > 0 && bestThisMonth === externalName;
+          earned = userStatsKey !== '' && employeeStats[userStatsKey]?.month > 0 && bestThisMonth === userStatsKey;
         } else if (def.navn === 'MVP DAG') {
-          earned = externalName !== '' && employeeStats[externalName]?.today > 0 && bestToday === externalName;
+          earned = userStatsKey !== '' && employeeStats[userStatsKey]?.today > 0 && bestToday === userStatsKey;
         } else if (def.navn === 'FØRSTE SALGET') {
           earned = total > 0;
         } else if (def.navn === '5 SALG') {
