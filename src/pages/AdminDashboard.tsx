@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { collection, getDocs, doc, updateDoc, addDoc, getDoc, setDoc, deleteDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, updateDoc, addDoc, getDoc, setDoc, deleteDoc, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import FileUploadModal from '../components/FileUploadModal';
 import '../styles/AdminDashboard.css';
@@ -264,6 +264,62 @@ export default function AdminDashboard() {
     }
   };
 
+  // Helper function to count emojis from Allente chat (TODAY ONLY)
+  const countTodayEmojis = (messages: any[]): { [sender: string]: { '🔔': number; '💎': number; '🎁': number } } => {
+    const today = new Date();
+    const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const endOfDay = new Date(startOfDay.getTime() + 24 * 60 * 60 * 1000);
+    
+    const counts: { [sender: string]: { '🔔': number; '💎': number; '🎁': number } } = {};
+    
+    messages.forEach(msg => {
+      const messageTime = msg.timestamp;
+      
+      // Only count messages from today
+      if (messageTime >= startOfDay.getTime() && messageTime < endOfDay.getTime()) {
+        const sender = msg.sender;
+        if (!counts[sender]) {
+          counts[sender] = { '🔔': 0, '💎': 0, '🎁': 0 };
+        }
+        
+        // Count each emoji in message
+        const content = msg.content || '';
+        const bellCount = (content.match(/🔔/g) || []).length;
+        const gemCount = (content.match(/💎/g) || []).length;
+        const giftCount = (content.match(/🎁/g) || []).length;
+        
+        counts[sender]['🔔'] += bellCount;
+        counts[sender]['💎'] += gemCount;
+        counts[sender]['🎁'] += giftCount;
+      }
+    });
+    
+    return counts;
+  };
+
+  // Set up real-time listener for Allente chat
+  useEffect(() => {
+    try {
+      const messagesRef = collection(db, 'chat_channels', 'project-allente', 'messages');
+      const q = query(messagesRef, orderBy('timestamp', 'asc'));
+      
+      const unsubscribe = onSnapshot(q, (snapshot) => {
+        const messages: any[] = [];
+        snapshot.forEach(doc => {
+          messages.push(doc.data());
+        });
+        
+        const counts = countTodayEmojis(messages);
+        console.log('🔔 Real-time emoji update:', counts);
+        setEmojiCounts(counts);
+      });
+      
+      return () => unsubscribe();
+    } catch (err) {
+      console.error('Error setting up emoji listener:', err);
+    }
+  }, []);
+
   // Fetch progresjon data when PROGRESJON tab is opened
   useEffect(() => {
     if (activeMainTab === 'allente' && activeAllenteTab === 'progresjon') {
@@ -349,6 +405,9 @@ export default function AdminDashboard() {
             const months = Object.values(stats.months);
             const bestMonth = months.length > 0 ? Math.max(...months) : 0;
             
+            // Get emoji counts from chat (will be populated by loadEmojiCounts)
+            const selgerEmojiCounts = emojiCounts[selger] || { '🔔': 0, '💎': 0, '🎁': 0 };
+            
             return {
               selger,
               month: stats.month,
@@ -356,9 +415,9 @@ export default function AdminDashboard() {
               total: stats.total,
               bestWeek,
               bestMonth,
-              today: stats.today,
-              todayGem: stats.todayGem,
-              todayGift: stats.todayGift,
+              today: selgerEmojiCounts['🔔'] || 0,  // 🔔 from chat
+              todayGem: selgerEmojiCounts['💎'] || 0, // 💎 from chat
+              todayGift: selgerEmojiCounts['🎁'] || 0, // 🎁 from chat
             };
           });
           
