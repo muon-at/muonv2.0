@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../lib/authContext';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../lib/firebase';
@@ -11,38 +10,45 @@ interface SalesRecord {
   id?: string;
 }
 
+const allBadges = ['🏆', '🎓', '🚀', '🎯', '🔥', '⚡', '💎', '👑', '🌟', '🎪', '🎨', '🎭', '🎬', '🎸', '🎺'];
+
+const parseDate = (dateStr: string): Date => {
+  if (!dateStr) return new Date(0);
+  const trimmed = dateStr.trim();
+  
+  const ddmmyyyyMatch = trimmed.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (ddmmyyyyMatch) {
+    const [, day, month, year] = ddmmyyyyMatch;
+    return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+  }
+  
+  const ddmmyyyy2Match = trimmed.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
+  if (ddmmyyyy2Match) {
+    const [, day, month, year] = ddmmyyyy2Match;
+    return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+  }
+  
+  const isoMatch = trimmed.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (isoMatch) {
+    const [, year, month, day] = isoMatch;
+    return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+  }
+
+  return new Date(dateStr);
+};
+
 export default function MinSide() {
-  const navigate = useNavigate();
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<any[]>([]);
   const [earnedBadges, setEarnedBadges] = useState<string[]>([]);
-
-  const canAccessTeamleder = user?.role === 'owner' || user?.role === 'teamlead';
+  const [weeklyGoal, setWeeklyGoal] = useState<number>(0);
+  const [monthlyGoal, setMonthlyGoal] = useState<number>(0);
+  const [showGoalEdit, setShowGoalEdit] = useState(false);
 
   useEffect(() => {
-    if (!user) {
-      navigate('/');
-      return;
-    }
     loadEmployeeData();
-  }, [user, navigate]);
-
-  const parseDate = (dateStr?: string): Date | null => {
-    if (!dateStr) return null;
-    const dateString = String(dateStr).trim();
-    const ddmmRegex = /^(\d{1,2})[./](\d{1,2})[./](\d{4})$/;
-    const match = dateString.match(ddmmRegex);
-    if (match) {
-      const day = parseInt(match[1], 10);
-      const month = parseInt(match[2], 10);
-      const year = parseInt(match[3], 10);
-      return new Date(year, month - 1, day);
-    }
-    const isoDate = new Date(dateString);
-    if (!isNaN(isoDate.getTime())) return isoDate;
-    return null;
-  };
+  }, [user]);
 
   const loadEmployeeData = async () => {
     try {
@@ -55,23 +61,13 @@ export default function MinSide() {
         contracts.push({ id: doc.id, ...data });
       });
 
-      console.log('🔍 MinSide Debug:', {
-        userExternalName: user?.externalName,
-        totalContracts: contracts.length,
-        uniqueSellers: [...new Set(contracts.map(c => c.selger))],
-      });
-
-      // Filter for this employee (handle "Name / role" format)
+      // Filter for this employee
       const employeeContracts = contracts.filter(c => {
         const selger = c.selger || '';
         const externalName = user?.externalName || '';
-        // Match exact or "Name / role" format
         return selger === externalName || selger.startsWith(externalName + ' /');
       });
-      
-      console.log('📊 Employee Contracts:', employeeContracts.length);
 
-      // Calculate stats
       const now = new Date();
       const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
       const weekStart = new Date(today);
@@ -79,106 +75,165 @@ export default function MinSide() {
       const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
 
       const salesToday = employeeContracts.filter(c => {
-        const date = parseDate(c.dato);
+        const date = parseDate(c.dato || '');
         return date && date.getTime() === today.getTime();
       }).length;
 
       const salesThisWeek = employeeContracts.filter(c => {
-        const date = parseDate(c.dato);
+        const date = parseDate(c.dato || '');
         return date && date >= weekStart && date <= today;
       }).length;
 
       const salesThisMonth = employeeContracts.filter(c => {
-        const date = parseDate(c.dato);
+        const date = parseDate(c.dato || '');
         return date && date >= monthStart && date <= today;
       }).length;
 
+      const avgPerDay = Math.round(employeeContracts.length / 365);
+      const total = employeeContracts.length;
+
       setStats([
-        { value: salesToday, label: 'Dag', color: '#E8956E' },
-        { value: salesThisWeek, label: 'Uke', color: '#E8956E' },
-        { value: salesThisMonth, label: 'Måned', color: '#E8956E' },
-        { value: Math.round(employeeContracts.length / 12), label: 'År', color: '#5B7FFF' },
-        { value: employeeContracts.length, label: 'Altid', color: '#A855C9' },
+        { value: salesToday, label: 'Dag', color: '#E8956E', icon: '📊' },
+        { value: salesThisWeek, label: 'Uke', color: '#E8956E', icon: '📈' },
+        { value: salesThisMonth, label: 'Måned', color: '#E8956E', icon: '🎯' },
+        { value: avgPerDay, label: 'År', color: '#5B7FFF', icon: '📅' },
+        { value: total, label: 'Altid', color: '#A855C9', icon: '⭐' },
       ]);
 
-      // Badges: simplified - show if they have sales
+      // Calculate badges
       const badges: string[] = [];
-      if (employeeContracts.length > 0) badges.push('🎓'); // First sale
-      if (salesToday >= 5) badges.push('🚀');
-      if (salesToday >= 10) badges.push('🎯');
-      if (salesToday >= 15) badges.push('🔥');
-      if (salesToday >= 20) badges.push('💎');
-      setEarnedBadges(badges.length > 0 ? badges : ['🏆']); // Show at least one badge
+      if (salesToday >= 5) badges.push(allBadges[2]); // 🚀
+      if (salesToday >= 10) badges.push(allBadges[3]); // 🎯
+      if (salesToday >= 15) badges.push(allBadges[4]); // 🔥
+      if (salesToday >= 20) badges.push(allBadges[5]); // ⚡
+      if (total > 0) badges.push(allBadges[1]); // 🎓
+      if (total > 100) badges.push(allBadges[0]); // 🏆
+
+      setEarnedBadges(badges);
+      setLoading(false);
     } catch (err) {
       console.error('Error loading employee data:', err);
-    } finally {
       setLoading(false);
     }
   };
 
-  const allBadges = ['🏆', '👑', '⭐', '🎓', '🚀', '🎯', '🔥', '💎', '💪', '☀️', '⚡', '🎭', '🏅', '🎖️'];
-
-  if (loading) {
-    return (
-      <div style={{ textAlign: 'center', padding: '2rem', color: '#999' }}>
-        Laster personlig data...
-      </div>
-    );
-  }
+  if (loading) return <div className="minside-container"><div style={{ padding: '2rem', textAlign: 'center' }}>Laster...</div></div>;
 
   return (
     <div className="minside-container">
-      {/* Profile Banner */}
-      <div className="profile-banner">
-        <div className="banner-left">
-          <div className="profile-image">👤</div>
-        </div>
-        
-        <div className="banner-center">
-          <h1 className="user-name">{user?.name}</h1>
-          <p className="user-subtitle">{user?.role || '-'} • {user?.department || '-'} • {user?.project || '-'}</p>
+      {/* BANNER */}
+      <div className="minside-banner">
+        <div className="banner-content">
+          <div className="banner-profile">
+            <div className="profile-avatar">
+              {user?.name?.charAt(0).toUpperCase()}
+            </div>
+            <div className="banner-text">
+              <h1 className="banner-name">{user?.name}</h1>
+              <p className="banner-role">{user?.role} • {user?.department}</p>
+            </div>
+          </div>
           <div className="badges-row">
             {allBadges.map((badge, idx) => (
-              <div key={idx} className={`badge-circle ${earnedBadges.includes(badge) ? '' : 'unused'}`} style={{ opacity: earnedBadges.includes(badge) ? 1 : 0.3 }}>
+              <div key={idx} className={`badge-circle ${earnedBadges.includes(badge) ? 'earned' : 'locked'}`}>
                 {badge}
               </div>
             ))}
           </div>
         </div>
+      </div>
 
-        <div className="header-buttons">
-          <button className="nav-button-minside" onClick={() => navigate('/chat')}>
-            💬 Chat
+      {/* MAIN CONTENT */}
+      <div className="minside-main">
+        <div className="stats-circles">
+          <div className="trophy-placeholder">🏆</div>
+          {stats.map((stat, idx) => (
+            <div key={idx} className="stat-circle" style={{ backgroundColor: stat.color }}>
+              <div className="stat-number">{stat.value}</div>
+              <div className="stat-label">{stat.label}</div>
+            </div>
+          ))}
+          <div className="trophy-placeholder">🏆</div>
+        </div>
+
+        <div className="goals-sidebar">
+          <div className="goals-header">
+            <span style={{ fontSize: '1.2rem' }}>🎯</span>
+            <div>
+              <h3>Mine Mål</h3>
+              <p>Ukesmål & Månedsmål</p>
+            </div>
+          </div>
+
+          <div className="goals-stats">
+            <div className="goal-stat">
+              <span className="goal-label">UKESMÅL</span>
+              <span className="goal-value">{weeklyGoal}</span>
+              <span className="goal-unit">ordrer/uke</span>
+            </div>
+            <div className="goal-stat">
+              <span className="goal-label">MÅNEDSMÅL</span>
+              <span className="goal-value">{monthlyGoal}</span>
+              <span className="goal-unit">ordrer/måned</span>
+            </div>
+          </div>
+
+          <button className="edit-goals-btn" onClick={() => setShowGoalEdit(!showGoalEdit)}>
+            Endre mål
           </button>
-          {canAccessTeamleder && (
-            <button className="nav-button-minside" onClick={() => navigate('/teamleder')}>
-              👥 Teamleder →
-            </button>
+
+          {showGoalEdit && (
+            <div className="goal-edit-form">
+              <input 
+                type="number" 
+                value={weeklyGoal} 
+                onChange={(e) => setWeeklyGoal(parseInt(e.target.value))}
+                placeholder="Ukesmål"
+              />
+              <input 
+                type="number" 
+                value={monthlyGoal} 
+                onChange={(e) => setMonthlyGoal(parseInt(e.target.value))}
+                placeholder="Månedsmål"
+              />
+            </div>
           )}
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="minside-content">
-        {/* Left: Statistics */}
-        <div className="stats-section">
-          <div className="trophy-left">🏆</div>
-          
-          <div className="stats-circles">
-            {stats.map((stat, idx) => (
-              <div key={idx} className="stat-circle-wrapper">
-                <div 
-                  className="stat-circle"
-                  style={{ backgroundColor: stat.color }}
-                >
-                  {stat.value}
-                </div>
-                <p className="stat-label">{stat.label}</p>
-              </div>
-            ))}
+      {/* PROGRESS BARS */}
+      <div className="progress-section">
+        <div className="progress-item">
+          <div className="progress-label">
+            <span>Dagens Mål</span>
+            <span>100%</span>
           </div>
+          <div className="progress-bar blue">
+            <div className="progress-fill" style={{ width: '100%' }}></div>
+          </div>
+          <div className="progress-text">4 / 33 <span className="checkmark">✓ Mål nådd</span></div>
+        </div>
 
-          <div className="trophy-right">🏆</div>
+        <div className="progress-item">
+          <div className="progress-label">
+            <span>Ukes Mål</span>
+            <span>100%</span>
+          </div>
+          <div className="progress-bar green">
+            <div className="progress-fill" style={{ width: '100%' }}></div>
+          </div>
+          <div className="progress-text">32 / 25 <span className="checkmark">✓ Mål nådd</span></div>
+        </div>
+
+        <div className="progress-item">
+          <div className="progress-label">
+            <span>Måneds Mål</span>
+            <span>100%</span>
+          </div>
+          <div className="progress-bar orange">
+            <div className="progress-fill" style={{ width: '100%' }}></div>
+          </div>
+          <div className="progress-text">103 / 100 <span className="checkmark">✓ Mål nådd</span></div>
         </div>
       </div>
     </div>
