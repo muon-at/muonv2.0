@@ -31,11 +31,9 @@ export function ProtectedRoute({ children, requiredRole = 'employee' }: Protecte
   }
 
   return (
-    <div style={{ display: 'flex', height: '100vh' }}>
-      <div style={{ flex: 1, marginRight: '80px', overflow: 'auto' }}>
-        {children}
-      </div>
+    <>
+      {children}
       <RightNavBar />
-    </div>
+    </>
   );
 }
