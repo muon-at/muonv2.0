@@ -33,17 +33,17 @@
   gap: 1.5rem;
 }
 
-/* MIN SIDE RIGHT-ALIGNED HEADER - NO BOX */
+/* MIN SIDE LEFT-ALIGNED HEADER - NO BOX */
 .minside-header-centered {
-  justify-content: flex-end;
-  text-align: right;
-  padding-right: 3rem !important;
+  justify-content: flex-start;
+  text-align: left;
+  padding-left: 3rem !important;
 }
 
 .header-content-centered {
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
+  align-items: flex-start;
   gap: 0.25rem;
 }
 
