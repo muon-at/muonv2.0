@@ -78,7 +78,7 @@ export const RightNavBar: React.FC = () => {
         {/* MIN SIDE - Person icon */}
         <button 
           className="nav-button"
-          onClick={() => navigate('/minside')}
+          onClick={() => navigate('/min-side')}
           title="Min Side"
         >
           <div className="icon-circle">
