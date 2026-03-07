@@ -66,15 +66,41 @@
   justify-content: center;
 }
 
-/* SVG ICONS */
-.nav-icon {
+/* ICON CIRCLE - Wrapper for SVG icons (clipping container) */
+.icon-circle {
   width: 56px;
   height: 56px;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  background: #f0f0f0;
+  border: 2px solid #999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.nav-button:hover .icon-circle {
+  border-color: #666;
+  background: #e8e8e8;
+}
+
+.nav-button:hover .icon-circle .nav-icon {
+  stroke: #666;
+  color: #666;
+}
+
+/* SVG ICONS - Dobbelt så store, sentrert inni circle */
+.nav-icon {
+  width: 112px;
+  height: 112px;
   stroke: #999;
   color: #999;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 /* AVDELING CIRCLE */
