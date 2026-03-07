@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../lib/authContext';
-import { collection, getDocs, doc, setDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, setDoc, getDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import '../styles/MinSide.css';
 
@@ -80,48 +80,22 @@ export default function MinSide() {
         return;
       }
       
-      // Load badges from allente_badges collection (where Admin Dashboard stores them)
-      const badgesRef = collection(db, 'allente_badges');
-      const snapshot = await getDocs(badgesRef);
-      console.log(`📊 Found ${snapshot.size} total badges in Firestore`);
+      // Load badges from user_earned_badges collection (where Min Side stores calculated badges)
+      const badgeDocRef = doc(db, 'user_earned_badges', externalName);
+      const badgeSnapshot = await getDoc(badgeDocRef);
       
-      const userEarnedBadges: string[] = [];
-      const statusMap: { [key: string]: boolean } = {};
-      
-      // Initialize all badges as unearned
-      badgeDefinitions.forEach(def => {
-        statusMap[def.emoji] = false;
-      });
-      
-      // Mark earned badges
-      snapshot.forEach(doc => {
-        const badgeData = doc.data();
-        const emoji = badgeData.emoji;
-        const selger = badgeData.selger || '';
+      if (badgeSnapshot.exists()) {
+        const badgeData = badgeSnapshot.data();
+        const userEarnedBadges = badgeData.badges || [];
+        const statusMap = badgeData.badgeMap || {};
         
-        console.log(`  📋 Badge ${emoji}: selger="${selger}"`);
+        console.log(`✅ Loaded ${userEarnedBadges.length} saved badges for ${externalName}:`, userEarnedBadges);
         
-        // Check if this badge belongs to current user
-        // Handle both "Name" and "Name / rolle" formats
-        const matches = 
-          selger === externalName || 
-          selger.includes(externalName) || 
-          selger.startsWith(externalName + ' /');
-        
-        if (matches) {
-          console.log(`    ✅ MATCH for ${externalName}! statusMap[${emoji}]=${statusMap[emoji]}`);
-          if (statusMap[emoji] !== undefined) {
-            statusMap[emoji] = true;
-            userEarnedBadges.push(emoji);
-            console.log(`      → Added to earned badges`);
-          }
-        }
-      });
-      
-      console.log(`✅ FINAL: ${userEarnedBadges.length} badges for ${externalName}:`, userEarnedBadges);
-      
-      setEarnedBadges(userEarnedBadges);
-      setBadgeStatus(statusMap);
+        setEarnedBadges(userEarnedBadges);
+        setBadgeStatus(statusMap);
+      } else {
+        console.log(`ℹ️ No saved badges for ${externalName} yet (will calculate on load)`);
+      }
     } catch (err) {
       console.error('Error loading cached badges:', err);
     }
@@ -132,9 +106,15 @@ export default function MinSide() {
       const externalName = user?.externalName || '';
       if (!externalName) return;
       
-      const badgesRef = doc(db, 'employee_badges', externalName);
-      await setDoc(badgesRef, { badges: badgeMap, updatedAt: new Date() });
-      console.log('💾 Saved badges to Firestore for', externalName);
+      // Save earned badges to user_earned_badges collection
+      const earnedBadges = Object.keys(badgeMap).filter(emoji => badgeMap[emoji]);
+      const badgesRef = doc(db, 'user_earned_badges', externalName);
+      await setDoc(badgesRef, { 
+        badges: earnedBadges, 
+        badgeMap: badgeMap,
+        updatedAt: new Date() 
+      });
+      console.log('💾 Saved', earnedBadges.length, 'badges to Firestore for', externalName);
     } catch (err) {
       console.error('Error saving badges:', err);
     }
