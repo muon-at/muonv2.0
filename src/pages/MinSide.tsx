@@ -121,13 +121,11 @@ export default function MinSide() {
 
   return (
     <div className="minside-container">
-      {/* HEADER - SHOW USER INFO */}
-      <div className="page-header-standard">
-        <div className="header-left">
-          <div>
-            <h1>👤 {user?.name}</h1>
-            <p className="subtitle">{user?.role} • {user?.department}</p>
-          </div>
+      {/* HEADER - CENTERED USER INFO */}
+      <div className="page-header-standard minside-header-centered">
+        <div className="header-content-centered">
+          <h1>👤 {user?.name}</h1>
+          <p className="subtitle">{user?.role} • {user?.department}</p>
         </div>
       </div>
 
