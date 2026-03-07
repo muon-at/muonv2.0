@@ -158,14 +158,15 @@ export default function MinSide() {
       ]);
 
       // Calculate all employee stats for comparison
-      const employeeStats: { [name: string]: { today: number; month: number; total: number } } = {};
+      const employeeStats: { [name: string]: { today: number; month: number; total: number; bestDay: number; salesByDay: { [date: string]: number } } } = {};
       
       contracts.forEach(c => {
         const selger = c.selger || '';
         const date = parseDate(c.dato || '');
+        const dateStr = date ? date.toISOString().split('T')[0] : '';
         
         if (!employeeStats[selger]) {
-          employeeStats[selger] = { today: 0, month: 0, total: 0 };
+          employeeStats[selger] = { today: 0, month: 0, total: 0, bestDay: 0, salesByDay: {} };
         }
         
         if (date && date.getTime() === today.getTime()) {
@@ -175,6 +176,17 @@ export default function MinSide() {
           employeeStats[selger].month++;
         }
         employeeStats[selger].total++;
+        
+        // Track sales by day to find best day
+        if (dateStr) {
+          employeeStats[selger].salesByDay[dateStr] = (employeeStats[selger].salesByDay[dateStr] || 0) + 1;
+        }
+      });
+      
+      // Calculate best day for each employee
+      Object.keys(employeeStats).forEach(selger => {
+        const salesByDay = employeeStats[selger].salesByDay;
+        employeeStats[selger].bestDay = Math.max(0, ...Object.values(salesByDay));
       });
 
       // Find best performers
@@ -204,6 +216,8 @@ export default function MinSide() {
       const earnedBadgesList: { badge: string; earned: boolean }[] = [];
       const externalName = user?.externalName || '';
       
+      const userBestDay = employeeStats[externalName]?.bestDay || 0;
+      
       badgeDefinitions.forEach(def => {
         let earned = false;
         
@@ -216,13 +230,17 @@ export default function MinSide() {
         } else if (def.navn === 'FØRSTE SALGET') {
           earned = total > 0;
         } else if (def.navn === '5 SALG') {
-          earned = salesToday >= 5;
+          // 5+ salg på EN dag (historisk best day)
+          earned = userBestDay >= 5;
         } else if (def.navn === '10 SALG') {
-          earned = salesToday >= 10;
+          // 10+ salg på EN dag (historisk best day)
+          earned = userBestDay >= 10;
         } else if (def.navn === '15 SALG') {
-          earned = salesToday >= 15;
+          // 15+ salg på EN dag (historisk best day)
+          earned = userBestDay >= 15;
         } else if (def.navn === '20 SALG') {
-          earned = salesToday >= 20;
+          // 20+ salg på EN dag (historisk best day)
+          earned = userBestDay >= 20;
         }
         
         earnedBadgesList.push({ badge: def.emoji, earned });
@@ -235,6 +253,7 @@ export default function MinSide() {
         unearned: earnedBadgesList.filter(b => !b.earned).map(b => b.badge),
         earnedCount,
         salesToday,
+        bestDayEver: userBestDay,
         totalSales: total,
         bestToday,
         bestThisMonth,
