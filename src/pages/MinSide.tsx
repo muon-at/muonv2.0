@@ -73,8 +73,29 @@ export default function MinSide() {
     monthlyGoalValue: 0,
   });
 
+  // Load saved goals from Firestore
+  const loadSavedGoals = async () => {
+    try {
+      const externalName = user?.externalName || user?.name || '';
+      if (!externalName) return;
+      
+      const goalsRef = doc(db, 'employee_goals', externalName);
+      const goalsDoc = await getDoc(goalsRef);
+      
+      if (goalsDoc.exists()) {
+        const data = goalsDoc.data();
+        if (data.weeklyGoal) setWeeklyGoal(data.weeklyGoal);
+        if (data.monthlyGoal) setMonthlyGoal(data.monthlyGoal);
+        console.log('✅ Goals loaded from Firestore:', data);
+      }
+    } catch (err) {
+      console.error('Error loading goals:', err);
+    }
+  };
+
   useEffect(() => {
     loadEmployeeData();
+    loadSavedGoals();
     // Load cached badges from Firestore
     loadCachedBadges();
   }, [user]);
@@ -518,8 +539,33 @@ export default function MinSide() {
           </div>
         </div>
 
-        <button className="edit-goals-btn" onClick={() => setShowGoalEdit(!showGoalEdit)}>
-          Endre mål
+        <button 
+          className="edit-goals-btn" 
+          onClick={async () => {
+            if (showGoalEdit) {
+              // Save mode: save and close
+              try {
+                const externalName = user?.externalName || user?.name || '';
+                if (externalName) {
+                  const goalsRef = doc(db, 'employee_goals', externalName);
+                  await setDoc(goalsRef, {
+                    weeklyGoal,
+                    monthlyGoal,
+                    updatedAt: new Date(),
+                  }, { merge: true });
+                  console.log('✅ Goals saved:', { weeklyGoal, monthlyGoal });
+                }
+              } catch (err) {
+                console.error('❌ Error saving goals:', err);
+              }
+              setShowGoalEdit(false);
+            } else {
+              // Edit mode: open
+              setShowGoalEdit(true);
+            }
+          }}
+        >
+          {showGoalEdit ? 'Lagre' : 'Endre mål'}
         </button>
 
         {showGoalEdit && (
@@ -527,13 +573,13 @@ export default function MinSide() {
             <input 
               type="number" 
               value={weeklyGoal} 
-              onChange={(e) => setWeeklyGoal(parseInt(e.target.value))}
+              onChange={(e) => setWeeklyGoal(parseInt(e.target.value) || 0)}
               placeholder="Ukesmål"
             />
             <input 
               type="number" 
               value={monthlyGoal} 
-              onChange={(e) => setMonthlyGoal(parseInt(e.target.value))}
+              onChange={(e) => setMonthlyGoal(parseInt(e.target.value) || 0)}
               placeholder="Månedsmål"
             />
           </div>

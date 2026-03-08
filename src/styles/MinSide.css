@@ -337,15 +337,46 @@
 .goal-edit-form {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  background: #fffbf0;
+  border: 2px solid #fde9d4;
+  border-radius: 8px;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .goal-edit-form input {
-  padding: 0.5rem;
-  border: 1px solid #e2e8f0;
-  border-radius: 4px;
-  font-size: 0.9rem;
+  padding: 0.75rem 1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 1rem;
   color: #333;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  background: white;
+}
+
+.goal-edit-form input:focus {
+  outline: none;
+  border-color: #E8956E;
+  box-shadow: 0 0 0 3px rgba(232, 149, 110, 0.1);
+}
+
+.goal-edit-form input::placeholder {
+  color: #999;
+  font-weight: 400;
 }
 
 /* BADGES SECTION */
