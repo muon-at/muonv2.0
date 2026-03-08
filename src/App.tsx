@@ -27,7 +27,7 @@ function App() {
           <Route 
             path="/teamleder" 
             element={
-              <ProtectedRoute requiredRole="teamlead">
+              <ProtectedRoute requiredRole="teamleder">
                 <Teamleder />
               </ProtectedRoute>
             } 

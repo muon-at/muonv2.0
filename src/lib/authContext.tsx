@@ -6,7 +6,7 @@ export interface AuthUser {
   email?: string;
   username?: string;
   password?: string;
-  role?: 'owner' | 'teamlead' | 'employee';
+  role?: 'owner' | 'teamleder' | 'employee';
   department?: string;
   project?: string;
   stilling?: string;
@@ -40,7 +40,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const newUser: AuthUser = {
       id,
       name,
-      role: (role as 'owner' | 'teamlead' | 'employee') || 'employee',
+      role: (role as 'owner' | 'teamleder' | 'employee') || 'employee',
       ...(fullEmployee && {
         email: fullEmployee.email,
         username: fullEmployee.username,
@@ -77,7 +77,7 @@ export function useAuth() {
   return context;
 }
 
-export function useHasAccess(requiredRole: 'owner' | 'teamlead' | 'employee') {
+export function useHasAccess(requiredRole: 'owner' | 'teamleder' | 'employee') {
   const { user } = useAuth();
   if (!user) return false;
 

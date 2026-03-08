@@ -119,7 +119,7 @@ export const RightNavBar: React.FC = () => {
         )}
 
         {/* TEAMLEDER - Person with tie */}
-        {(user?.role === 'owner' || user?.role === 'teamlead') && (
+        {(user?.role === 'owner' || user?.role === 'teamleder') && (
           <button 
             className="nav-button"
             onClick={() => navigate('/teamleder')}
@@ -176,31 +176,35 @@ export const RightNavBar: React.FC = () => {
           <div className="nav-tooltip">Global</div>
         </button>
 
-        {/* KRS CHAT - Circle with text */}
-        <button 
-          className={`nav-button ${unreadChannels.has('dept-krs') ? 'unread' : ''}`}
-          onClick={() => navigate('/chat', { state: { selectedChannel: 'dept-krs' } })}
-          title="KRS"
-        >
-          <div className="avdeling-circle">
-            {unreadChannels.has('dept-krs') && <div className="unread-halo"></div>}
-            KRS
-          </div>
-          <div className="nav-tooltip">KRS</div>
-        </button>
+        {/* KRS CHAT - Owner only */}
+        {user?.role === 'owner' && (
+          <button 
+            className={`nav-button ${unreadChannels.has('dept-krs') ? 'unread' : ''}`}
+            onClick={() => navigate('/chat', { state: { selectedChannel: 'dept-krs' } })}
+            title="KRS"
+          >
+            <div className="avdeling-circle">
+              {unreadChannels.has('dept-krs') && <div className="unread-halo"></div>}
+              KRS
+            </div>
+            <div className="nav-tooltip">KRS</div>
+          </button>
+        )}
 
-        {/* OSL CHAT - Circle with text */}
-        <button 
-          className={`nav-button ${unreadChannels.has('dept-osl') ? 'unread' : ''}`}
-          onClick={() => navigate('/chat', { state: { selectedChannel: 'dept-osl' } })}
-          title="OSL"
-        >
-          <div className="avdeling-circle">
-            {unreadChannels.has('dept-osl') && <div className="unread-halo"></div>}
-            OSL
-          </div>
-          <div className="nav-tooltip">OSL</div>
-        </button>
+        {/* OSL CHAT - Owner only */}
+        {user?.role === 'owner' && (
+          <button 
+            className={`nav-button ${unreadChannels.has('dept-osl') ? 'unread' : ''}`}
+            onClick={() => navigate('/chat', { state: { selectedChannel: 'dept-osl' } })}
+            title="OSL"
+          >
+            <div className="avdeling-circle">
+              {unreadChannels.has('dept-osl') && <div className="unread-halo"></div>}
+              OSL
+            </div>
+            <div className="nav-tooltip">OSL</div>
+          </button>
+        )}
 
         {/* SKN CHAT - Owner only */}
         {user?.role === 'owner' && (
@@ -266,7 +270,7 @@ export const RightNavBar: React.FC = () => {
         )}
 
         {/* TEAMLEDERE CHAT - People icon */}
-        {(user?.role === 'owner' || user?.role === 'teamlead') && (
+        {(user?.role === 'owner' || user?.role === 'teamleder') && (
           <button 
             className={`nav-button ${unreadChannels.has('team') ? 'unread' : ''}`}
             onClick={() => navigate('/chat', { state: { selectedChannel: 'team' } })}
@@ -363,7 +367,7 @@ export const RightNavBar: React.FC = () => {
             )}
 
             {/* TEAMLEDER */}
-            {(user?.role === 'owner' || user?.role === 'teamlead') && (
+            {(user?.role === 'owner' || user?.role === 'teamleder') && (
               <button
                 className="mobile-nav-button"
                 onClick={() => { navigate('/teamleder'); setIsMobileMenuOpen(false); }}
@@ -399,22 +403,26 @@ export const RightNavBar: React.FC = () => {
               <span>Global</span>
             </button>
 
-            {/* KRS, OSL, SKN */}
-            <button
-              className={`mobile-nav-button ${unreadChannels.has('dept-krs') ? 'unread' : ''}`}
-              onClick={() => { navigate('/chat', { state: { selectedChannel: 'dept-krs' } }); setIsMobileMenuOpen(false); }}
-            >
-              <div style={{ width: '20px', height: '20px', borderRadius: '50%', border: '2px solid currentColor', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 'bold' }}>KRS</div>
-              <span>KRS</span>
-            </button>
+            {/* KRS, OSL, SKN - Owner only */}
+            {user?.role === 'owner' && (
+              <>
+                <button
+                  className={`mobile-nav-button ${unreadChannels.has('dept-krs') ? 'unread' : ''}`}
+                  onClick={() => { navigate('/chat', { state: { selectedChannel: 'dept-krs' } }); setIsMobileMenuOpen(false); }}
+                >
+                  <div style={{ width: '20px', height: '20px', borderRadius: '50%', border: '2px solid currentColor', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 'bold' }}>KRS</div>
+                  <span>KRS</span>
+                </button>
 
-            <button
-              className={`mobile-nav-button ${unreadChannels.has('dept-osl') ? 'unread' : ''}`}
-              onClick={() => { navigate('/chat', { state: { selectedChannel: 'dept-osl' } }); setIsMobileMenuOpen(false); }}
-            >
-              <div style={{ width: '20px', height: '20px', borderRadius: '50%', border: '2px solid currentColor', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 'bold' }}>OSL</div>
-              <span>OSL</span>
-            </button>
+                <button
+                  className={`mobile-nav-button ${unreadChannels.has('dept-osl') ? 'unread' : ''}`}
+                  onClick={() => { navigate('/chat', { state: { selectedChannel: 'dept-osl' } }); setIsMobileMenuOpen(false); }}
+                >
+                  <div style={{ width: '20px', height: '20px', borderRadius: '50%', border: '2px solid currentColor', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 'bold' }}>OSL</div>
+                  <span>OSL</span>
+                </button>
+              </>
+            )}
 
             {user?.role === 'owner' && (
               <button
@@ -451,7 +459,7 @@ export const RightNavBar: React.FC = () => {
             )}
 
             {/* TEAMLEDERE */}
-            {(user?.role === 'owner' || user?.role === 'teamlead') && (
+            {(user?.role === 'owner' || user?.role === 'teamleder') && (
               <button
                 className={`mobile-nav-button ${unreadChannels.has('team') ? 'unread' : ''}`}
                 onClick={() => { navigate('/chat', { state: { selectedChannel: 'team' } }); setIsMobileMenuOpen(false); }}

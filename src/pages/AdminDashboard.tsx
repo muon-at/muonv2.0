@@ -2314,14 +2314,14 @@ export default function AdminDashboard() {
                         const getRoleColor = (role?: string) => {
                           switch(role) {
                             case 'owner': return '#a78bfa'; // purple
-                            case 'teamlead': return '#60a5fa'; // blue
+                            case 'teamleder': return '#60a5fa'; // blue
                             default: return '#34d399'; // green
                           }
                         };
                         const getRoleLabel = (role?: string) => {
                           switch(role) {
                             case 'owner': return 'eier';
-                            case 'teamlead': return 'teamleder';
+                            case 'teamleder': return 'teamleder';
                             default: return 'selger';
                           }
                         };

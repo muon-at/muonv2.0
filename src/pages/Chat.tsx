@@ -296,7 +296,7 @@ export default function Chat() {
       const employeesRef = collection(db, 'employees');
       const snapshot = await getDocs(employeesRef);
       const userMap: { [key: string]: any } = {}; // Deduplicate by name
-      const rolePriority = { 'owner': 3, 'teamlead': 2, 'employee': 1, 'ansatt': 1 };
+      const rolePriority = { 'owner': 3, 'teamleder': 2, 'employee': 1, 'ansatt': 1 };
       
       snapshot.forEach(doc => {
         const data = doc.data();
@@ -654,7 +654,7 @@ export default function Chat() {
         // Other projects: match user project
         return userProject === channelProject || user?.role === 'owner';
       case 'team':
-        return user?.role === 'teamlead' || user?.role === 'owner';
+        return user?.role === 'teamleder' || user?.role === 'owner';
       case 'admin':
         return user?.role === 'owner';
       case 'avdeling':

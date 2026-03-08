@@ -4,7 +4,7 @@ import { RightNavBar } from './RightNavBar';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  requiredRole?: 'owner' | 'teamlead' | 'employee';
+  requiredRole?: 'owner' | 'teamleder' | 'employee';
 }
 
 export function ProtectedRoute({ children, requiredRole = 'employee' }: ProtectedRouteProps) {
