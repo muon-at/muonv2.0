@@ -417,26 +417,28 @@
 /* MOBILE RESPONSIVE */
 @media (max-width: 768px) {
   .minside-main {
-    gap: 1.2rem;
-    padding: 1.8rem 1.2rem;
+    gap: 1rem;
+    padding: 1.5rem 1rem;
     margin: 0.25rem auto 0.25rem auto;
   }
 
   .stats-circles {
-    gap: 0.9rem;
+    gap: 0.8rem;
   }
 
   .stat-circle {
-    width: 105px;
-    height: 105px;
+    width: 90px;
+    height: 90px;
   }
 
   .stat-number {
-    font-size: 1.8rem;
+    font-size: 1.6rem;
   }
 
   .stat-label {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
+    color: #ffffff;
+    font-weight: 700;
   }
 
   .trophy-placeholder {

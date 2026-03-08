@@ -217,3 +217,62 @@
     margin-left: 0.3rem;
   }
 }
+
+/* MOBILE OPTIMIZATION */
+@media (max-width: 768px) {
+  .avdeling-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .avdeling-card {
+    padding: 0.8rem;
+  }
+
+  .card-title {
+    font-size: 1rem;
+  }
+
+  .stat-box {
+    padding: 0.5rem;
+  }
+
+  .stat-label {
+    font-size: 0.6rem;
+  }
+
+  .stat-value {
+    font-size: 1rem;
+  }
+
+  .top-five-title {
+    font-size: 0.75rem;
+  }
+
+  .top-five-item {
+    font-size: 0.75rem;
+    padding: 0.4rem;
+  }
+
+  .rank {
+    font-size: 0.8rem;
+  }
+
+  .name {
+    font-size: 0.75rem;
+  }
+
+  .count {
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .avdeling-card {
+    padding: 0.6rem;
+  }
+
+  .card-title {
+    font-size: 0.9rem;
+  }
+}
