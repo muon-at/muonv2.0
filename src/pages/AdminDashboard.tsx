@@ -1352,6 +1352,25 @@ export default function AdminDashboard() {
             <p className="subtitle">Sentralisert oversikt over kontrakter og brukerstatistikk</p>
           </div>
         </div>
+        
+        {/* Working Days Tracker - Right Side */}
+        <div className="header-right-tracker">
+          <div className="tracker-box">
+            <div className="tracker-label">FORRIGE MÅNED</div>
+            <div className="tracker-value">{lastMonthDays}</div>
+            <div className="tracker-month">{getMonthName(-1)}</div>
+          </div>
+          <div className="tracker-box highlight">
+            <div className="tracker-label">DENNE MÅNEDEN</div>
+            <div className="tracker-value">{thisMonthDays}</div>
+            <div className="tracker-month">{getMonthName(0)}</div>
+          </div>
+          <div className="tracker-box">
+            <div className="tracker-label">NESTE MÅNED</div>
+            <div className="tracker-value">{nextMonthDays}</div>
+            <div className="tracker-month">{getMonthName(1)}</div>
+          </div>
+        </div>
       </div>
 
       {/* Main Tab Navigation */}
@@ -1365,25 +1384,6 @@ export default function AdminDashboard() {
             {tab.label}
           </button>
         ))}
-      </div>
-
-      {/* Working Days Tracker */}
-      <div className="working-days-tracker">
-        <div className="working-days-box">
-          <div className="working-days-label">Forrige måned</div>
-          <div className="working-days-value">{lastMonthDays}</div>
-          <div className="working-days-month">{getMonthName(-1)}</div>
-        </div>
-        <div className="working-days-box highlight">
-          <div className="working-days-label">Denne måneden</div>
-          <div className="working-days-value">{thisMonthDays}</div>
-          <div className="working-days-month">{getMonthName(0)}</div>
-        </div>
-        <div className="working-days-box">
-          <div className="working-days-label">Neste måned</div>
-          <div className="working-days-value">{nextMonthDays}</div>
-          <div className="working-days-month">{getMonthName(1)}</div>
-        </div>
       </div>
 
       {/* Content Area */}

@@ -14,7 +14,7 @@
   color: white;
   padding: 1.5rem 2rem;
   display: flex;
-  justify-content: flex-start;
+  justify-content: space-between;
   align-items: center;
   width: calc(100% + 72px);
   margin-right: -72px;
@@ -26,6 +26,13 @@
   display: flex;
   align-items: center;
   gap: 1.5rem;
+  flex: 1;
+}
+
+.header-right-tracker {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
 }
 
 .admin-header h1 {
@@ -100,70 +107,53 @@
 }
 
 /* Working Days Tracker */
-.working-days-tracker {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
-  padding: 2rem;
-  background: white;
-  border-bottom: 1px solid #e2e8f0;
-  max-width: 600px;
-  margin: 0 auto;
-  width: 100%;
+/* Header Right Tracker - Compact */
+.header-right-tracker {
+  display: flex;
+  gap: 0.8rem;
+  align-items: center;
 }
 
-.working-days-box {
-  background: #f8fafc;
-  border: 2px solid #e2e8f0;
-  border-radius: 8px;
-  padding: 1.5rem;
+.tracker-box {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  padding: 0.6rem 0.9rem;
   text-align: center;
+  min-width: 100px;
   transition: all 0.2s ease;
 }
 
-.working-days-box:hover {
-  border-color: #667eea;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+.tracker-box:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
 }
 
-.working-days-box.highlight {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-color: #667eea;
-  color: white;
+.tracker-box.highlight {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
 }
 
-.working-days-label {
-  font-size: 0.75rem;
+.tracker-label {
+  font-size: 0.65rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: #999;
-  margin-bottom: 0.5rem;
-}
-
-.working-days-box.highlight .working-days-label {
+  letter-spacing: 0.3px;
   color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 0.2rem;
 }
 
-.working-days-value {
-  font-size: 2.5rem;
+.tracker-value {
+  font-size: 1.8rem;
   font-weight: 700;
-  color: #667eea;
-  margin: 0.5rem 0;
-}
-
-.working-days-box.highlight .working-days-value {
   color: white;
+  margin: 0.1rem 0;
 }
 
-.working-days-month {
-  font-size: 0.85rem;
-  color: #999;
-  text-transform: capitalize;
-}
-
-.working-days-box.highlight .working-days-month {
+.tracker-month {
+  font-size: 0.7rem;
   color: rgba(255, 255, 255, 0.8);
+  text-transform: capitalize;
 }
 
 /* Content Area */
@@ -1180,6 +1170,28 @@
 
 /* Mobile - Working Days Tracker */
 @media (max-width: 768px) {
+  .header-right-tracker {
+    gap: 0.5rem;
+  }
+
+  .tracker-box {
+    padding: 0.4rem 0.6rem;
+    min-width: 80px;
+  }
+
+  .tracker-label {
+    font-size: 0.6rem;
+  }
+
+  .tracker-value {
+    font-size: 1.4rem;
+  }
+
+  .tracker-month {
+    font-size: 0.65rem;
+  }
+
+  /* OLD STYLES REMOVED */
   .working-days-tracker {
     grid-template-columns: 1fr;
     gap: 1rem;
