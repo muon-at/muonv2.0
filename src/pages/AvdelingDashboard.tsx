@@ -103,8 +103,8 @@ const AvdelingDashboard = ({ userDepartment }: { userDepartment?: string } = {})
       
       console.log(`📍 EMPLOYEE NAME MAP for ${dept}:`, Array.from(employeeNameMap.entries()));
 
-      // Fetch all sales
-      const salesRef = collection(db, 'allente_salg');
+      // Fetch all contracts from the archive
+      const salesRef = collection(db, 'allente_kontraktsarkiv');
       const salesSnap = await getDocs(salesRef);
       const allSales = salesSnap.docs.map(doc => doc.data());
       
