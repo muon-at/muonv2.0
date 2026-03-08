@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import '../styles/AvdelingDashboard.css';
 
@@ -130,20 +130,26 @@ const ProsjektDashboard = ({ userProject }: { userProject?: string } = {}) => {
       const getEmojiCountsForDate = async (date: Date): Promise<Map<string, number>> => {
         const dateStr = date.toISOString().split('T')[0];
         try {
-          const emojiCountsRef = collection(db, 'emoji_counts_daily', dateStr, 'employees');
-          const emojiCountsSnap = await getDocs(emojiCountsRef);
+          const emojiCountsDocRef = doc(db, 'emoji_counts_daily', dateStr);
+          const emojiCountsSnap = await getDoc(emojiCountsDocRef);
           const emojiCounts = new Map<string, number>();
 
-          emojiCountsSnap.docs.forEach(doc => {
-            const data = doc.data();
-            const bellCount = (data['🔔'] || 0) as number;
-            const gemCount = (data['💎'] || 0) as number;
-            const totalEmojis = bellCount + gemCount;
-            emojiCounts.set(doc.id, totalEmojis);
-          });
+          if (emojiCountsSnap.exists()) {
+            const data = emojiCountsSnap.data();
+            const counts = data.counts || {};
+            
+            // counts is: { "Oliver T Jenssen": { 🔔: 0, 💎: 1, 🎁: 1 }, ... }
+            Object.entries(counts).forEach(([employeeName, emojis]: [string, any]) => {
+              const bellCount = (emojis['🔔'] || 0) as number;
+              const gemCount = (emojis['💎'] || 0) as number;
+              const totalEmojis = bellCount + gemCount;
+              emojiCounts.set(employeeName, totalEmojis);
+            });
+          }
 
           return emojiCounts;
         } catch (err) {
+          console.error(`Error fetching emoji counts for ${dateStr}:`, err);
           return new Map();
         }
       };
@@ -180,26 +186,41 @@ const ProsjektDashboard = ({ userProject }: { userProject?: string } = {}) => {
       console.log(`✅ SALES BY EMPLOYEE (after today count):`, Array.from(salesByEmployee.entries()).slice(0, 10));
 
       // Then ADD emoji counts for today
+      // Create mapping from name (display name) → externalName for emoji lookup
+      const nameToExternalName = new Map<string, string>();
+      employees.forEach(emp => {
+        const externalName = emp.externalName?.trim() || '';
+        const displayName = emp.name || '';
+        if (displayName && externalName) {
+          nameToExternalName.set(displayName, externalName);
+        }
+      });
+      
       const emojiCountsToday = await getEmojiCountsForDate(today);
-      emojiCountsToday.forEach((count, empName) => {
-        const current = salesByEmployee.get(empName) || { dag: 0, uke: 0, maned: 0 };
-        current.dag += count;  // ADD emojis to existing contract count
-        salesByEmployee.set(empName, current);
+      emojiCountsToday.forEach((count, employeeName) => {
+        // employeeName is the display name (e.g., "Oliver T Jenssen")
+        // We need to find the corresponding externalName in our sales data
+        const externalName = nameToExternalName.get(employeeName);
+        if (externalName) {
+          const current = salesByEmployee.get(externalName) || { dag: 0, uke: 0, maned: 0 };
+          current.dag += count;  // ADD emojis to existing contract count
+          salesByEmployee.set(externalName, current);
+        }
       });
 
       // Fetch emoji counts for entire week
       const weekStart = new Date(today);
-      const day = weekStart.getDay();
-      const diff = weekStart.getDate() - day + (day === 0 ? -6 : 1);
+      const dayOfWeek = weekStart.getDay();
+      const diff = weekStart.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
       weekStart.setDate(diff);
 
       const emojiCountsWeek = new Map<string, number>();
       const currentDate = new Date(weekStart);
       while (currentDate <= today) {
         const dailyCounts = await getEmojiCountsForDate(currentDate);
-        dailyCounts.forEach((count, empName) => {
-          const existing = emojiCountsWeek.get(empName) || 0;
-          emojiCountsWeek.set(empName, existing + count);
+        dailyCounts.forEach((count, employeeName) => {
+          const existing = emojiCountsWeek.get(employeeName) || 0;
+          emojiCountsWeek.set(employeeName, existing + count);
         });
         currentDate.setDate(currentDate.getDate() + 1);
       }
@@ -210,9 +231,9 @@ const ProsjektDashboard = ({ userProject }: { userProject?: string } = {}) => {
       const currentDateMonth = new Date(monthStart);
       while (currentDateMonth <= today) {
         const dailyCounts = await getEmojiCountsForDate(currentDateMonth);
-        dailyCounts.forEach((count, empName) => {
-          const existing = emojiCountsMonth.get(empName) || 0;
-          emojiCountsMonth.set(empName, existing + count);
+        dailyCounts.forEach((count, employeeName) => {
+          const existing = emojiCountsMonth.get(employeeName) || 0;
+          emojiCountsMonth.set(employeeName, existing + count);
         });
         currentDateMonth.setDate(currentDateMonth.getDate() + 1);
       }
@@ -255,9 +276,14 @@ const ProsjektDashboard = ({ userProject }: { userProject?: string } = {}) => {
       const ukeList: TopFiveItem[] = [];
       const maanedList: TopFiveItem[] = [];
 
-      salesByEmployee.forEach((counts, empName) => {
-        const ukeEmojis = emojiCountsWeek.get(empName) || 0;
-        const maanedEmojis = emojiCountsMonth.get(empName) || 0;
+      salesByEmployee.forEach((counts, externalName) => {
+        // externalName is how we tracked sales (e.g., "Oliver Jenssen / selger")
+        // displayName is the employee's name (e.g., "Oliver T Jenssen")
+        const displayName = employeeNameMap.get(externalName) || externalName;
+        
+        // Look up emojis using displayName (e.g., "Oliver T Jenssen")
+        const ukeEmojis = emojiCountsWeek.get(displayName) || 0;
+        const maanedEmojis = emojiCountsMonth.get(displayName) || 0;
 
         const dagTotal = counts.dag;
         const ukeTotal = counts.uke + ukeEmojis;
@@ -267,11 +293,9 @@ const ProsjektDashboard = ({ userProject }: { userProject?: string } = {}) => {
         totalUke += ukeTotal;
         totalManed += maanedTotal;
 
-        const displayName = employeeNameMap.get(empName) || empName;
-
-        dagList.push({ externalName: empName, displayName, salg: dagTotal });
-        ukeList.push({ externalName: empName, displayName, salg: ukeTotal });
-        maanedList.push({ externalName: empName, displayName, salg: maanedTotal });
+        dagList.push({ externalName, displayName, salg: dagTotal });
+        ukeList.push({ externalName, displayName, salg: ukeTotal });
+        maanedList.push({ externalName, displayName, salg: maanedTotal });
       });
 
       dagList.sort((a, b) => b.salg - a.salg);
