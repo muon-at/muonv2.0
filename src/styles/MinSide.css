@@ -447,13 +447,22 @@
 
   .stat-label {
     font-size: 0.7rem;
-    color: #ffffff;
+    color: #444444;
     font-weight: 700;
   }
 
+  .stat-number {
+    color: #333333;
+  }
+
   .trophy-placeholder {
-    font-size: 1.6rem;
-    min-width: 35px;
+    font-size: 4.5rem;
+    min-width: 90px;
+    width: 90px;
+    height: 90px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .progress-section {
@@ -565,9 +574,13 @@
     font-size: 1.6rem !important;
   }
 
+  .stat-number {
+    color: #333333 !important;
+  }
+
   .stat-label {
     font-size: 0.7rem !important;
-    color: #ffffff !important;
+    color: #444444 !important;
     font-weight: 700 !important;
   }
 
@@ -591,8 +604,13 @@
   }
 
   .trophy-placeholder {
-    font-size: 1.6rem !important;
-    display: none !important;
+    font-size: 4.5rem !important;
+    min-width: 90px !important;
+    width: 90px !important;
+    height: 90px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
   }
 }
 
@@ -612,5 +630,16 @@
 
   .stat-number {
     font-size: 1.3rem !important;
+    color: #333333 !important;
+  }
+
+  .stat-label {
+    color: #444444 !important;
+  }
+
+  .trophy-placeholder {
+    font-size: 4rem !important;
+    width: 75px !important;
+    height: 75px !important;
   }
 }
