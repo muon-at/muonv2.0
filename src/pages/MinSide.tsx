@@ -342,7 +342,7 @@ export default function MinSide() {
         { value: salesThisWeek, label: 'Uke', color: '#E8956E', icon: '📈' },
         { value: salesThisMonth, label: 'Måned', color: '#E8956E', icon: '🎯' },
         { value: salesThisYear, label: 'År', color: '#5B7FFF', icon: '📅' },
-        { value: total, label: 'Altid', color: '#A855C9', icon: '⭐' },
+        { value: total, label: 'Allente', color: '#A855C9', icon: '⭐' },
       ]);
 
       // Calculate all employee stats for comparison
