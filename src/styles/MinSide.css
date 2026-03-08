@@ -12,7 +12,7 @@
   align-items: center;
   justify-content: center;
   overflow: visible;
-  background: white;
+  background: #1a1a1a;
   border: none;
   border-top: none;
   box-shadow: none;
@@ -89,10 +89,10 @@
   display: flex;
   flex-direction: column;
   gap: 0.85rem;
-  background: white;
+  background: #1a1a1a;
   padding: 1.3rem;
   border-radius: 6px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #2a2a2a;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   transition: all 0.2s ease;
 }
@@ -108,7 +108,7 @@
   align-items: center;
   font-weight: 700;
   font-size: 0.8rem;
-  color: #999;
+  color: #808080;
   letter-spacing: 0.2px;
 }
 
@@ -134,7 +134,7 @@
 
 .progress-text {
   font-size: 0.85rem;
-  color: #333;
+  color: #d0d0d0;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -160,8 +160,8 @@
 }
 
 .runrate-box {
-  background: white;
-  border: 1px solid #e2e8f0;
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
   border-radius: 6px;
   padding: 1.4rem;
   display: flex;
@@ -179,7 +179,7 @@
 .runrate-label {
   font-size: 0.8rem;
   font-weight: 700;
-  color: #999;
+  color: #808080;
   text-transform: uppercase;
   letter-spacing: 0.2px;
   margin-bottom: 0.3rem;
@@ -201,19 +201,19 @@
 
 .runrate-time {
   font-size: 0.75rem;
-  color: #999;
+  color: #808080;
   font-weight: 500;
 }
 
 .runrate-value {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #333;
+  color: #d0d0d0;
 }
 
 .runrate-unit {
   font-size: 0.7rem;
-  color: #999;
+  color: #808080;
   font-weight: 500;
 }
 
@@ -251,8 +251,8 @@
 }
 
 .earnings-box {
-  background: white;
-  border: 1px solid #e2e8f0;
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
   border-radius: 6px;
   padding: 1.6rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
@@ -287,7 +287,7 @@
 .earnings-header h3 {
   margin: 0;
   font-size: 1.05rem;
-  color: #333;
+  color: #d0d0d0;
   font-weight: 700;
   text-align: center;
 }
@@ -295,7 +295,7 @@
 .earnings-subtitle {
   margin: 0.2rem 0 0 0;
   font-size: 0.8rem;
-  color: #999;
+  color: #808080;
   text-align: center;
 }
 
@@ -314,9 +314,9 @@
   flex-direction: column;
   gap: 0.95rem;
   padding: 1.3rem;
-  background: white;
+  background: #1a1a1a;
   border-radius: 4px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #2a2a2a;
   text-align: center;
   justify-content: space-between;
   min-height: 170px;
@@ -325,7 +325,7 @@
 .earnings-period-label {
   font-size: 0.6rem;
   font-weight: 700;
-  color: #999;
+  color: #808080;
   text-transform: uppercase;
   letter-spacing: 0.2px;
 }
@@ -333,7 +333,7 @@
 .earnings-period-header {
   font-size: 0.6rem;
   font-weight: 700;
-  color: #999;
+  color: #808080;
   text-transform: uppercase;
   letter-spacing: 0.2px;
 }
@@ -354,7 +354,7 @@
 
 .earnings-period-unit {
   font-size: 0.7rem;
-  color: #999;
+  color: #808080;
   font-weight: 500;
 }
 
@@ -381,7 +381,7 @@
 }
 
 .earnings-period-time {
-  color: #999;
+  color: #808080;
   font-weight: 500;
 }
 
@@ -393,7 +393,7 @@
 .earnings-period-runrate-label {
   font-size: 0.6rem;
   font-weight: 700;
-  color: #999;
+  color: #808080;
   text-transform: uppercase;
   letter-spacing: 0.2px;
 }

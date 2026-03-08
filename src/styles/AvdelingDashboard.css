@@ -3,7 +3,7 @@
 .avdeling-dashboard {
   width: 100%;
   max-width: calc(100% - 60px);
-  background: white;
+  background: #1a1a1a;
   padding: 2rem;
   padding-right: 3rem;
   margin-right: auto;
@@ -16,14 +16,14 @@
 .avdeling-header h2 {
   margin: 0;
   font-size: 1.5rem;
-  color: #333;
+  color: #d0d0d0;
   font-weight: 700;
 }
 
 .avdeling-subtitle {
   margin: 0.3rem 0 0 0;
   font-size: 0.85rem;
-  color: #999;
+  color: #808080;
 }
 
 /* GRID LAYOUT - 3 COLUMNS */
@@ -36,8 +36,8 @@
 
 /* CARD STYLING */
 .avdeling-card {
-  background: white;
-  border: 1px solid #e2e8f0;
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
   border-radius: 8px;
   padding: 1.2rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
@@ -52,7 +52,7 @@
 .card-title {
   font-size: 1.1rem;
   font-weight: 700;
-  color: #333;
+  color: #d0d0d0;
   margin-bottom: 0.8rem;
   display: flex;
   align-items: center;
@@ -76,14 +76,14 @@
   padding: 0.5rem 0.8rem;
   background: #f8f9fa;
   border-radius: 6px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #2a2a2a;
   min-width: 70px;
 }
 
 .stat-label {
   font-size: 0.65rem;
   font-weight: 700;
-  color: #999;
+  color: #808080;
   text-transform: uppercase;
   letter-spacing: 0.3px;
 }
@@ -128,7 +128,7 @@
 .top-five-title {
   font-size: 0.7rem;
   font-weight: 700;
-  color: #999;
+  color: #808080;
   text-transform: uppercase;
   letter-spacing: 0.3px;
   margin-bottom: 0.4rem;
@@ -156,7 +156,7 @@
 
 .name {
   flex: 1;
-  color: #333;
+  color: #d0d0d0;
   font-weight: 500;
   margin-left: 0.5rem;
   white-space: nowrap;

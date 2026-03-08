@@ -1,7 +1,7 @@
 .admin-dashboard-container {
   width: 100%;
   min-height: 100vh;
-  background: #f8fafc;
+  background: #121212;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   display: flex;
   flex-direction: column;
@@ -72,7 +72,7 @@
 
 /* Main Tab Navigation */
 .main-tabs {
-  background: white;
+  background: #1a1a1a;
   border-bottom: none;
   display: flex;
   gap: 0;
@@ -97,8 +97,8 @@
 }
 
 .main-tab:hover {
-  color: #333;
-  background: #f8fafc;
+  color: #d0d0d0;
+  background: #121212;
 }
 
 .main-tab.active {
@@ -190,7 +190,7 @@
 .section-title h2 {
   margin: 0;
   font-size: 1.5rem;
-  color: #333;
+  color: #d0d0d0;
   font-weight: 700;
 }
 
@@ -204,7 +204,7 @@
 .upload-btn {
   padding: 0.75rem 1.5rem;
   border: 2px solid;
-  background: white;
+  background: #1a1a1a;
   border-radius: 6px;
   font-weight: 600;
   cursor: pointer;
@@ -214,7 +214,7 @@
 }
 
 .upload-btn:hover {
-  background: #f8fafc;
+  background: #121212;
   transform: translateY(-2px);
 }
 
@@ -234,7 +234,7 @@
   cursor: pointer;
   font-size: 0.85rem;
   font-weight: 600;
-  color: #999;
+  color: #808080;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   transition: all 0.2s ease;
@@ -244,7 +244,7 @@
 }
 
 .allente-tab:hover {
-  color: #666;
+  color: #a0a0a0;
 }
 
 .allente-tab.active {
@@ -254,7 +254,7 @@
 
 /* Tab Content */
 .tab-content {
-  background: white;
+  background: #1a1a1a;
   border-radius: 8px;
   padding: 2rem;
 }
@@ -266,19 +266,19 @@
 .content-title h3 {
   margin: 0;
   font-size: 1.3rem;
-  color: #333;
+  color: #d0d0d0;
   font-weight: 600;
 }
 
 .content-subtitle {
   margin: 0.5rem 0 0 0;
-  color: #999;
+  color: #808080;
   font-size: 0.9rem;
 }
 
 /* Info Box */
 .info-box {
-  background: #fffbf0;
+  background: #1e1e1e;
   border-left: 4px solid #f97316;
   padding: 1rem 1.5rem;
   border-radius: 6px;
@@ -294,17 +294,17 @@
 
 .info-box p {
   margin: 0;
-  color: #666;
+  color: #a0a0a0;
   font-size: 0.95rem;
 }
 
 .info-box strong {
-  color: #333;
+  color: #d0d0d0;
 }
 
 /* Update Button */
 .update-btn {
-  background: white;
+  background: #1a1a1a;
   border: 2px solid #C86D4D;
   color: #C86D4D;
   padding: 0.75rem 1.5rem;
@@ -317,25 +317,25 @@
 }
 
 .update-btn:hover {
-  background: #fffbf0;
+  background: #1e1e1e;
   transform: translateY(-2px);
 }
 
 /* Sales Table */
 .sales-table {
-  border: 1px solid #e2e8f0;
+  border: 1px solid #2a2a2a;
   border-radius: 8px;
   overflow: hidden;
 }
 
 .table-header {
-  background: #fffbf0;
+  background: #1e1e1e;
   display: grid;
   grid-template-columns: 110px 120px 130px 180px 120px 110px 120px;
   gap: 1rem;
   padding: 1rem;
   font-weight: 600;
-  color: #333;
+  color: #d0d0d0;
   font-size: 0.9rem;
   border-bottom: 2px solid #e2e8f0;
 }
@@ -354,12 +354,12 @@
 }
 
 .table-row:nth-child(even) {
-  background: #fffbf0;
+  background: #1e1e1e;
 }
 
 .col-ansatt {
   font-weight: 500;
-  color: #333;
+  color: #d0d0d0;
 }
 
 .col-salg {
@@ -378,7 +378,7 @@
 }
 
 .col-slack {
-  color: #666;
+  color: #a0a0a0;
   text-align: right;
 }
 
@@ -390,31 +390,31 @@
 .org-header h2 {
   margin: 0 0 0.5rem 0;
   font-size: 1.3rem;
-  color: #333;
+  color: #d0d0d0;
   font-weight: 600;
 }
 
 .org-subtitle {
   margin: 0;
-  color: #999;
+  color: #808080;
   font-size: 0.9rem;
 }
 
 /* Employees Table */
 .employees-table {
-  border: 1px solid #e2e8f0;
+  border: 1px solid #2a2a2a;
   border-radius: 8px;
   overflow: hidden;
 }
 
 .employees-table .table-header {
-  background: #fffbf0;
+  background: #1e1e1e;
   display: grid;
   grid-template-columns: 140px 90px 90px 80px 130px 180px 90px 70px;
   gap: 0.75rem;
   padding: 0.75rem;
   font-weight: 600;
-  color: #333;
+  color: #d0d0d0;
   font-size: 0.85rem;
   border-bottom: 2px solid #e2e8f0;
   position: sticky;
@@ -431,7 +431,7 @@
 }
 
 .employees-table .table-row:nth-child(even) {
-  background: #fffbf0;
+  background: #1e1e1e;
 }
 
 .employees-table .table-row:last-child {
@@ -440,11 +440,11 @@
 
 .col-name {
   font-weight: 500;
-  color: #333;
+  color: #d0d0d0;
 }
 
 .col-email {
-  color: #666;
+  color: #a0a0a0;
   font-size: 0.85rem;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -469,7 +469,7 @@
 .col-dept,
 .col-project,
 .col-slack {
-  color: #666;
+  color: #a0a0a0;
   font-size: 0.9rem;
 }
 
@@ -480,19 +480,19 @@
 }
 
 .col-external {
-  color: #333;
+  color: #d0d0d0;
 }
 
 .col-tmg {
-  color: #333;
+  color: #d0d0d0;
 }
 
 .col-role {
-  color: #666;
+  color: #a0a0a0;
 }
 
 .col-project {
-  color: #666;
+  color: #a0a0a0;
 }
 
 .col-dept {
@@ -501,12 +501,12 @@
 }
 
 .col-slack {
-  color: #666;
+  color: #a0a0a0;
 }
 
 .col-name {
   font-weight: 500;
-  color: #333;
+  color: #d0d0d0;
 }
 
 .action-btn {
@@ -557,7 +557,7 @@
 }
 
 .confirmation-modal {
-  background: white;
+  background: #1a1a1a;
   border-radius: 12px;
   padding: 2rem;
   max-width: 400px;
@@ -586,13 +586,13 @@
 
 .confirmation-modal p {
   margin: 0 0 0.75rem 0;
-  color: #666;
+  color: #a0a0a0;
   font-size: 0.95rem;
   line-height: 1.5;
 }
 
 .confirmation-modal .modal-info {
-  background: #fee2e2;
+  background: #2a0000;
   border-left: 4px solid #dc2626;
   padding: 0.75rem;
   border-radius: 4px;
@@ -643,8 +643,8 @@
 
 /* Filter Panel */
 .filter-panel {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: #121212;
+  border: 1px solid #2a2a2a;
   border-radius: 8px;
   padding: 1.5rem;
   margin-bottom: 2rem;
@@ -662,7 +662,7 @@
 .filter-group label {
   font-weight: 600;
   font-size: 0.85rem;
-  color: #333;
+  color: #d0d0d0;
 }
 
 .filter-input,
@@ -722,7 +722,7 @@
 
 /* SALG Tab / Kontraktsarkiv Styles */
 .col-dato {
-  color: #666;
+  color: #a0a0a0;
   font-size: 0.9rem;
 }
 
@@ -735,19 +735,19 @@
 
 .col-kunde {
   font-weight: 600;
-  color: #333;
+  color: #d0d0d0;
   font-family: 'Courier New', monospace;
   font-size: 0.9rem;
 }
 
 .col-produkt {
-  color: #333;
+  color: #d0d0d0;
   font-size: 0.9rem;
   line-height: 1.4;
 }
 
 .col-selger {
-  color: #666;
+  color: #a0a0a0;
   font-size: 0.9rem;
 }
 
@@ -844,7 +844,7 @@
 
 /* Edit Modal */
 .edit-modal {
-  background: white;
+  background: #1a1a1a;
   border-radius: 12px;
   padding: 2rem;
   max-width: 600px;
@@ -856,7 +856,7 @@
 
 .edit-modal h2 {
   margin: 0 0 1.5rem 0;
-  color: #333;
+  color: #d0d0d0;
   font-size: 1.5rem;
 }
 
@@ -871,7 +871,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  color: #333;
+  color: #d0d0d0;
 }
 
 .form-group:nth-child(1),
@@ -889,11 +889,11 @@
 .form-group input,
 .form-group select {
   padding: 0.75rem;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #2a2a2a;
   border-radius: 6px;
   font-size: 0.9rem;
   font-family: inherit;
-  background: #f8fafc;
+  background: #121212;
   color: #1f2937 !important;
 }
 
@@ -901,13 +901,13 @@
 .form-group select:focus {
   outline: none;
   border-color: #667eea;
-  background: white;
+  background: #1a1a1a;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
   color: #1f2937 !important;
 }
 
 .form-group input::placeholder {
-  color: #999;
+  color: #808080;
 }
 
 /* Fix autofill white text */
@@ -922,6 +922,8 @@
 /* Generic input color override */
 .edit-form input,
 .login-form input {
+  color: #ffffff;
+  background-color: #2a2a2a;
   color: #1f2937 !important;
 }
 
@@ -942,7 +944,7 @@
 /* Dropdown option styling */
 .form-group select option {
   color: #1f2937;
-  background: white;
+  background: #1a1a1a;
 }
 
 .form-group select option:checked {
@@ -952,20 +954,20 @@
 
 /* Angringer Table */
 .angringer-table {
-  background: white;
+  background: #1a1a1a;
   border-radius: 8px;
   overflow-x: auto;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #2a2a2a;
 }
 
 .angringer-table .table-header {
-  background: #fffbf0;
+  background: #1e1e1e;
   display: grid;
   grid-template-columns: 120px 120px 150px 140px 100px 120px 110px 120px;
   gap: 1rem;
   padding: 1rem;
   font-weight: 600;
-  color: #333;
+  color: #d0d0d0;
   font-size: 0.85rem;
   border-bottom: 2px solid #e2e8f0;
   position: sticky;
@@ -987,19 +989,19 @@
 }
 
 .angringer-table .col-kundenr {
-  color: #333;
+  color: #d0d0d0;
 }
 
 .angringer-table .col-product {
-  color: #333;
+  color: #d0d0d0;
 }
 
 .angringer-table .col-selger {
-  color: #333;
+  color: #d0d0d0;
 }
 
 .angringer-table .col-salesdate {
-  color: #666;
+  color: #a0a0a0;
   font-size: 0.85rem;
 }
 
@@ -1009,7 +1011,7 @@
 }
 
 .angringer-table .col-period {
-  color: #333;
+  color: #d0d0d0;
   font-weight: 600;
 }
 
@@ -1020,20 +1022,20 @@
 
 /* Produkter Table */
 .produkter-table {
-  background: white;
+  background: #1a1a1a;
   border-radius: 8px;
   overflow-x: auto;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #2a2a2a;
 }
 
 .produkter-table .table-header {
-  background: #fffbf0;
+  background: #1e1e1e;
   display: grid;
   grid-template-columns: 300px 150px 200px 200px;
   gap: 1rem;
   padding: 1rem;
   font-weight: 600;
-  color: #333;
+  color: #d0d0d0;
   font-size: 0.9rem;
   border-bottom: 2px solid #e2e8f0;
   position: sticky;
@@ -1050,7 +1052,7 @@
 }
 
 .produkter-table .col-produktnavn {
-  color: #333;
+  color: #d0d0d0;
   font-weight: 500;
 }
 
@@ -1062,6 +1064,8 @@
 
 .produkter-table .col-cpo input,
 .produkter-table .col-provisjon input {
+  color: #ffffff;
+  background-color: #2a2a2a;
   font-size: 0.9rem;
 }
 
@@ -1074,20 +1078,20 @@
 
 /* Badges Table */
 .badges-table {
-  background: white;
+  background: #1a1a1a;
   border-radius: 8px;
   overflow-x: auto;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #2a2a2a;
 }
 
 .badges-table .table-header {
-  background: #fffbf0;
+  background: #1e1e1e;
   display: grid;
   grid-template-columns: 100px 150px 200px 300px;
   gap: 1rem;
   padding: 1rem;
   font-weight: 600;
-  color: #333;
+  color: #d0d0d0;
   font-size: 0.9rem;
   border-bottom: 2px solid #e2e8f0;
   position: sticky;
@@ -1104,13 +1108,15 @@
 }
 
 .badges-table .col-emoji {
-  color: #333;
+  color: #d0d0d0;
   font-weight: 500;
 }
 
 .badges-table .col-navn input,
 .badges-table .col-verdi input,
 .badges-table .col-beskrivelse input {
+  color: #ffffff;
+  background-color: #2a2a2a;
   font-size: 0.9rem;
 }
 
@@ -1124,20 +1130,20 @@
 
 /* Progresjon Table */
 .progresjon-table {
-  background: white;
+  background: #1a1a1a;
   border-radius: 8px;
   overflow-x: auto;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #2a2a2a;
 }
 
 .progresjon-table .table-header {
-  background: #fffbf0;
+  background: #1e1e1e;
   display: grid;
   grid-template-columns: 200px 100px 100px 100px 100px 100px 100px 100px 100px 80px;
   gap: 1rem;
   padding: 1rem;
   font-weight: 600;
-  color: #333;
+  color: #d0d0d0;
   font-size: 0.9rem;
   border-bottom: 2px solid #e2e8f0;
   position: sticky;
@@ -1154,7 +1160,7 @@
 }
 
 .progresjon-table .col-selger {
-  color: #333;
+  color: #d0d0d0;
   font-weight: 500;
 }
 
@@ -1166,7 +1172,7 @@
 .progresjon-table .col-today-bell,
 .progresjon-table .col-today-gem,
 .progresjon-table .col-today-gift {
-  color: #333;
+  color: #d0d0d0;
 }
 
 /* Mobile - Working Days Tracker */
