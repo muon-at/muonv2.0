@@ -122,19 +122,6 @@ export default function MinSide() {
     return count;
   };
 
-  // Count working days from start of week to today
-  const countWorkingDaysThisWeek = (date: Date) => {
-    const weekStart = new Date(date);
-    weekStart.setDate(date.getDate() - date.getDay() + (date.getDay() === 0 ? -6 : 1)); // Monday
-    
-    let count = 0;
-    for (let d = new Date(weekStart); d <= date; d.setDate(d.getDate() + 1)) {
-      const day = d.getDay();
-      if (day !== 0 && day !== 6) count++;
-    }
-    return count;
-  };
-
   // Count working days from start of month to today
   const countWorkingDaysThisMonth = (date: Date) => {
     const monthStart = new Date(date.getFullYear(), date.getMonth(), 1);
@@ -163,21 +150,12 @@ export default function MinSide() {
     // Daily to 21:00 (10 working hours: 9-10, 10-11, 11-12, 12-13, 14-15, 15-16, 16-17, 17-18, 18-19, 19-21)
     const dailyTo21 = hoursWorked > 0 ? (emojiCount / hoursWorked) * 10 : 0;
     
-    // Weekly: (today's emoji + week sales) / days worked * 5 workdays
-    // On weekends with activity, count minimum 1 day
-    let workingDaysWeek = countWorkingDaysThisWeek(now);
-    if (workingDaysWeek === 0 && (emojiCount + salesWeekly) > 0) {
-      workingDaysWeek = 1; // Weekend work counts as 1 day
-    }
+    // Weekly: (today's emoji + week sales) / 5 days (hardcoded for consistency, allows testing on any day)
     const totalSalesWeek = emojiCount + salesWeekly;
-    const weekly = workingDaysWeek > 0 ? (totalSalesWeek / workingDaysWeek) * 5 : 0;
+    const weekly = totalSalesWeek / 5;
     
-    // Monthly: (today's emoji + month sales) / days worked * working days in month
-    // On weekends with activity, count minimum 1 day
-    let workingDaysMonth = countWorkingDaysThisMonth(now);
-    if (workingDaysMonth === 0 && (emojiCount + salesMonthly) > 0) {
-      workingDaysMonth = 1; // Weekend work counts as 1 day
-    }
+    // Monthly: (today's emoji + month sales) / actual working days in month (excluding weekends)
+    const workingDaysMonth = countWorkingDaysThisMonth(now);
     const totalWorkingDaysInMonth = countWorkingDaysInMonth(now);
     const totalSalesMonth = emojiCount + salesMonthly;
     const monthly = workingDaysMonth > 0 ? (totalSalesMonth / workingDaysMonth) * totalWorkingDaysInMonth : 0;
