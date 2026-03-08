@@ -64,12 +64,30 @@ export default function MinSide() {
   const [monthlyGoal, setMonthlyGoal] = useState<number>(0);
   const [showGoalEdit, setShowGoalEdit] = useState(false);
   const [activeTab, setActiveTab] = useState('stats');
+  const [progressData, setProgressData] = useState({
+    dailyProgress: 0,
+    dailyGoal: 0,
+    weeklyProgress: 0,
+    weeklyGoalValue: 0,
+    monthlyProgress: 0,
+    monthlyGoalValue: 0,
+  });
 
   useEffect(() => {
     loadEmployeeData();
     // Load cached badges from Firestore
     loadCachedBadges();
   }, [user]);
+
+  // Update progress data when goals change
+  useEffect(() => {
+    setProgressData(prev => ({
+      ...prev,
+      dailyGoal: weeklyGoal > 0 ? Math.ceil(weeklyGoal / 5) : 0,
+      weeklyGoalValue: weeklyGoal,
+      monthlyGoalValue: monthlyGoal,
+    }));
+  }, [weeklyGoal, monthlyGoal]);
 
   const loadCachedBadges = async () => {
     try {
@@ -179,6 +197,18 @@ export default function MinSide() {
 
       const avgPerDay = Math.round(employeeContracts.length / 365);
       const total = employeeContracts.length;
+
+      // Calculate progress data for bars
+      const dailyGoalCalc = weeklyGoal > 0 ? Math.ceil(weeklyGoal / 5) : 0;
+      
+      setProgressData({
+        dailyProgress: emojiCountToday,
+        dailyGoal: dailyGoalCalc,
+        weeklyProgress: salesThisWeek,
+        weeklyGoalValue: weeklyGoal,
+        monthlyProgress: salesThisMonth,
+        monthlyGoalValue: monthlyGoal,
+      });
 
       setStats([
         { value: emojiCountToday, label: 'Dag', color: '#E8956E', icon: '📊' },
@@ -412,34 +442,34 @@ export default function MinSide() {
           <div className="progress-item">
             <div className="progress-label">
               <span>Dagens Mål</span>
-              <span>100%</span>
+              <span>{progressData.dailyGoal > 0 ? Math.round((progressData.dailyProgress / progressData.dailyGoal) * 100) : 0}%</span>
             </div>
             <div className="progress-bar blue">
-              <div className="progress-fill" style={{ width: '100%' }}></div>
+              <div className="progress-fill" style={{ width: `${progressData.dailyGoal > 0 ? Math.min((progressData.dailyProgress / progressData.dailyGoal) * 100, 100) : 0}%` }}></div>
             </div>
-            <div className="progress-text">4 / 33 <span className="checkmark">✓ Mål nådd</span></div>
+            <div className="progress-text">{progressData.dailyProgress} / {progressData.dailyGoal} <span className="checkmark">{progressData.dailyProgress >= progressData.dailyGoal ? '✓ Mål nådd' : ''}</span></div>
           </div>
 
           <div className="progress-item">
             <div className="progress-label">
               <span>Ukes Mål</span>
-              <span>100%</span>
+              <span>{progressData.weeklyGoalValue > 0 ? Math.round((progressData.weeklyProgress / progressData.weeklyGoalValue) * 100) : 0}%</span>
             </div>
             <div className="progress-bar green">
-              <div className="progress-fill" style={{ width: '100%' }}></div>
+              <div className="progress-fill" style={{ width: `${progressData.weeklyGoalValue > 0 ? Math.min((progressData.weeklyProgress / progressData.weeklyGoalValue) * 100, 100) : 0}%` }}></div>
             </div>
-            <div className="progress-text">32 / 25 <span className="checkmark">✓ Mål nådd</span></div>
+            <div className="progress-text">{progressData.weeklyProgress} / {progressData.weeklyGoalValue} <span className="checkmark">{progressData.weeklyProgress >= progressData.weeklyGoalValue ? '✓ Mål nådd' : ''}</span></div>
           </div>
 
           <div className="progress-item">
             <div className="progress-label">
               <span>Måneds Mål</span>
-              <span>100%</span>
+              <span>{progressData.monthlyGoalValue > 0 ? Math.round((progressData.monthlyProgress / progressData.monthlyGoalValue) * 100) : 0}%</span>
             </div>
             <div className="progress-bar orange">
-              <div className="progress-fill" style={{ width: '100%' }}></div>
+              <div className="progress-fill" style={{ width: `${progressData.monthlyGoalValue > 0 ? Math.min((progressData.monthlyProgress / progressData.monthlyGoalValue) * 100, 100) : 0}%` }}></div>
             </div>
-            <div className="progress-text">103 / 100 <span className="checkmark">✓ Mål nådd</span></div>
+            <div className="progress-text">{progressData.monthlyProgress} / {progressData.monthlyGoalValue} <span className="checkmark">{progressData.monthlyProgress >= progressData.monthlyGoalValue ? '✓ Mål nådd' : ''}</span></div>
           </div>
         </div>
       </div>
