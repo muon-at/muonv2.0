@@ -4,10 +4,8 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import Login from './pages/Login';
 import ResetPassword from './pages/ResetPassword';
 import MinSide from './pages/MinSide';
-import MinSideTest from './pages/MinSideTest';
 import Chat from './pages/Chat';
 import Teamleder from './pages/Teamleder';
-import Admin from './pages/Admin';
 import AdminDashboard from './pages/AdminDashboard';
 import './App.css';
 
@@ -27,26 +25,10 @@ function App() {
             } 
           />
           <Route 
-            path="/min-side-test" 
-            element={
-              <ProtectedRoute requiredRole="employee">
-                <MinSideTest />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
             path="/teamleder" 
             element={
               <ProtectedRoute requiredRole="teamlead">
                 <Teamleder />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/admin" 
-            element={
-              <ProtectedRoute requiredRole="owner">
-                <Admin />
               </ProtectedRoute>
             } 
           />
