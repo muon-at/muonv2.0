@@ -275,9 +275,20 @@
   display: flex;
   align-items: center;
   padding: 1rem;
-  background: #fffef5;
-  border-bottom: 1px solid #f0f0f0;
+  background: #1a1a1a;
+  border-bottom: 1px solid #2a2a2a;
   gap: 1.5rem;
+}
+
+.seller-row:first-child,
+.seller-row:nth-child(2),
+.seller-row:nth-child(3) {
+  font-size: 1.1rem;
+}
+
+.seller-row:nth-child(2),
+.seller-row:nth-child(3) {
+  font-size: 1.05rem;
 }
 
 .seller-row:last-child {
@@ -292,6 +303,24 @@
   text-align: center;
 }
 
+.seller-rank::before {
+  content: attr(data-medal);
+  font-size: 1.5rem;
+  margin-right: 0.5rem;
+}
+
+.seller-row:first-child .seller-rank::before {
+  content: '🥇';
+}
+
+.seller-row:nth-child(2) .seller-rank::before {
+  content: '🥈';
+}
+
+.seller-row:nth-child(3) .seller-rank::before {
+  content: '🥉';
+}
+
 .seller-name {
   flex: 1;
   font-size: 0.95rem;
@@ -299,11 +328,25 @@
   font-weight: 500;
 }
 
+.seller-row:first-child .seller-name,
+.seller-row:nth-child(2) .seller-name,
+.seller-row:nth-child(3) .seller-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
 .seller-value {
   font-size: 1.2rem;
   font-weight: 700;
   min-width: 60px;
   text-align: right;
+}
+
+.seller-row:first-child .seller-value,
+.seller-row:nth-child(2) .seller-value,
+.seller-row:nth-child(3) .seller-value {
+  font-size: 1.4rem;
+  font-weight: 700;
 }
 
 /* Responsive */
