@@ -76,7 +76,7 @@ export default function Chat() {
   const [editingMessageContent, setEditingMessageContent] = useState('');
   const [hoveredMessageId, setHoveredMessageId] = useState<string | null>(null); // Track which message is hovered
   const [topDepartment, setTopDepartment] = useState<string | null>(null); // Best department this week
-  const [employeeMap, setEmployeeMap] = useState<any>({}); // Map of externalName -> {department, name}
+  const [employeeMapByName, setEmployeeMapByName] = useState<any>({}); // Map of displayName -> {department}
   const fileInputRef = useRef<HTMLInputElement>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const unsubscribeRef = useRef<(() => void) | undefined>(undefined);
@@ -246,7 +246,7 @@ export default function Chat() {
           empByName[emp.name] = { department: emp.department || 'Ukjent' };
         }
       });
-      setEmployeeMap(empMap);
+      setEmployeeMapByName(empByName);
 
       // Load contracts and calculate this week sales per department
       const contractsRef = collection(db, 'allente_kontraktsarkiv');
@@ -1685,9 +1685,9 @@ export default function Chat() {
                     ) : (
                       <div className="message-header">
                         <span className="message-sender">
-                          {topDepartment && employeeMap[msg.sender]?.department === topDepartment ? '👑' : ''}
+                          {topDepartment && employeeMapByName[msg.sender]?.department === topDepartment ? '👑' : ''}
                           {msg.sender}
-                          {topDepartment && employeeMap[msg.sender]?.department === topDepartment ? '👑' : ''}
+                          {topDepartment && employeeMapByName[msg.sender]?.department === topDepartment ? '👑' : ''}
                         </span>
                         <span className="message-content" style={{
                           color: msg.isDeleted ? '#999' : '#333',
