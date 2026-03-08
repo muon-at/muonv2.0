@@ -574,12 +574,15 @@ export default function MinSide() {
               type="number" 
               value={weeklyGoal} 
               onChange={(e) => setWeeklyGoal(parseInt(e.target.value) || 0)}
+              onFocus={(e) => e.target.select()}
               placeholder="Ukesmål"
+              autoFocus
             />
             <input 
               type="number" 
               value={monthlyGoal} 
               onChange={(e) => setMonthlyGoal(parseInt(e.target.value) || 0)}
+              onFocus={(e) => e.target.select()}
               placeholder="Månedsmål"
             />
           </div>
