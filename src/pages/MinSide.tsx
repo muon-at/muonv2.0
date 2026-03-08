@@ -309,6 +309,17 @@ export default function MinSide() {
       const avgPerDay = Math.round(employeeContracts.length / 365);
       const total = employeeContracts.length;
 
+      // Calculate best day (highest number of contracts on any single date)
+      const dayMap: { [key: string]: number } = {};
+      employeeContracts.forEach(c => {
+        const dateStr = c.dato || '';
+        if (dateStr) {
+          dayMap[dateStr] = (dayMap[dateStr] || 0) + 1;
+        }
+      });
+      const bestDay = Math.max(0, ...Object.values(dayMap));
+      console.log('📅 Best day for', user?.name, ':', bestDay, 'contracts');
+
       // Calculate progress data for bars
       const dailyGoalCalc = weeklyGoal > 0 ? Math.ceil(weeklyGoal / 5) : 0;
       
@@ -322,7 +333,7 @@ export default function MinSide() {
       });
 
       setStats([
-        { value: emojiCountToday, label: 'Dag', color: '#E8956E', icon: '📊' },
+        { value: bestDay, label: 'Dag', color: '#E8956E', icon: '📊' },
         { value: salesThisWeek, label: 'Uke', color: '#E8956E', icon: '📈' },
         { value: salesThisMonth, label: 'Måned', color: '#E8956E', icon: '🎯' },
         { value: avgPerDay, label: 'År', color: '#5B7FFF', icon: '📅' },
