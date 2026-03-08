@@ -81,6 +81,8 @@ const AvdelingDashboard = ({ userDepartment }: { userDepartment?: string } = {})
       const employeesSnap = await getDocs(employeesQuery);
       const employees = employeesSnap.docs.map(doc => doc.data());
       
+      console.log(`🔍 AVDELING ${dept} - EMPLOYEES:`, employees.map(e => ({ name: e.name, externalName: e.externalName })));
+      
       // Create mapping from externalName → display name
       const employeeNameMap = new Map<string, string>();
       employees.forEach(emp => {
@@ -90,11 +92,16 @@ const AvdelingDashboard = ({ userDepartment }: { userDepartment?: string } = {})
           employeeNameMap.set(externalName, displayName);
         }
       });
+      
+      console.log(`📍 EMPLOYEE NAME MAP for ${dept}:`, Array.from(employeeNameMap.entries()));
 
       // Fetch all sales
       const salesRef = collection(db, 'allente_salg');
       const salesSnap = await getDocs(salesRef);
       const allSales = salesSnap.docs.map(doc => doc.data());
+      
+      console.log(`📊 TOTAL SALES IN allente_salg:`, allSales.length);
+      console.log(`📊 SAMPLE SALES (first 5):`, allSales.slice(0, 5).map(s => ({ selger: s.selger, dato: s.dato })));
 
       // Count sales by employee
       const salesByEmployee = new Map<string, { dag: number; uke: number; maned: number }>();
@@ -127,6 +134,19 @@ const AvdelingDashboard = ({ userDepartment }: { userDepartment?: string } = {})
       };
 
       // First count contracts for today
+      const todaySalesCount = allSales.filter(s => {
+        const saleDate = parseDate(s.dato);
+        return saleDate && saleDate.toDateString() === today.toDateString();
+      }).length;
+      
+      console.log(`📅 TODAY SALES (${today.toDateString()}):`, todaySalesCount);
+      console.log(`📅 TODAY SALES DETAIL:`, allSales
+        .filter(s => {
+          const saleDate = parseDate(s.dato);
+          return saleDate && saleDate.toDateString() === today.toDateString();
+        })
+        .map(s => ({ selger: s.selger, dato: s.dato })));
+
       allSales.forEach((sale: any) => {
         const selgerKey = sale.selger?.trim();
         if (!selgerKey) return;
@@ -141,6 +161,8 @@ const AvdelingDashboard = ({ userDepartment }: { userDepartment?: string } = {})
           salesByEmployee.set(selgerKey, current);
         }
       });
+      
+      console.log(`✅ SALES BY EMPLOYEE (after today count):`, Array.from(salesByEmployee.entries()).slice(0, 10));
 
       // Then ADD emoji counts for today
       const emojiCountsToday = await getEmojiCountsForDate(today);
