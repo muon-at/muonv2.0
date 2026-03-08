@@ -81,6 +81,7 @@ export default function Chat() {
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const unsubscribeRef = useRef<(() => void) | undefined>(undefined);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesAreaRef = useRef<HTMLDivElement>(null);
 
   // Emoji command mapping (e.g., :bell: → 🔔)
   const emojiCommandMap: Record<string, string> = {
@@ -462,6 +463,17 @@ export default function Chat() {
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
+    // Method 1: Scroll the messages area container to bottom
+    if (messagesAreaRef.current) {
+      const timer = setTimeout(() => {
+        if (messagesAreaRef.current) {
+          messagesAreaRef.current.scrollTop = messagesAreaRef.current.scrollHeight;
+        }
+      }, 0);
+      return () => clearTimeout(timer);
+    }
+    
+    // Method 2: Fallback to scrollIntoView on ref
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
@@ -1542,7 +1554,7 @@ export default function Chat() {
               />
 
               {/* Messages */}
-              <div className="messages-area">
+              <div className="messages-area" ref={messagesAreaRef}>
                 {getMessagesGroupedByDate(filteredMessages).map((group, groupIdx) => (
                   <div key={groupIdx}>
                     {/* Date Separator - Slack Style Button */}
