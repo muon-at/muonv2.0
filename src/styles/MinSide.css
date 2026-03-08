@@ -182,7 +182,7 @@
   flex-direction: column;
   gap: 2rem;
   padding: 2.5rem;
-  margin: 2rem auto 3rem auto;
+  margin: 2rem auto 5rem auto;
   max-width: 100%;
   width: 100%;
   flex: 1;
@@ -652,7 +652,7 @@
 .stats-left-section {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 2.5rem;
 }
 
 .earnings-right-section {
@@ -660,6 +660,7 @@
   justify-content: flex-end;
   width: 100%;
   margin-right: 20px;
+  margin-top: 1rem;
 }
 
 .earnings-box {
@@ -1061,7 +1062,11 @@
 
   .minside-main {
     padding: 1.5rem;
-    margin: 1rem auto 2rem auto;
+    margin: 1.5rem auto 4rem auto;
+  }
+
+  .earnings-right-section {
+    margin-top: 0.75rem;
   }
 
   .earnings-box {
