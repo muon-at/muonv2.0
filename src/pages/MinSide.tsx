@@ -345,6 +345,12 @@ export default function MinSide() {
           📊 Mine Stats
         </button>
         <button 
+          className={`main-tab ${activeTab === 'target' ? 'active' : ''}`}
+          onClick={() => setActiveTab('target')}
+        >
+          🎯 Mål
+        </button>
+        <button 
           className={`main-tab ${activeTab === 'avd' ? 'active' : ''}`}
           onClick={() => setActiveTab('avd')}
         >
@@ -360,7 +366,7 @@ export default function MinSide() {
 
 
 
-      {/* MAIN CONTENT */}
+      {/* MAIN CONTENT - STATS TAB */}
       {activeTab === 'stats' && (
       <div className="minside-main">
         <div className="stats-circles">
@@ -374,48 +380,40 @@ export default function MinSide() {
           <div className="trophy-placeholder">🏆</div>
         </div>
 
-        <div className="goals-sidebar">
-          <div className="goals-header">
-            <span style={{ fontSize: '1.2rem' }}>🎯</span>
-            <div>
-              <h3>Mine Mål</h3>
-              <p>Ukesmål & Månedsmål</p>
+        {/* PROGRESS BARS */}
+        <div className="progress-section">
+          <div className="progress-item">
+            <div className="progress-label">
+              <span>Dagens Mål</span>
+              <span>100%</span>
             </div>
+            <div className="progress-bar blue">
+              <div className="progress-fill" style={{ width: '100%' }}></div>
+            </div>
+            <div className="progress-text">4 / 33 <span className="checkmark">✓ Mål nådd</span></div>
           </div>
 
-          <div className="goals-stats">
-            <div className="goal-stat">
-              <span className="goal-label">UKESMÅL</span>
-              <span className="goal-value">{weeklyGoal}</span>
-              <span className="goal-unit">ordrer/uke</span>
+          <div className="progress-item">
+            <div className="progress-label">
+              <span>Ukes Mål</span>
+              <span>100%</span>
             </div>
-            <div className="goal-stat">
-              <span className="goal-label">MÅNEDSMÅL</span>
-              <span className="goal-value">{monthlyGoal}</span>
-              <span className="goal-unit">ordrer/måned</span>
+            <div className="progress-bar green">
+              <div className="progress-fill" style={{ width: '100%' }}></div>
             </div>
+            <div className="progress-text">32 / 25 <span className="checkmark">✓ Mål nådd</span></div>
           </div>
 
-          <button className="edit-goals-btn" onClick={() => setShowGoalEdit(!showGoalEdit)}>
-            Endre mål
-          </button>
-
-          {showGoalEdit && (
-            <div className="goal-edit-form">
-              <input 
-                type="number" 
-                value={weeklyGoal} 
-                onChange={(e) => setWeeklyGoal(parseInt(e.target.value))}
-                placeholder="Ukesmål"
-              />
-              <input 
-                type="number" 
-                value={monthlyGoal} 
-                onChange={(e) => setMonthlyGoal(parseInt(e.target.value))}
-                placeholder="Månedsmål"
-              />
+          <div className="progress-item">
+            <div className="progress-label">
+              <span>Måneds Mål</span>
+              <span>100%</span>
             </div>
-          )}
+            <div className="progress-bar orange">
+              <div className="progress-fill" style={{ width: '100%' }}></div>
+            </div>
+            <div className="progress-text">103 / 100 <span className="checkmark">✓ Mål nådd</span></div>
+          </div>
         </div>
       </div>
       )}
@@ -440,46 +438,53 @@ export default function MinSide() {
       </div>
       )}
 
-      {activeTab === 'stats' && (
-      <>
-
-      {/* PROGRESS BARS */}
-      <div className="progress-section">
-        <div className="progress-item">
-          <div className="progress-label">
-            <span>Dagens Mål</span>
-            <span>100%</span>
+      {activeTab === 'target' && (
+      <div className="tab-content">
+        <div className="goals-header" style={{ marginBottom: '2rem' }}>
+          <span style={{ fontSize: '1.5rem' }}>🎯</span>
+          <div>
+            <h3>Mine Mål</h3>
+            <p>Ukesmål & Månedsmål</p>
           </div>
-          <div className="progress-bar blue">
-            <div className="progress-fill" style={{ width: '100%' }}></div>
-          </div>
-          <div className="progress-text">4 / 33 <span className="checkmark">✓ Mål nådd</span></div>
         </div>
 
-        <div className="progress-item">
-          <div className="progress-label">
-            <span>Ukes Mål</span>
-            <span>100%</span>
+        <div className="goals-stats" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '2rem' }}>
+          <div className="goal-stat">
+            <span className="goal-label">UKESMÅL</span>
+            <span className="goal-value">{weeklyGoal}</span>
+            <span className="goal-unit">ordrer/uke</span>
           </div>
-          <div className="progress-bar green">
-            <div className="progress-fill" style={{ width: '100%' }}></div>
+          <div className="goal-stat">
+            <span className="goal-label">MÅNEDSMÅL</span>
+            <span className="goal-value">{monthlyGoal}</span>
+            <span className="goal-unit">ordrer/måned</span>
           </div>
-          <div className="progress-text">32 / 25 <span className="checkmark">✓ Mål nådd</span></div>
         </div>
 
-        <div className="progress-item">
-          <div className="progress-label">
-            <span>Måneds Mål</span>
-            <span>100%</span>
+        <button className="edit-goals-btn" onClick={() => setShowGoalEdit(!showGoalEdit)}>
+          Endre mål
+        </button>
+
+        {showGoalEdit && (
+          <div className="goal-edit-form">
+            <input 
+              type="number" 
+              value={weeklyGoal} 
+              onChange={(e) => setWeeklyGoal(parseInt(e.target.value))}
+              placeholder="Ukesmål"
+            />
+            <input 
+              type="number" 
+              value={monthlyGoal} 
+              onChange={(e) => setMonthlyGoal(parseInt(e.target.value))}
+              placeholder="Månedsmål"
+            />
           </div>
-          <div className="progress-bar orange">
-            <div className="progress-fill" style={{ width: '100%' }}></div>
-          </div>
-          <div className="progress-text">103 / 100 <span className="checkmark">✓ Mål nådd</span></div>
-        </div>
+        )}
       </div>
-      </>
       )}
+
+
     </div>
   );
 }
