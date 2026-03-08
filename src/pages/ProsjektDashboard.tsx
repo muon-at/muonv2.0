@@ -90,20 +90,34 @@ const ProsjektDashboard = ({ userProject }: { userProject?: string } = {}) => {
         salesByEmployee.set(emp.externalName, { dag: 0, uke: 0, maned: 0 });
       });
 
-      // Process sales
+      // Fetch emoji counts for today (DAG)
+      const todayStr = today.toISOString().split('T')[0];
+      const emojiCountsRef = collection(db, 'emoji_counts_daily', todayStr, 'employees');
+      const emojiCountsSnap = await getDocs(emojiCountsRef);
+      const emojiCounts = new Map<string, number>();
+
+      emojiCountsSnap.docs.forEach(doc => {
+        const data = doc.data();
+        const bellCount = (data['🔔'] || 0) as number;
+        const gemCount = (data['💎'] || 0) as number;
+        const totalEmojis = bellCount + gemCount;
+        emojiCounts.set(doc.id, totalEmojis);
+      });
+
+      // Set DAG counts from emoji data
+      emojiCounts.forEach((count, empName) => {
+        const current = salesByEmployee.get(empName) || { dag: 0, uke: 0, maned: 0 };
+        current.dag = count;
+        salesByEmployee.set(empName, current);
+      });
+
+      // Process sales for week and month
       allSales.forEach((sale: any) => {
         const selgerKey = sale.selger?.trim();
         if (!selgerKey) return;
 
         const saleDate = parseDate(sale.dato);
         if (!saleDate || saleDate.getTime() === 0) return;
-
-        // Count for today
-        if (saleDate.toDateString() === today.toDateString()) {
-          const current = salesByEmployee.get(selgerKey) || { dag: 0, uke: 0, maned: 0 };
-          current.dag += 1;
-          salesByEmployee.set(selgerKey, current);
-        }
 
         // Count for this week
         const weekStart = new Date(today);
