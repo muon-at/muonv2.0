@@ -164,15 +164,15 @@
 /* UNREAD NOTIFICATION HALO */
 @keyframes pulse-halo {
   0% {
-    box-shadow: 0 0 0 4px rgba(218, 165, 32, 0.6);
+    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.6);
     opacity: 1;
   }
   50% {
-    box-shadow: 0 0 0 8px rgba(218, 165, 32, 0.3);
+    box-shadow: 0 0 0 8px rgba(239, 68, 68, 0.3);
     opacity: 0.8;
   }
   100% {
-    box-shadow: 0 0 0 12px rgba(218, 165, 32, 0.1);
+    box-shadow: 0 0 0 12px rgba(239, 68, 68, 0.1);
     opacity: 0.6;
   }
 }
