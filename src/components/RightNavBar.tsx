@@ -118,7 +118,7 @@ export const RightNavBar: React.FC = () => {
           </button>
         )}
 
-        {/* TEAMLEDER - Person with ring icon */}
+        {/* TEAMLEDER - People icon (same as Teamledere chat) */}
         {(user?.role === 'owner' || user?.role === 'teamleder') && (
           <button 
             className="nav-button"
@@ -127,7 +127,7 @@ export const RightNavBar: React.FC = () => {
           >
             <div className="icon-circle">
               <svg className="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="12" cy="8" r="4"/><path d="M12 14c-4 0-6 2-6 4v2h12v-2c0-2-2-4-6-4"/><circle cx="12" cy="12" r="10"/>
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
               </svg>
             </div>
             <div className="nav-tooltip">Teamleder</div>
@@ -373,7 +373,7 @@ export const RightNavBar: React.FC = () => {
                 onClick={() => { navigate('/teamleder'); setIsMobileMenuOpen(false); }}
               >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="20" height="20">
-                  <circle cx="12" cy="8" r="4"/><path d="M12 14c-4 0-6 2-6 4v2h12v-2c0-2-2-4-6-4"/><circle cx="12" cy="12" r="10"/>
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
                 </svg>
                 <span>Teamleder</span>
               </button>
