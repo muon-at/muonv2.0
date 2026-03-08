@@ -4,10 +4,10 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  padding: 2.5rem 2rem;
-  margin: 0.5rem auto 0.5rem auto;
-  max-width: 100%;
-  width: 100%;
+  padding: 2.5rem 3rem 2.5rem 2rem;
+  margin: 0.5rem 0 0.5rem 0;
+  max-width: calc(100vw - 72px);
+  width: calc(100vw - 72px);
   flex: 1;
   align-items: center;
   justify-content: center;
@@ -428,8 +428,10 @@
   }
   .minside-main {
     gap: 1rem;
-    padding: 1.5rem 1rem;
-    margin: 0.25rem auto 0.25rem auto;
+    padding: 1.5rem 1.5rem 1.5rem 1rem;
+    margin: 0.25rem 0 0.25rem 0;
+    max-width: calc(100vw - 72px) !important;
+    width: calc(100vw - 72px) !important;
   }
 
   .stats-circles {
@@ -618,7 +620,9 @@
 
 @media (max-width: 480px) {
   .minside-main {
-    padding: 1rem !important;
+    padding: 1rem 1.2rem !important;
+    max-width: calc(100vw - 72px) !important;
+    width: calc(100vw - 72px) !important;
   }
 
   .stats-circles {
