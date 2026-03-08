@@ -224,13 +224,13 @@ export default function Login() {
               type="button"
               onClick={() => {
                 const demoUser = {
-                  id: 'demo-employee-ajay',
+                  id: 'demo-teamleder-ajay',
                   name: 'Ajay Sureshkumar',
-                  role: 'employee',
+                  role: 'teamleder',
                   department: 'OSL',
                   project: 'Allente',
-                  email: 'ajay@muonas.no',
-                  externalName: 'Ajay Sureshkumar / selger',
+                  email: 'ajaykeeper@hotmail.com',
+                  externalName: 'Ajay Sureshkumar / Selger',
                 };
                 login(demoUser.name, demoUser.id, demoUser.role, demoUser);
                 navigate('/min-side');
@@ -238,14 +238,14 @@ export default function Login() {
               style={{
                 background: 'none',
                 border: 'none',
-                color: '#3b82f6',
+                color: '#f59e0b',
                 cursor: 'pointer',
                 textDecoration: 'underline',
                 fontSize: '0.9rem',
                 padding: 0,
               }}
             >
-              👤 Employee (Ajay)
+              👥 Teamleder (Ajay)
             </button>
           </div>
         </div>

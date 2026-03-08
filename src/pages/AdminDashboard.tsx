@@ -17,6 +17,7 @@ interface Employee {
   externalName?: string;
   tmgName?: string;
   stilling?: string;
+  ansattnummer?: string;
 }
 
 interface SalgRecord {
@@ -93,6 +94,7 @@ export default function AdminDashboard() {
     externalName: '',
     tmgName: '',
     stilling: 'Fulltid',
+    ansattnummer: '',
   });
   const [uploadModal, setUploadModal] = useState<{ isOpen: boolean; fileType?: 'salg' | 'stats' | 'angring' }>({ isOpen: false });
   const [salgData, setSalgData] = useState<SalgRecord[]>([]);
@@ -1093,6 +1095,11 @@ export default function AdminDashboard() {
 
     try {
       const empCollection = collection(db, 'employees');
+      
+      // Generate next ansattnummer (find highest existing + 1)
+      const highestNumber = Math.max(...employees.map(e => parseInt(e.ansattnummer || '0') || 0), 0);
+      const nextAnsattnummer = (highestNumber + 1).toString().padStart(5, '0'); // 00001, 00002, etc
+      
       const docRef = await addDoc(empCollection, {
         name: newEmployee.name,
         email: newEmployee.email || '',
@@ -1104,11 +1111,12 @@ export default function AdminDashboard() {
         externalName: newEmployee.externalName || '',
         tmgName: newEmployee.tmgName || '',
         stilling: newEmployee.stilling || 'Fulltid',
+        ansattnummer: nextAnsattnummer,
         createdAt: new Date().toISOString(),
       });
 
       // Add to local state
-      setEmployees([...employees, { id: docRef.id, ...newEmployee }]);
+      setEmployees([...employees, { id: docRef.id, ...newEmployee, ansattnummer: nextAnsattnummer }]);
 
       setShowAddModal(false);
       setNewEmployee({
@@ -1122,6 +1130,7 @@ export default function AdminDashboard() {
         externalName: '',
         tmgName: '',
         stilling: 'Fulltid',
+        ansattnummer: '',
       });
       alert('✅ Ansatt opprettet!');
     } catch (err) {
@@ -2675,6 +2684,7 @@ export default function AdminDashboard() {
                     externalName: '',
                     tmgName: '',
                     stilling: 'Fulltid',
+                    ansattnummer: '',
                   });
                 }}
               >
