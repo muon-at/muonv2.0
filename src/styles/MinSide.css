@@ -254,6 +254,12 @@
   margin-top: 0.25rem;
 }
 
+.stat-description {
+  font-size: 0.65rem;
+  opacity: 0.8;
+  margin-top: 0.15rem;
+}
+
 /* GOALS SIDEBAR */
 .goals-sidebar {
   background: #fffbf0;

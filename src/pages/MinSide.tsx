@@ -111,6 +111,35 @@ export default function MinSide() {
     }
   };
 
+  // Load emoji counts for today
+  const loadEmojiCountsForToday = async () => {
+    try {
+      const today = new Date();
+      const dateKey = today.toISOString().split('T')[0]; // YYYY-MM-DD
+      
+      const emojiCountsRef = doc(db, 'emoji_counts_daily', dateKey);
+      const emojiDoc = await getDoc(emojiCountsRef);
+      
+      if (emojiDoc.exists()) {
+        const data = emojiDoc.data();
+        const counts = data.counts || {};
+        
+        // Get current user's name (try both externalName and full name)
+        const userName = user?.name || '';
+        const userEmojis = counts[userName] || { '🔔': 0, '💎': 0 };
+        
+        console.log('📊 Emoji counts for', userName, ':', userEmojis);
+        
+        // Return sum of 🔔 (1 pt) + 💎 (1 pt)
+        return (userEmojis['🔔'] || 0) + (userEmojis['💎'] || 0);
+      }
+      return 0;
+    } catch (err) {
+      console.error('Error loading emoji counts:', err);
+      return 0;
+    }
+  };
+
   const loadEmployeeData = async () => {
     try {
       const salesRef = collection(db, 'allente_kontraktsarkiv');
@@ -135,10 +164,8 @@ export default function MinSide() {
       weekStart.setDate(today.getDate() - today.getDay());
       const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
 
-      const salesToday = employeeContracts.filter(c => {
-        const date = parseDate(c.dato || '');
-        return date && date.getTime() === today.getTime();
-      }).length;
+      // Load emoji counts for today (🔔 + 💎)
+      const emojiCountToday = await loadEmojiCountsForToday();
 
       const salesThisWeek = employeeContracts.filter(c => {
         const date = parseDate(c.dato || '');
@@ -154,7 +181,7 @@ export default function MinSide() {
       const total = employeeContracts.length;
 
       setStats([
-        { value: salesToday, label: 'Dag', color: '#E8956E', icon: '📊' },
+        { value: emojiCountToday, label: 'Dag', color: '#E8956E', icon: '📊', description: '🔔+💎' },
         { value: salesThisWeek, label: 'Uke', color: '#E8956E', icon: '📈' },
         { value: salesThisMonth, label: 'Måned', color: '#E8956E', icon: '🎯' },
         { value: avgPerDay, label: 'År', color: '#5B7FFF', icon: '📅' },
@@ -372,9 +399,10 @@ export default function MinSide() {
         <div className="stats-circles">
           <div className="trophy-placeholder">🏆</div>
           {stats.map((stat, idx) => (
-            <div key={idx} className="stat-circle" style={{ backgroundColor: stat.color }}>
+            <div key={idx} className="stat-circle" style={{ backgroundColor: stat.color }} title={stat.description || ''}>
               <div className="stat-number">{stat.value}</div>
               <div className="stat-label">{stat.label}</div>
+              {stat.description && <div className="stat-description">{stat.description}</div>}
             </div>
           ))}
           <div className="trophy-placeholder">🏆</div>
