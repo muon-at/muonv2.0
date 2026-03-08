@@ -528,8 +528,13 @@
 }
 
 @media (max-width: 768px) {
+  .minside-container {
+    margin-right: 0;
+    min-height: 100vh;
+  }
+
   .minside-banner {
-    padding: 1.5rem;
+    padding: 1rem;
   }
 
   .banner-profile {
@@ -538,25 +543,148 @@
   }
 
   .profile-avatar {
-    width: 60px;
-    height: 60px;
+    width: 50px;
+    height: 50px;
   }
 
   .banner-name {
-    font-size: 1.5rem;
+    font-size: 1.3rem;
+  }
+
+  .minside-header-large h1 {
+    font-size: 1.8rem !important;
+  }
+
+  .minside-header-large .subtitle {
+    font-size: 1rem !important;
   }
 
   .badges-row {
     justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .badge-icon {
+    font-size: 1.8rem;
+    height: 45px;
+  }
+
+  /* STATS CIRCLES - MOBILE */
+  .stats-circles {
+    gap: 0.5rem;
+    padding: 0 0.5rem;
+  }
+
+  .trophy-placeholder {
+    font-size: 2rem;
+    min-width: 30px;
   }
 
   .stat-circle {
-    width: 100px;
-    height: 100px;
+    width: 90px;
+    height: 90px;
   }
 
+  .stat-number {
+    font-size: 1.3rem;
+  }
+
+  .stat-label {
+    font-size: 0.65rem;
+  }
+
+  /* PROGRESS BARS - STACK ON MOBILE */
   .progress-section {
     grid-template-columns: 1fr;
     gap: 1rem;
+    padding: 1rem;
+    max-width: 100%;
+  }
+
+  .progress-item {
+    padding: 0.75rem;
+  }
+
+  .progress-label {
+    font-size: 0.75rem;
+  }
+
+  .progress-bar {
+    height: 4px;
+  }
+
+  .progress-text {
+    font-size: 0.7rem;
+  }
+
+  /* TABS - COMPACT ON MOBILE */
+  .main-tabs {
+    overflow-x: auto;
+    padding: 0;
+    gap: 0;
+  }
+
+  .main-tab {
+    padding: 0.75rem 1rem;
+    font-size: 0.8rem;
+    min-width: fit-content;
+  }
+
+  /* TAB CONTENT */
+  .tab-content {
+    padding: 1rem;
+    margin: 1rem;
+    border-radius: 4px;
+  }
+
+  .content-title h3 {
+    font-size: 1.1rem;
+  }
+
+  /* GOALS SIDEBAR - FULL WIDTH ON MOBILE */
+  .goals-sidebar {
+    width: 100%;
+    max-width: 100%;
+    padding: 1rem;
+    margin: 0;
+  }
+
+  .goals-header {
+    gap: 0.5rem;
+  }
+
+  .goals-header h3 {
+    font-size: 1rem;
+  }
+
+  .goal-stat {
+    padding: 0.75rem;
+  }
+
+  .goal-value {
+    font-size: 1.5rem;
+  }
+
+  /* BADGES GRID - MOBILE */
+  .badges-grid {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 1rem;
+  }
+
+  .badge-item {
+    padding: 1rem;
+  }
+
+  .badge-icon {
+    font-size: 2rem;
+    height: 45px;
+  }
+
+  .badge-name {
+    font-size: 0.8rem;
+  }
+
+  .badge-desc {
+    font-size: 0.7rem;
   }
 }
