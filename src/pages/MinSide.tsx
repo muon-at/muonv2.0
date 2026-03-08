@@ -823,18 +823,28 @@ export default function MinSide() {
                 {/* UKE */}
                 <div className="earnings-period">
                   <div className="earnings-period-label">UKE</div>
+                  <div className="earnings-period-header">Til nå</div>
                   <div className="earnings-period-stat">
                     <span className="earnings-period-value">{earnings.weekly.toLocaleString('no-NO')}</span>
                     <span className="earnings-period-unit">kr</span>
+                  </div>
+                  <div className="earnings-period-runrate">
+                    <div className="earnings-period-runrate-label">Runrate</div>
+                    <span className="earnings-period-runrate-value">{earnings.weekly.toLocaleString('no-NO')} kr</span>
                   </div>
                 </div>
 
                 {/* MÅNED */}
                 <div className="earnings-period">
                   <div className="earnings-period-label">MÅNED</div>
+                  <div className="earnings-period-header">Til nå</div>
                   <div className="earnings-period-stat">
                     <span className="earnings-period-value">{earnings.monthly.toLocaleString('no-NO')}</span>
                     <span className="earnings-period-unit">kr</span>
+                  </div>
+                  <div className="earnings-period-runrate">
+                    <div className="earnings-period-runrate-label">Runrate</div>
+                    <span className="earnings-period-runrate-value">{earnings.monthly.toLocaleString('no-NO')} kr</span>
                   </div>
                 </div>
               </div>
