@@ -220,19 +220,30 @@ export default function Chat() {
     load();
   }, [user]);
 
+  // Recalculate top department when messages change (live updates with emojis)
+  useEffect(() => {
+    if (selectedChannel === 'project-allente' || selectedChannel === 'global' || selectedChannel?.startsWith('dept-')) {
+      calculateTopDepartment();
+    }
+  }, [messages, selectedChannel]);
+
   const calculateTopDepartment = async () => {
     try {
       // Load employees for mapping
       const employeesRef = collection(db, 'employees');
       const employeesSnap = await getDocs(employeesRef);
       const empMap: any = {};
-      employeesSnap.forEach(doc => {
-        const emp = doc.data();
+      const empByName: any = {}; // Map display name -> emp data
+      employeesSnap.forEach(docItem => {
+        const emp = docItem.data();
         if (emp.externalName) {
           empMap[emp.externalName] = {
             department: emp.department || 'Ukjent',
             name: emp.name || emp.externalName
           };
+        }
+        if (emp.name) {
+          empByName[emp.name] = { department: emp.department || 'Ukjent' };
         }
       });
       setEmployeeMap(empMap);
@@ -246,8 +257,8 @@ export default function Chat() {
       weekStart.setDate(today.getDate() - today.getDay());
       
       const deptSales: any = {};
-      contractsSnap.forEach(doc => {
-        const contract = doc.data();
+      contractsSnap.forEach(docItem => {
+        const contract = docItem.data();
         const cDate = parseDate(contract.dato);
         
         // Check if this week
@@ -257,10 +268,35 @@ export default function Chat() {
         }
       });
 
+      // Also count emoji points from this week (🔔=1, 💎=1, 🎁=1)
+      for (let i = 0; i < 7; i++) {
+        const checkDate = new Date(weekStart);
+        checkDate.setDate(weekStart.getDate() + i);
+        if (checkDate > today) break;
+        
+        const dateStr = `${checkDate.getFullYear()}-${String(checkDate.getMonth() + 1).padStart(2, '0')}-${String(checkDate.getDate()).padStart(2, '0')}`;
+        
+        try {
+          const emojiDocRef = doc(db, 'emoji_counts_daily', dateStr);
+          const emojiSnap = await getDoc(emojiDocRef);
+          
+          if (emojiSnap.exists()) {
+            const counts = emojiSnap.data()?.counts || {};
+            Object.entries(counts).forEach(([empName, emojiData]: any) => {
+              const dept = empByName[empName]?.department || 'Ukjent';
+              const totalEmojis = (emojiData['🔔'] || 0) + (emojiData['💎'] || 0) + (emojiData['🎁'] || 0);
+              deptSales[dept] = (deptSales[dept] || 0) + totalEmojis;
+            });
+          }
+        } catch (e) {
+          // Date might not have emoji data yet
+        }
+      }
+
       // Find top department
       const topDept = Object.entries(deptSales).sort((a, b) => (b[1] as any) - (a[1] as any))[0]?.[0];
       setTopDepartment(topDept || null);
-      console.log('👑 Top department this week:', topDept, deptSales);
+      console.log('👑 Top department this week (with emojis):', topDept, deptSales);
     } catch (err) {
       console.error('Error calculating top department:', err);
     }
