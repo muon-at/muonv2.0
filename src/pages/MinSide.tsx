@@ -181,7 +181,7 @@ export default function MinSide() {
       const total = employeeContracts.length;
 
       setStats([
-        { value: emojiCountToday, label: 'Dag', color: '#E8956E', icon: '📊', description: '🔔+💎' },
+        { value: emojiCountToday, label: 'Dag', color: '#E8956E', icon: '📊' },
         { value: salesThisWeek, label: 'Uke', color: '#E8956E', icon: '📈' },
         { value: salesThisMonth, label: 'Måned', color: '#E8956E', icon: '🎯' },
         { value: avgPerDay, label: 'År', color: '#5B7FFF', icon: '📅' },
@@ -399,10 +399,9 @@ export default function MinSide() {
         <div className="stats-circles">
           <div className="trophy-placeholder">🏆</div>
           {stats.map((stat, idx) => (
-            <div key={idx} className="stat-circle" style={{ backgroundColor: stat.color }} title={stat.description || ''}>
+            <div key={idx} className="stat-circle" style={{ backgroundColor: stat.color }}>
               <div className="stat-number">{stat.value}</div>
               <div className="stat-label">{stat.label}</div>
-              {stat.description && <div className="stat-description">{stat.description}</div>}
             </div>
           ))}
           <div className="trophy-placeholder">🏆</div>
