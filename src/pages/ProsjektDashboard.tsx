@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { collection, getDocs, query, where, doc, getDoc } from 'firebase/firestore';
+import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import '../styles/AvdelingDashboard.css';
 
@@ -58,28 +58,45 @@ const ProsjektDashboard = ({ userProject }: { userProject?: string } = {}) => {
     try {
       const today = new Date();
 
-      // Fetch project goals (doc ID is the project name, e.g., "Allente")
+      // Fetch combined goals from all departments in the project
       try {
-        const goalsDocRef = doc(db, 'allente_targets', proj);
-        const goalsSnap = await getDoc(goalsDocRef);
+        const goalsRef = collection(db, 'allente_targets');
+        const allGoalsSnap = await getDocs(goalsRef);
         
-        if (goalsSnap.exists()) {
-          const data = goalsSnap.data();
-          setGoals({
-            dag: parseInt(data.dag) || 50,
-            uke: parseInt(data.uke) || 250,
-            maned: parseInt(data.måned) || 1000,
-          });
-        }
+        let totalDagGoal = 0;
+        let totalUkeGoal = 0;
+        let totalManedGoal = 0;
+        
+        // Sum goals from all departments (KRS, OSL, Skien)
+        allGoalsSnap.forEach(doc => {
+          const data = doc.data();
+          const deptId = doc.id;
+          
+          // For projects, sum all department goals
+          if (deptId === 'KRS' || deptId === 'OSL' || deptId === 'Skien') {
+            totalDagGoal += parseInt(data.dag) || 0;
+            totalUkeGoal += parseInt(data.uke) || 0;
+            totalManedGoal += parseInt(data.måned) || 0;
+          }
+        });
+        
+        setGoals({
+          dag: totalDagGoal || 50,
+          uke: totalUkeGoal || 250,
+          maned: totalManedGoal || 1000,
+        });
+        
+        console.log(`🎯 PROJECT ${proj} COMBINED GOALS:`, { dag: totalDagGoal, uke: totalUkeGoal, maned: totalManedGoal });
       } catch (err) {
         console.log('Goals using defaults:', err);
       }
 
-      // Fetch all employees from project
+      // Fetch all employees (for projects, we want everyone, not filtered by department)
       const employeesRef = collection(db, 'employees');
-      const employeesQuery = query(employeesRef, where('project', '==', proj));
-      const employeesSnap = await getDocs(employeesQuery);
+      const employeesSnap = await getDocs(employeesRef);
       const employees = employeesSnap.docs.map(doc => doc.data());
+      
+      console.log(`🔍 PROJECT ${proj} - ALL EMPLOYEES:`, employees.map(e => ({ name: e.name, externalName: e.externalName, department: e.department, project: e.project })));
       
       // Create mapping from externalName → display name
       const employeeNameMap = new Map<string, string>();
@@ -90,11 +107,16 @@ const ProsjektDashboard = ({ userProject }: { userProject?: string } = {}) => {
           employeeNameMap.set(externalName, displayName);
         }
       });
+      
+      console.log(`📍 EMPLOYEE NAME MAP for ${proj}:`, Array.from(employeeNameMap.entries()));
 
       // Fetch all sales
       const salesRef = collection(db, 'allente_salg');
       const salesSnap = await getDocs(salesRef);
       const allSales = salesSnap.docs.map(doc => doc.data());
+      
+      console.log(`📊 TOTAL SALES IN allente_salg:`, allSales.length);
+      console.log(`📊 SAMPLE SALES (first 5):`, allSales.slice(0, 5).map(s => ({ selger: s.selger, dato: s.dato })));
 
       // Count sales by employee
       const salesByEmployee = new Map<string, { dag: number; uke: number; maned: number }>();
@@ -127,6 +149,19 @@ const ProsjektDashboard = ({ userProject }: { userProject?: string } = {}) => {
       };
 
       // First count contracts for today
+      const todaySalesCount = allSales.filter(s => {
+        const saleDate = parseDate(s.dato);
+        return saleDate && saleDate.toDateString() === today.toDateString();
+      }).length;
+      
+      console.log(`📅 TODAY SALES (${today.toDateString()}):`, todaySalesCount);
+      console.log(`📅 TODAY SALES DETAIL:`, allSales
+        .filter(s => {
+          const saleDate = parseDate(s.dato);
+          return saleDate && saleDate.toDateString() === today.toDateString();
+        })
+        .map(s => ({ selger: s.selger, dato: s.dato })));
+
       allSales.forEach((sale: any) => {
         const selgerKey = sale.selger?.trim();
         if (!selgerKey) return;
@@ -141,6 +176,8 @@ const ProsjektDashboard = ({ userProject }: { userProject?: string } = {}) => {
           salesByEmployee.set(selgerKey, current);
         }
       });
+      
+      console.log(`✅ SALES BY EMPLOYEE (after today count):`, Array.from(salesByEmployee.entries()).slice(0, 10));
 
       // Then ADD emoji counts for today
       const emojiCountsToday = await getEmojiCountsForDate(today);
@@ -241,6 +278,11 @@ const ProsjektDashboard = ({ userProject }: { userProject?: string } = {}) => {
       ukeList.sort((a, b) => b.salg - a.salg);
       maanedList.sort((a, b) => b.salg - a.salg);
 
+      console.log(`📈 FINAL STATS for ${proj}:`, { dag: totalDag, uke: totalUke, maned: totalManed });
+      console.log(`🏆 TOP 5 DAG:`, dagList.slice(0, 5).map(e => ({ name: e.displayName, salg: e.salg })));
+      console.log(`🏆 TOP 5 UKE:`, ukeList.slice(0, 5).map(e => ({ name: e.displayName, salg: e.salg })));
+      console.log(`🏆 TOP 5 MÅNED:`, maanedList.slice(0, 5).map(e => ({ name: e.displayName, salg: e.salg })));
+      
       setStats({ dag: totalDag, uke: totalUke, maned: totalManed });
       setTopFive({
         dag: dagList.slice(0, 5),
