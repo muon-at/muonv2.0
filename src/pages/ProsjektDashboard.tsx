@@ -41,16 +41,24 @@ const ProsjektDashboard = ({ userProject }: { userProject?: string } = {}) => {
   const parseDate = (dateStr: string): Date => {
     if (!dateStr) return new Date(0);
     const trimmed = dateStr.trim();
-    const ddmmyyyyMatch = trimmed.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-    if (ddmmyyyyMatch) {
-      const [, day, month, year] = ddmmyyyyMatch;
-      return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    
+    // Try D/M/YYYY or DD/MM/YYYY format (4/3/2026 or 04/03/2026)
+    const slashMatch = trimmed.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    if (slashMatch) {
+      const [, day, month, year] = slashMatch;
+      const parsed = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+      return parsed;
     }
-    const ddmmyyyy2Match = trimmed.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
-    if (ddmmyyyy2Match) {
-      const [, day, month, year] = ddmmyyyy2Match;
-      return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    
+    // Try D.M.YYYY or DD.MM.YYYY format (4.3.2026 or 04.03.2026)
+    const dotMatch = trimmed.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
+    if (dotMatch) {
+      const [, day, month, year] = dotMatch;
+      const parsed = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+      return parsed;
     }
+    
+    // Fallback to default parsing
     return new Date(dateStr);
   };
 
