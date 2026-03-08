@@ -333,6 +333,34 @@ export default function MinSide() {
         return date && date >= monthStart && date <= today;
       }).length;
 
+      // Calculate BEST WEEK HISTORICALLY (any Monday-Sunday period)
+      const weekMap: { [key: string]: number } = {};
+      employeeContracts.forEach(c => {
+        const date = parseDate(c.dato || '');
+        if (date) {
+          // Find Monday of this week
+          const dayOfWeek = date.getDay();
+          const mondayDate = new Date(date);
+          mondayDate.setDate(date.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
+          const weekKey = mondayDate.toISOString().split('T')[0];
+          weekMap[weekKey] = (weekMap[weekKey] || 0) + 1;
+        }
+      });
+      const bestWeek = Math.max(0, ...Object.values(weekMap));
+      console.log('📊 Best week for', user?.name, ':', bestWeek, 'contracts');
+
+      // Calculate BEST MONTH HISTORICALLY (any calendar month)
+      const monthMap: { [key: string]: number } = {};
+      employeeContracts.forEach(c => {
+        const date = parseDate(c.dato || '');
+        if (date) {
+          const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+          monthMap[monthKey] = (monthMap[monthKey] || 0) + 1;
+        }
+      });
+      const bestMonth = Math.max(0, ...Object.values(monthMap));
+      console.log('📈 Best month for', user?.name, ':', bestMonth, 'contracts');
+
       const salesThisYear = employeeContracts.filter(c => {
         const date = parseDate(c.dato || '');
         return date && date >= yearStart && date <= today;
@@ -483,8 +511,8 @@ export default function MinSide() {
 
       setStats([
         { value: bestDay, label: 'Dag', color: '#E8956E', icon: '📊' },
-        { value: salesThisWeek, label: 'Uke', color: '#E8956E', icon: '📈' },
-        { value: salesThisMonth, label: 'Måned', color: '#E8956E', icon: '🎯' },
+        { value: bestWeek, label: 'Uke', color: '#E8956E', icon: '📈' },
+        { value: bestMonth, label: 'Måned', color: '#E8956E', icon: '🎯' },
         { value: salesThisYear, label: 'År', color: '#5B7FFF', icon: '📅' },
         { value: total, label: 'Allente', color: '#A855C9', icon: '⭐' },
       ]);
