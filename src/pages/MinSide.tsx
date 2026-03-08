@@ -3,6 +3,8 @@ import { useAuth } from '../lib/authContext';
 import { collection, getDocs, doc, setDoc, getDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import '../styles/MinSide.css';
+import AvdelingDashboard from './AvdelingDashboard';
+import ProsjektDashboard from './ProsjektDashboard';
 
 interface SalesRecord {
   dato?: string;
@@ -856,23 +858,11 @@ export default function MinSide() {
       )}
 
       {activeTab === 'avd' && (
-      <div className="tab-content">
-        <div className="content-title">
-          <h3>Avdeling: {user?.department}</h3>
-          <p className="content-subtitle">Se alle kontrakter fra {user?.department}</p>
-        </div>
-        <p>Innhold for avdeling kommer snart...</p>
-      </div>
+        <AvdelingDashboard userDepartment={user?.department || 'KRS'} />
       )}
 
       {activeTab === 'project' && (
-      <div className="tab-content">
-        <div className="content-title">
-          <h3>Prosjekt: {user?.project}</h3>
-          <p className="content-subtitle">Se alle kontrakter fra prosjektet ditt</p>
-        </div>
-        <p>Innhold for prosjekt kommer snart...</p>
-      </div>
+        <ProsjektDashboard userProject={user?.project || 'Allente'} />
       )}
 
       {activeTab === 'target' && (

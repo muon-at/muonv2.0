@@ -1,0 +1,202 @@
+/* AVDELING DASHBOARD */
+
+.avdeling-dashboard {
+  width: 100%;
+  background: white;
+  padding: 2rem;
+}
+
+.avdeling-header {
+  margin-bottom: 2.5rem;
+}
+
+.avdeling-header h2 {
+  margin: 0;
+  font-size: 1.8rem;
+  color: #333;
+  font-weight: 700;
+}
+
+.avdeling-subtitle {
+  margin: 0.5rem 0 0 0;
+  font-size: 0.95rem;
+  color: #999;
+}
+
+/* GRID LAYOUT - 3 COLUMNS */
+.avdeling-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  max-width: 1400px;
+}
+
+/* CARD STYLING */
+.avdeling-card {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1.8rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+.avdeling-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-color: #d0d5dd;
+}
+
+.card-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* STATS ROW - SALG / MÅL */
+.stats-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.stat-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.75rem 1rem;
+  background: #f8f9fa;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  min-width: 80px;
+}
+
+.stat-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-value {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #16a34a;
+}
+
+.separator {
+  font-size: 1.4rem;
+  color: #d0d5dd;
+  margin: 0 0.5rem;
+}
+
+/* PROGRESS BAR */
+.progress-bar-wrapper {
+  margin-bottom: 1.8rem;
+}
+
+.progress-bar {
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6, #16a34a);
+  transition: width 0.3s ease;
+  border-radius: 3px;
+}
+
+/* TOP 5 LEADERBOARD */
+.top-five {
+  border-top: 1px solid #e2e8f0;
+  padding-top: 1.2rem;
+}
+
+.top-five-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.8rem;
+}
+
+.top-five-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 0;
+  font-size: 0.9rem;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.top-five-item:last-child {
+  border-bottom: none;
+}
+
+.rank {
+  font-weight: 700;
+  color: #667eea;
+  min-width: 25px;
+  font-size: 0.85rem;
+}
+
+.name {
+  flex: 1;
+  color: #333;
+  font-weight: 500;
+  margin-left: 0.75rem;
+}
+
+.count {
+  font-weight: 700;
+  color: #16a34a;
+  min-width: 40px;
+  text-align: right;
+}
+
+/* RESPONSIVE */
+@media (max-width: 1200px) {
+  .avdeling-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .avdeling-dashboard {
+    padding: 1.5rem;
+  }
+
+  .avdeling-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .avdeling-header h2 {
+    font-size: 1.4rem;
+  }
+
+  .card-title {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+  }
+
+  .stat-value {
+    font-size: 1.4rem;
+  }
+
+  .top-five-item {
+    padding: 0.5rem 0;
+    font-size: 0.85rem;
+  }
+}
