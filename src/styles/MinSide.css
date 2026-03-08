@@ -640,7 +640,7 @@
 .stats-and-earnings-container {
   display: grid;
   grid-template-columns: 2fr 1fr;
-  gap: 3rem;
+  gap: 1.5rem;
   max-width: 1400px;
   width: 100%;
   margin: 0 auto;
