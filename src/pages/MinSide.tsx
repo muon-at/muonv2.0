@@ -331,18 +331,28 @@ export default function MinSide() {
       const emojiCountsRef = doc(db, 'emoji_counts_daily', dateKey);
       const emojiDoc = await getDoc(emojiCountsRef);
       
+      console.log(`🔍 Loading emoji counts for date: ${dateKey}`);
+      console.log(`User name: ${user?.name}`);
+      
       if (emojiDoc.exists()) {
         const data = emojiDoc.data();
         const counts = data.counts || {};
         
-        // Get current user's name (try both externalName and full name)
+        console.log('📋 All emoji counts in Firestore:', counts);
+        
+        // Get current user's name
         const userName = user?.name || '';
         const userEmojis = counts[userName] || { '🔔': 0, '💎': 0 };
         
         console.log('📊 Emoji counts for', userName, ':', userEmojis);
         
+        const total = (userEmojis['🔔'] || 0) + (userEmojis['💎'] || 0);
+        console.log('✅ Total emoji count for today:', total);
+        
         // Return sum of 🔔 (1 pt) + 💎 (1 pt)
-        return (userEmojis['🔔'] || 0) + (userEmojis['💎'] || 0);
+        return total;
+      } else {
+        console.log('❌ No emoji document for today');
       }
       return 0;
     } catch (err) {
