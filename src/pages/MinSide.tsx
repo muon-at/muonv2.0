@@ -460,25 +460,8 @@ export default function MinSide() {
         console.error('Error loading products:', err);
       }
 
-      // Load gift count (🎁) for today
-      let giftCountToday = 0;
-      try {
-        const today_str = today.toISOString().split('T')[0];
-        const emojiCountsRef = doc(db, 'emoji_counts_daily', today_str);
-        const emojiDoc = await getDoc(emojiCountsRef);
-        if (emojiDoc.exists()) {
-          const data = emojiDoc.data();
-          const counts = data.counts || {};
-          const userName = user?.name || '';
-          const userEmojis = counts[userName] || { '🎁': 0 };
-          giftCountToday = userEmojis['🎁'] || 0;
-        }
-      } catch (err) {
-        console.error('Error loading gift count:', err);
-      }
-
       // Get emoji counts for today with breakdown
-      let bellCountToday = 0, gemCountToday = 0;
+      let bellCountToday = 0, gemCountToday = 0, giftCountTodayEarnings = 0;
       try {
         const today_str = today.toISOString().split('T')[0];
         const emojiCountsRef = doc(db, 'emoji_counts_daily', today_str);
@@ -487,9 +470,12 @@ export default function MinSide() {
           const data = emojiDoc.data();
           const counts = data.counts || {};
           const userName = user?.name || '';
-          const userEmojis = counts[userName] || { '🔔': 0, '💎': 0 };
+          const userEmojis = counts[userName] || { '🔔': 0, '💎': 0, '🎁': 0 };
           bellCountToday = userEmojis['🔔'] || 0;
           gemCountToday = userEmojis['💎'] || 0;
+          const giftCount = userEmojis['🎁'] || 0;
+          giftCountTodayEarnings = giftCount;
+          console.log('🎊 Emoji counts for today:', { bellCountToday, gemCountToday, giftCount, userName });
         }
       } catch (err) {
         console.error('Error loading emoji counts:', err);
@@ -502,10 +488,12 @@ export default function MinSide() {
         const provisjon = produktProvisjon[produktName] || 0;
         return sum + provisjon;
       }, 0);
+      console.log('💼 Contract earnings:', { contractEarnings, contractCount: employeeContracts.length });
 
       // Emoji values: 🔔=800, 💎=1000, 🎁=-200
-      const emojiEarningsToday = (bellCountToday * 800) + (gemCountToday * 1000) - (giftCountToday * 200);
+      const emojiEarningsToday = (bellCountToday * 800) + (gemCountToday * 1000) - (giftCountTodayEarnings * 200);
       const totalEarnings = contractEarnings + emojiEarningsToday;
+      console.log('💰 Daily earnings breakdown:', { bellCountToday, gemCountToday, giftCountTodayEarnings, emojiEarningsToday, totalEarnings });
 
       // Week earnings
       const contractsWeek = employeeContracts.filter(c => {
@@ -517,6 +505,7 @@ export default function MinSide() {
         const provisjon = produktProvisjon[produktName] || 0;
         return sum + provisjon;
       }, 0) + emojiEarningsToday; // Add today's emoji earnings
+      console.log('📊 Weekly earnings:', { contractsWeek: contractsWeek.length, weekEarnings, emojiEarningsToday });
 
       // Month earnings
       const contractsMonth = employeeContracts.filter(c => {
@@ -528,6 +517,7 @@ export default function MinSide() {
         const provisjon = produktProvisjon[produktName] || 0;
         return sum + provisjon;
       }, 0) + emojiEarningsToday; // Add today's emoji earnings
+      console.log('📈 Monthly earnings:', { contractsMonth: contractsMonth.length, monthEarnings, emojiEarningsToday });
 
       // Calculate hours worked today
       const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 9, 0);
@@ -546,14 +536,25 @@ export default function MinSide() {
       const totalWorkingDaysInMonth = countWorkingDaysInMonth(now);
       const monthlyEarningsRunrate = workingDaysMonth > 0 ? (monthEarnings / workingDaysMonth) * totalWorkingDaysInMonth : 0;
 
-      setEarnings({
+      const earningsObj = {
         total: Math.round(totalEarnings),
         daily: Math.round(emojiEarningsToday),
         dailyTo16: Math.round(dailyEarningsTo16 * 100) / 100,
         dailyTo21: Math.round(dailyEarningsTo21 * 100) / 100,
         weekly: Math.round(weeklyEarningsRunrate),
         monthly: Math.round(monthlyEarningsRunrate),
+      };
+      
+      console.log('✅ FINAL EARNINGS OBJECT:', earningsObj);
+      console.log('📊 Runrate calculation:', {
+        weeklyEarningsRunrate,
+        monthlyEarningsRunrate,
+        workingDaysWeek,
+        workingDaysMonth,
+        totalWorkingDaysInMonth,
       });
+      
+      setEarnings(earningsObj);
 
       console.log('💰 Earnings calculated:', {
         contractEarnings,
