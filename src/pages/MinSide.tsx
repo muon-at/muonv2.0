@@ -96,20 +96,28 @@ export default function MinSide() {
   // Load saved goals from Firestore
   const loadSavedGoals = async () => {
     try {
-      const externalName = user?.externalName || user?.name || '';
-      if (!externalName) return;
+      // Use multiple fallbacks: externalName → email → name
+      const goalKey = user?.externalName || user?.email || user?.name || '';
+      if (!goalKey) {
+        console.warn('⚠️ No user identifier found for goals');
+        return;
+      }
       
-      const goalsRef = doc(db, 'employee_goals', externalName);
+      console.log('🔍 Loading goals for:', { externalName: user?.externalName, email: user?.email, name: user?.name, using: goalKey });
+      
+      const goalsRef = doc(db, 'employee_goals', goalKey);
       const goalsDoc = await getDoc(goalsRef);
       
       if (goalsDoc.exists()) {
         const data = goalsDoc.data();
-        if (data.weeklyGoal) setWeeklyGoal(data.weeklyGoal);
-        if (data.monthlyGoal) setMonthlyGoal(data.monthlyGoal);
-        console.log('✅ Goals loaded from Firestore:', data);
+        setWeeklyGoal(data.weeklyGoal || 0);
+        setMonthlyGoal(data.monthlyGoal || 0);
+        console.log('✅ Goals loaded from Firestore:', { goalKey, data });
+      } else {
+        console.log('ℹ️ No goals found yet for:', goalKey);
       }
     } catch (err) {
-      console.error('Error loading goals:', err);
+      console.error('❌ Error loading goals:', err);
     }
   };
 
@@ -920,18 +928,25 @@ export default function MinSide() {
             if (showGoalEdit) {
               // Save mode: save and close
               try {
-                const externalName = user?.externalName || user?.name || '';
-                if (externalName) {
-                  const goalsRef = doc(db, 'employee_goals', externalName);
-                  await setDoc(goalsRef, {
-                    weeklyGoal,
-                    monthlyGoal,
-                    updatedAt: new Date(),
-                  }, { merge: true });
-                  console.log('✅ Goals saved:', { weeklyGoal, monthlyGoal });
+                // Use multiple fallbacks: externalName → email → name
+                const goalKey = user?.externalName || user?.email || user?.name || '';
+                if (!goalKey) {
+                  alert('❌ Kunne ikke lagre: Bruker ikke identifisert');
+                  return;
                 }
+                
+                const goalsRef = doc(db, 'employee_goals', goalKey);
+                await setDoc(goalsRef, {
+                  weeklyGoal: weeklyGoal || 0,
+                  monthlyGoal: monthlyGoal || 0,
+                  updatedAt: new Date().toISOString(),
+                  userId: user?.id || 'unknown',
+                }, { merge: true });
+                console.log('✅ Goals saved to Firestore:', { goalKey, weeklyGoal, monthlyGoal });
+                alert('✅ Mål lagret!');
               } catch (err) {
                 console.error('❌ Error saving goals:', err);
+                alert('❌ Feil ved lagring av mål: ' + (err as any).message);
               }
               setShowGoalEdit(false);
             } else {
