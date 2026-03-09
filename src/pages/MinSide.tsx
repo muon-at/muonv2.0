@@ -64,8 +64,15 @@ export default function MinSide() {
   const [stats, setStats] = useState<any[]>([]);
   const [earnedBadges, setEarnedBadges] = useState<string[]>([]);
   const [badgeStatus, setBadgeStatus] = useState<{ [key: string]: boolean }>({});
-  const [weeklyGoal, setWeeklyGoal] = useState<number>(0);
-  const [monthlyGoal, setMonthlyGoal] = useState<number>(0);
+  // Try to restore from sessionStorage on mount
+  const [weeklyGoal, setWeeklyGoal] = useState<number>(() => {
+    const stored = sessionStorage.getItem('maal_weekly');
+    return stored ? parseInt(stored) : 0;
+  });
+  const [monthlyGoal, setMonthlyGoal] = useState<number>(() => {
+    const stored = sessionStorage.getItem('maal_monthly');
+    return stored ? parseInt(stored) : 0;
+  });
   const [showGoalEdit, setShowGoalEdit] = useState(false);
   const [activeTab, setActiveTab] = useState('stats');
   const [progressData, setProgressData] = useState({
@@ -153,6 +160,13 @@ export default function MinSide() {
     loadEmployeeData();
     loadCachedBadges();
   }, [user?.id]);  // ✅ Changed: Trigger when user.id changes (not whole user object)
+
+  // Sync goals to sessionStorage whenever they change
+  useEffect(() => {
+    console.log('💾 Syncing goals to sessionStorage:', { weeklyGoal, monthlyGoal });
+    sessionStorage.setItem('maal_weekly', weeklyGoal.toString());
+    sessionStorage.setItem('maal_monthly', monthlyGoal.toString());
+  }, [weeklyGoal, monthlyGoal]);
 
   // Also reload goals when activeTab changes to 'target' (Mål tab)
   useEffect(() => {
@@ -980,12 +994,16 @@ export default function MinSide() {
                   userId: user?.id || 'unknown',
                 };
                 
+                // ✅ IMMEDIATELY save to sessionStorage (instant backup)
+                sessionStorage.setItem('maal_weekly', (weeklyGoal || 0).toString());
+                sessionStorage.setItem('maal_monthly', (monthlyGoal || 0).toString());
+                
                 await setDoc(goalsRef, saveData, { merge: true });
                 
                 // Also backup to localStorage
                 localStorage.setItem(`goals_${user?.name}`, JSON.stringify(saveData));
                 
-                console.log('✅ Goals saved to Firestore + localStorage:', { goalKey, ...saveData });
+                console.log('✅ Goals saved to sessionStorage + Firestore + localStorage:', { goalKey, ...saveData });
                 alert('✅ Mål lagret!');
               } catch (err) {
                 console.error('❌ Error saving goals:', err);
