@@ -445,7 +445,7 @@ export default function MinSide() {
       const bestDay = Math.max(0, ...Object.values(dayMap));
       console.log('📅 Best day for', user?.name, ':', bestDay, 'contracts');
 
-      // Load products with provisjon (store as-is with escape chars, handle in matching)
+      // Load products with provisjon - strip ALL escape characters
       let produktProvisjon: { [key: string]: number } = {};
       try {
         const produktRef = collection(db, 'allente_products');
@@ -453,10 +453,14 @@ export default function MinSide() {
         produktSnapshot.forEach((doc) => {
           const data = doc.data();
           const provisjon = parseFloat(data.provisjon || 0);
-          // Store with original key (will handle escape chars in matching logic)
-          produktProvisjon[doc.id] = provisjon;
+          // Clean key: remove ALL backslashes and outer quotes
+          let cleanKey = doc.id
+            .replace(/\\/g, '')  // Remove ALL backslashes
+            .replace(/^"|"$/g, '')  // Remove outer quotes only
+            .trim();
+          produktProvisjon[cleanKey] = provisjon;
         });
-        console.log('💼 Products loaded:', Object.keys(produktProvisjon).length, 'produkter');
+        console.log('💼 Products loaded (cleaned):', Object.keys(produktProvisjon).length, 'produkter');
         console.log('🔑 Sample keys:', Object.keys(produktProvisjon).slice(0, 3));
       } catch (err) {
         console.error('Error loading products:', err);
@@ -484,40 +488,21 @@ export default function MinSide() {
       }
 
       // Calculate earnings
-      // Debug: Show product names and matching
-      console.log('🔍 MATCHING DEBUG:');
-      console.log('  Contract samples:', employeeContracts.slice(0, 3).map(c => c.produkt));
-      console.log('  Product keys sample:', Object.keys(produktProvisjon).slice(0, 3));
-      
-      // Get provisjon per product from contracts
+      // Get provisjon per product from contracts - EXACT MATCH (no escape chars)
       const contractEarnings = employeeContracts.reduce((sum, c) => {
-        let produktName = (c.produkt || '').toLowerCase().trim();
+        // Clean contract product name: remove backslashes, trim
+        let produktName = (c.produkt || '')
+          .replace(/\\/g, '')  // Remove backslashes
+          .trim();
         
-        // Try exact match first
-        let provisjon = produktProvisjon[produktName] || 0;
+        // Exact match in provisjon dictionary
+        const provisjon = produktProvisjon[produktName] || 0;
         
-        // If no exact match, try substring match (contract contains key substring)
-        if (provisjon === 0) {
-          for (const key in produktProvisjon) {
-            // Normalize key: remove escape quotes, lowercase
-            const cleanKey = key
-              .replace(/\\"/g, '')
-              .replace(/^["']|["']$/g, '')
-              .toLowerCase()
-              .trim();
-            
-            // Get first 30 chars of contract name (before version/months)
-            const productBase = produktName.substring(0, 30);
-            
-            // Check if key contains product base OR product contains key
-            // This handles both "Flex 2 with ads" matching to various versions
-            if (cleanKey.includes(productBase.substring(0, 20)) || 
-                produktName.includes(cleanKey.substring(0, 20))) {
-              provisjon = produktProvisjon[key];
-              console.log(`✅ Match: "${cleanKey.substring(0, 30)}..." → ${provisjon} kr`);
-              break;
-            }
-          }
+        if (provisjon > 0) {
+          console.log(`✅ Match: "${produktName}" → ${provisjon} kr`);
+        } else if (produktName) {
+          console.warn(`❌ No match for: "${produktName}"`);
+          console.warn(`   Available: ${Object.keys(produktProvisjon).slice(0, 2).join(', ')}`);
         }
         
         return sum + provisjon;
@@ -535,29 +520,11 @@ export default function MinSide() {
         return date && date >= weekStart && date <= today;
       });
       const weekEarnings = contractsWeek.reduce((sum, c) => {
-        let produktName = (c.produkt || '').toLowerCase().trim();
+        let produktName = (c.produkt || '')
+          .replace(/\\/g, '')  // Remove backslashes
+          .trim();
         
-        // Try exact match first
-        let provisjon = produktProvisjon[produktName] || 0;
-        
-        // If no exact match, try substring match
-        if (provisjon === 0) {
-          for (const key in produktProvisjon) {
-            const cleanKey = key
-              .replace(/\\"/g, '')
-              .replace(/^["']|["']$/g, '')
-              .toLowerCase()
-              .trim();
-            
-            const productBase = produktName.substring(0, 30);
-            if (cleanKey.includes(productBase.substring(0, 20)) || 
-                produktName.includes(cleanKey.substring(0, 20))) {
-              provisjon = produktProvisjon[key];
-              break;
-            }
-          }
-        }
-        
+        const provisjon = produktProvisjon[produktName] || 0;
         return sum + provisjon;
       }, 0) + emojiEarningsToday; // Add today's emoji earnings
       console.log('📊 Weekly earnings:', { contractsWeek: contractsWeek.length, weekEarnings, emojiEarningsToday });
@@ -568,29 +535,11 @@ export default function MinSide() {
         return date && date >= monthStart && date <= today;
       });
       const monthEarnings = contractsMonth.reduce((sum, c) => {
-        let produktName = (c.produkt || '').toLowerCase().trim();
+        let produktName = (c.produkt || '')
+          .replace(/\\/g, '')  // Remove backslashes
+          .trim();
         
-        // Try exact match first
-        let provisjon = produktProvisjon[produktName] || 0;
-        
-        // If no exact match, try substring match
-        if (provisjon === 0) {
-          for (const key in produktProvisjon) {
-            const cleanKey = key
-              .replace(/\\"/g, '')
-              .replace(/^["']|["']$/g, '')
-              .toLowerCase()
-              .trim();
-            
-            const productBase = produktName.substring(0, 30);
-            if (cleanKey.includes(productBase.substring(0, 20)) || 
-                produktName.includes(cleanKey.substring(0, 20))) {
-              provisjon = produktProvisjon[key];
-              break;
-            }
-          }
-        }
-        
+        const provisjon = produktProvisjon[produktName] || 0;
         return sum + provisjon;
       }, 0) + emojiEarningsToday; // Add today's emoji earnings
       console.log('📈 Monthly earnings:', { contractsMonth: contractsMonth.length, monthEarnings, emojiEarningsToday });
