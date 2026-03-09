@@ -489,24 +489,27 @@ export default function MinSide() {
 
       // Calculate earnings
       // Get provisjon per product from contracts - EXACT MATCH (no escape chars)
-      const contractEarnings = employeeContracts.reduce((sum, c) => {
+      console.log('🔍 STARTING CONTRACT MATCHING:');
+      console.log('  Total contracts:', employeeContracts.length);
+      console.log('  Available products:', Object.keys(produktProvisjon));
+      
+      const contractEarnings = employeeContracts.reduce((sum, c, idx) => {
         // Clean contract product name: remove backslashes, trim
         let produktName = (c.produkt || '')
           .replace(/\\/g, '')  // Remove backslashes
           .trim();
         
+        // Debug: log EVERY contract
+        console.log(`[${idx}] RAW: "${c.produkt}" → CLEAN: "${produktName}"`);
+        
         // Exact match in provisjon dictionary
         const provisjon = produktProvisjon[produktName] || 0;
-        
-        if (provisjon > 0) {
-          console.log(`✅ Match: "${produktName}" → ${provisjon} kr`);
-        } else if (produktName) {
-          console.warn(`❌ No match for: "${produktName}"`);
-          console.warn(`   Available: ${Object.keys(produktProvisjon).slice(0, 2).join(', ')}`);
-        }
+        console.log(`      Match result: ${provisjon} kr`);
         
         return sum + provisjon;
       }, 0);
+      
+      console.log('✅ TOTAL CONTRACT EARNINGS:', contractEarnings);
       console.log('💼 Contract earnings:', { contractEarnings, contractCount: employeeContracts.length });
 
       // Emoji values: 🔔=800, 💎=1000, 🎁=-200
