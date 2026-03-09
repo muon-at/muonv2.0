@@ -494,28 +494,34 @@ export default function MinSide() {
       }
 
       // Calculate earnings
-      // Get provisjon per product from contracts - EXACT MATCH (no escape chars)
-      console.log('🔍 STARTING CONTRACT MATCHING:');
-      console.log('  Total contracts:', employeeContracts.length);
-      console.log('  Available products:', Object.keys(produktProvisjon));
-      
-      const contractEarnings = employeeContracts.reduce((sum, c, idx) => {
+      // Get provisjon per product from contracts - SUBSTRING MATCH (first 20 chars ignores discount/rabatt)
+      const contractEarnings = employeeContracts.reduce((sum, c) => {
         // Clean contract product name: remove backslashes, trim
         let produktName = (c.produkt || '')
           .replace(/\\/g, '')  // Remove backslashes
           .trim();
         
-        // Debug: log EVERY contract
-        console.log(`[${idx}] RAW: "${c.produkt}" → CLEAN: "${produktName}"`);
+        // Try exact match first
+        let provisjon = produktProvisjon[produktName] || 0;
         
-        // Exact match in provisjon dictionary
-        const provisjon = produktProvisjon[produktName] || 0;
-        console.log(`      Match result: ${provisjon} kr`);
+        // If no exact match, try substring match on first 20 chars
+        // This handles "Flex 2 with ads - 50% discount..." vs "Flex 2 with ads - 50,- rabatt..."
+        if (provisjon === 0) {
+          const productBase = produktName.substring(0, 20);  // First 20 chars
+          
+          for (const key in produktProvisjon) {
+            const adminBase = key.substring(0, 20);  // First 20 chars of admin product
+            
+            // Match if both start with same 20 chars
+            if (adminBase === productBase) {
+              provisjon = produktProvisjon[key];
+              break;
+            }
+          }
+        }
         
         return sum + provisjon;
       }, 0);
-      
-      console.log('✅ TOTAL CONTRACT EARNINGS:', contractEarnings);
       console.log('💼 Contract earnings:', { contractEarnings, contractCount: employeeContracts.length });
 
       // Emoji values: 🔔=800, 💎=1000, 🎁=-200
@@ -530,10 +536,21 @@ export default function MinSide() {
       });
       const weekEarnings = contractsWeek.reduce((sum, c) => {
         let produktName = (c.produkt || '')
-          .replace(/\\/g, '')  // Remove backslashes
+          .replace(/\\/g, '')
           .trim();
         
-        const provisjon = produktProvisjon[produktName] || 0;
+        let provisjon = produktProvisjon[produktName] || 0;
+        
+        if (provisjon === 0) {
+          const productBase = produktName.substring(0, 20);
+          for (const key in produktProvisjon) {
+            if (key.substring(0, 20) === productBase) {
+              provisjon = produktProvisjon[key];
+              break;
+            }
+          }
+        }
+        
         return sum + provisjon;
       }, 0) + emojiEarningsToday; // Add today's emoji earnings
       console.log('📊 Weekly earnings:', { contractsWeek: contractsWeek.length, weekEarnings, emojiEarningsToday });
@@ -545,10 +562,21 @@ export default function MinSide() {
       });
       const monthEarnings = contractsMonth.reduce((sum, c) => {
         let produktName = (c.produkt || '')
-          .replace(/\\/g, '')  // Remove backslashes
+          .replace(/\\/g, '')
           .trim();
         
-        const provisjon = produktProvisjon[produktName] || 0;
+        let provisjon = produktProvisjon[produktName] || 0;
+        
+        if (provisjon === 0) {
+          const productBase = produktName.substring(0, 20);
+          for (const key in produktProvisjon) {
+            if (key.substring(0, 20) === productBase) {
+              provisjon = produktProvisjon[key];
+              break;
+            }
+          }
+        }
+        
         return sum + provisjon;
       }, 0) + emojiEarningsToday; // Add today's emoji earnings
       console.log('📈 Monthly earnings:', { contractsMonth: contractsMonth.length, monthEarnings, emojiEarningsToday });
