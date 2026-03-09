@@ -96,15 +96,14 @@ export default function MinSide() {
   // Load saved goals from Firestore
   const loadSavedGoals = async () => {
     try {
-      // MUST use email as document ID (externalName contains "/" which breaks Firestore)
-      // Fallback: email → name
-      const goalKey = user?.email || user?.name || '';
+      // ✅ USE USER ID as document ID (always unique and consistent)
+      const goalKey = user?.id || '';
       if (!goalKey) {
-        console.warn('⚠️ No email/name found for goals');
+        console.warn('⚠️ No user ID found for goals');
         return;
       }
       
-      console.log('🔍 Loading goals for:', { email: user?.email, name: user?.name, using: goalKey });
+      console.log('🔍 Loading goals for user ID:', goalKey);
       
       const goalsRef = doc(db, 'employee_goals', goalKey);
       const goalsDoc = await getDoc(goalsRef);
@@ -929,9 +928,8 @@ export default function MinSide() {
             if (showGoalEdit) {
               // Save mode: save and close
               try {
-                // MUST use email as document ID (externalName contains "/" which breaks Firestore)
-                // Fallback: email → name
-                const goalKey = user?.email || user?.name || '';
+                // ✅ USE USER ID as document ID (always unique and consistent)
+                const goalKey = user?.id || '';
                 if (!goalKey) {
                   alert('❌ Kunne ikke lagre: Bruker ikke identifisert');
                   return;
