@@ -482,10 +482,21 @@ export default function MinSide() {
       }
 
       // Calculate earnings
+      // Debug: Show product names and matching
+      console.log('🔍 DEBUG PRODUKTER:');
+      console.log('  Available provisjoner:', Object.keys(produktProvisjon));
+      console.log('  Sample contracts:', employeeContracts.slice(0, 3).map(c => ({ 
+        produkt: c.produkt, 
+        dato: c.dato 
+      })));
+      
       // Get provisjon per product from contracts
       const contractEarnings = employeeContracts.reduce((sum, c) => {
         const produktName = c.produkt || '';
         const provisjon = produktProvisjon[produktName] || 0;
+        if (provisjon === 0 && produktName) {
+          console.warn(`  ⚠️ No provisjon found for: "${produktName}"`);
+        }
         return sum + provisjon;
       }, 0);
       console.log('💼 Contract earnings:', { contractEarnings, contractCount: employeeContracts.length });
