@@ -189,6 +189,15 @@
   transition: all 0.2s ease;
   color: #000000 !important;
   background: white !important;
+  -webkit-text-fill-color: #000000 !important;
+  caret-color: #000000 !important;
+}
+
+.form-group input:-webkit-autofill,
+.form-group input:-webkit-autofill:hover,
+.form-group input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px white inset !important;
+  -webkit-text-fill-color: #000000 !important;
 }
 
 .form-group input:focus {
