@@ -379,15 +379,25 @@ export default function MinSide() {
       // Load emoji counts for today (🔔 + 💎)
       const emojiCountToday = await loadEmojiCountsForToday();
 
-      const salesThisWeek = employeeContracts.filter(c => {
+      // Count contracts this week
+      const contractsThisWeek = employeeContracts.filter(c => {
         const date = parseDate(c.dato || '');
         return date && date >= weekStart && date <= today;
       }).length;
+      
+      // Add emojis from today to weekly progress
+      const salesThisWeek = contractsThisWeek + emojiCountToday;
+      console.log('📊 Weekly Progress:', { contractsThisWeek, emojiCountToday, total: salesThisWeek });
 
-      const salesThisMonth = employeeContracts.filter(c => {
+      // Count contracts this month
+      const contractsThisMonth = employeeContracts.filter(c => {
         const date = parseDate(c.dato || '');
         return date && date >= monthStart && date <= today;
       }).length;
+      
+      // Add emojis from today to monthly progress
+      const salesThisMonth = contractsThisMonth + emojiCountToday;
+      console.log('📈 Monthly Progress:', { contractsThisMonth, emojiCountToday, total: salesThisMonth });
 
       // Calculate BEST WEEK HISTORICALLY (any Monday-Sunday period)
       const weekMap: { [key: string]: number } = {};
