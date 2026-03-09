@@ -453,9 +453,13 @@ export default function MinSide() {
         produktSnapshot.forEach((doc) => {
           const data = doc.data();
           const provisjon = parseFloat(data.provisjon || 0);
-          produktProvisjon[doc.id] = provisjon;
+          // Unescape product name (remove escaped quotes like \"Product Name\")
+          let cleanKey = doc.id.replace(/^["']|["']$/g, '');  // Remove outer quotes
+          cleanKey = cleanKey.replace(/\\"/g, '"');  // Remove escape backslashes
+          produktProvisjon[cleanKey] = provisjon;
         });
-        console.log('💼 Products loaded:', produktProvisjon);
+        console.log('💼 Products loaded (cleaned):', produktProvisjon);
+        console.log('🔑 First 3 keys:', Object.keys(produktProvisjon).slice(0, 3));
       } catch (err) {
         console.error('Error loading products:', err);
       }
@@ -484,7 +488,7 @@ export default function MinSide() {
       // Calculate earnings
       // Debug: Show product names and matching
       console.log('🔍 DEBUG PRODUKTER:');
-      console.log('  Available provisjoner:', Object.keys(produktProvisjon));
+      console.log('  Available provisjoner keys:', Object.keys(produktProvisjon).slice(0, 5));
       console.log('  Sample contracts:', employeeContracts.slice(0, 3).map(c => ({ 
         produkt: c.produkt, 
         dato: c.dato 
@@ -492,10 +496,13 @@ export default function MinSide() {
       
       // Get provisjon per product from contracts
       const contractEarnings = employeeContracts.reduce((sum, c) => {
-        const produktName = c.produkt || '';
+        let produktName = c.produkt || '';
+        // Clean product name - remove quotes and escape chars
+        produktName = produktName.replace(/^["']|["']$/g, '').replace(/\\"/g, '"').trim();
         const provisjon = produktProvisjon[produktName] || 0;
         if (provisjon === 0 && produktName) {
-          console.warn(`  ⚠️ No provisjon found for: "${produktName}"`);
+          console.warn(`  ⚠️ No provisjon match for: "${produktName}"`);
+          console.warn(`    Available keys:`, Object.keys(produktProvisjon).filter(k => k.includes(produktName.split(' ')[0])));
         }
         return sum + provisjon;
       }, 0);
@@ -512,7 +519,8 @@ export default function MinSide() {
         return date && date >= weekStart && date <= today;
       });
       const weekEarnings = contractsWeek.reduce((sum, c) => {
-        const produktName = c.produkt || '';
+        let produktName = c.produkt || '';
+        produktName = produktName.replace(/^["']|["']$/g, '').replace(/\\"/g, '"').trim();
         const provisjon = produktProvisjon[produktName] || 0;
         return sum + provisjon;
       }, 0) + emojiEarningsToday; // Add today's emoji earnings
@@ -524,7 +532,8 @@ export default function MinSide() {
         return date && date >= monthStart && date <= today;
       });
       const monthEarnings = contractsMonth.reduce((sum, c) => {
-        const produktName = c.produkt || '';
+        let produktName = c.produkt || '';
+        produktName = produktName.replace(/^["']|["']$/g, '').replace(/\\"/g, '"').trim();
         const provisjon = produktProvisjon[produktName] || 0;
         return sum + provisjon;
       }, 0) + emojiEarningsToday; // Add today's emoji earnings
