@@ -13,7 +13,7 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [logoVariant, setLogoVariant] = useState('A');
+  const [logoVariant, setLogoVariant] = useState(4);
 
   // Auto-redirect if already authenticated
   useEffect(() => {
@@ -96,16 +96,16 @@ export default function Login() {
         {/* Logo */}
         <div className="login-header">
           <div className="logo">
-            <span className="logo-part-1">Muo</span><span className={`logo-connector logo-wavy-${logoVariant}`}>N</span><span className="logo-part-2">exus</span>
+            <span className="logo-part-1">Muo</span><span className={`logo-connector logo-variant-${logoVariant}`}>N</span><span className="logo-part-2">exus</span>
           </div>
           <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', marginTop: '0.5rem' }}>
-            {['A', 'B', 'C', 'D'].map(letter => (
+            {[1, 2, 3, 4].map(num => (
               <button
-                key={letter}
-                onClick={() => setLogoVariant(letter)}
+                key={num}
+                onClick={() => setLogoVariant(num)}
                 style={{
-                  background: logoVariant === letter ? '#667eea' : '#e8e8e8',
-                  color: logoVariant === letter ? 'white' : '#666',
+                  background: logoVariant === num ? '#667eea' : '#e8e8e8',
+                  color: logoVariant === num ? 'white' : '#666',
                   border: 'none',
                   width: '28px',
                   height: '28px',
@@ -116,7 +116,7 @@ export default function Login() {
                   transition: 'all 0.2s'
                 }}
               >
-                {letter}
+                {num}
               </button>
             ))}
           </div>
