@@ -483,16 +483,25 @@ export default function MinSide() {
         const today_str = today.toISOString().split('T')[0];
         const emojiCountsRef = doc(db, 'emoji_counts_daily', today_str);
         const emojiDoc = await getDoc(emojiCountsRef);
+        console.log(`🔍 Earnings emoji load - date: ${today_str}, doc exists: ${emojiDoc.exists()}`);
+        
         if (emojiDoc.exists()) {
           const data = emojiDoc.data();
           const counts = data.counts || {};
           const userName = user?.name || '';
+          
+          console.log(`📋 All counts in Firestore:`, counts);
+          console.log(`🔎 Looking for user: "${userName}"`);
+          
           const userEmojis = counts[userName] || { '🔔': 0, '💎': 0, '🎁': 0 };
           bellCountToday = userEmojis['🔔'] || 0;
           gemCountToday = userEmojis['💎'] || 0;
           const giftCount = userEmojis['🎁'] || 0;
           giftCountTodayEarnings = giftCount;
+          
           console.log('🎊 Emoji counts for today:', { bellCountToday, gemCountToday, giftCount, userName });
+        } else {
+          console.log('❌ No emoji doc found for today');
         }
       } catch (err) {
         console.error('Error loading emoji counts:', err);
