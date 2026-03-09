@@ -487,43 +487,85 @@ export default function MinSide() {
       }
 
       // Calculate earnings
-      // Get provisjon per product from contracts - MATCH ON PRODUCT BASE (before " - ")
-      console.log('🔍 CONTRACT MATCHING DEBUG:');
-      console.log('Available admin products:', Object.keys(produktProvisjon));
-      
-      const contractEarnings = employeeContracts.reduce((sum, c, idx) => {
-        // Clean contract product name: remove backslashes, trim
+      // String similarity function - find closest match
+      const stringSimilarity = (str1: string, str2: string): number => {
+        const s1 = str1.toLowerCase();
+        const s2 = str2.toLowerCase();
+        const longer = s1.length > s2.length ? s1 : s2;
+        const shorter = s1.length > s2.length ? s2 : s1;
+        
+        if (longer.length === 0) return 1.0;
+        const editDistance = getEditDistance(longer, shorter);
+        return (longer.length - editDistance) / longer.length;
+      };
+
+      const getEditDistance = (s1: string, s2: string): number => {
+        const costs = [];
+        for (let i = 0; i <= s1.length; i++) {
+          let lastValue = i;
+          for (let j = 0; j <= s2.length; j++) {
+            if (i === 0) {
+              costs[j] = j;
+            } else if (j > 0) {
+              let newValue = costs[j - 1];
+              if (s1.charAt(i - 1) !== s2.charAt(j - 1)) {
+                newValue = Math.min(Math.min(newValue, lastValue), costs[j]) + 1;
+              }
+              costs[j - 1] = lastValue;
+              lastValue = newValue;
+            }
+          }
+          if (i > 0) costs[s2.length] = lastValue;
+        }
+        return costs[s2.length];
+      };
+
+      // Get provisjon per product from contracts
+      const contractEarnings = employeeContracts.reduce((sum, c) => {
         let produktName = (c.produkt || '')
           .replace(/\\/g, '')  // Remove backslashes
           .trim();
         
-        // Try exact match first
+        // 1. Try exact match
         let provisjon = produktProvisjon[produktName] || 0;
         
-        // If no exact match, try matching on product base (before " - " separator)
+        // 2. If no match, try base name match (before " - ")
         if (provisjon === 0) {
-          const productBase = produktName.split(' - ')[0].trim();  // Get part before " - "
-          console.log(`[${idx}] Contract: "${produktName}" → base: "${productBase}"`);
+          const productBase = produktName.split(' - ')[0].trim();
           
           for (const key in produktProvisjon) {
-            const adminBase = key.split(' - ')[0].trim();  // Get part before " - "
-            
+            const adminBase = key.split(' - ')[0].trim();
             if (adminBase === productBase) {
               provisjon = produktProvisjon[key];
-              console.log(`  ✅ Match! Admin: "${adminBase}" → ${provisjon} kr`);
               break;
             }
           }
+        }
+        
+        // 3. If still no match, find closest match by similarity
+        if (provisjon === 0) {
+          const productBase = produktName.split(' - ')[0].trim();
+          let bestMatch = '';
+          let bestScore = 0.7; // 70% similarity threshold
           
-          if (provisjon === 0) {
-            console.log(`  ❌ No match found`);
+          for (const key in produktProvisjon) {
+            const adminBase = key.split(' - ')[0].trim();
+            const score = stringSimilarity(productBase, adminBase);
+            
+            if (score > bestScore) {
+              bestScore = score;
+              bestMatch = key;
+            }
+          }
+          
+          if (bestMatch) {
+            provisjon = produktProvisjon[bestMatch];
+            console.log(`✅ Fuzzy match: "${produktName}" → "${bestMatch}" (${(bestScore * 100).toFixed(0)}%)`);
           }
         }
         
         return sum + provisjon;
       }, 0);
-      
-      console.log('✅ TOTAL EARNINGS:', contractEarnings, 'kr');
       console.log('💼 Contract earnings:', { contractEarnings, contractCount: employeeContracts.length });
 
       // Emoji values: 🔔=800, 💎=1000, 🎁=-200
