@@ -491,27 +491,30 @@ export default function MinSide() {
       
       // Get provisjon per product from contracts
       const contractEarnings = employeeContracts.reduce((sum, c) => {
-        let produktName = c.produkt || '';
+        let produktName = (c.produkt || '').toLowerCase().trim();
         
         // Try exact match first
         let provisjon = produktProvisjon[produktName] || 0;
         
-        // If no exact match, try partial match (contract name starts with key)
+        // If no exact match, try partial match with normalized keys
         if (provisjon === 0) {
           for (const key in produktProvisjon) {
-            // Clean key: remove escape quotes
-            const cleanKey = key.replace(/\\"/g, '"').replace(/^"|"$/g, '');
+            // Normalize key: remove escape quotes and whitespace, lowercase
+            const cleanKey = key
+              .replace(/\\"/g, '')  // Remove backslashes
+              .replace(/^["']|["']$/g, '')  // Remove quotes
+              .toLowerCase()
+              .trim();
+            
             // Check if contract name starts with this product key
             if (produktName.startsWith(cleanKey)) {
               provisjon = produktProvisjon[key];
+              console.log(`✅ Match: "${cleanKey}" → ${provisjon} kr`);
               break;
             }
           }
         }
         
-        if (provisjon === 0 && produktName) {
-          console.warn(`  ⚠️ No provisjon match for: "${produktName}"`);
-        }
         return sum + provisjon;
       }, 0);
       console.log('💼 Contract earnings:', { contractEarnings, contractCount: employeeContracts.length });
@@ -527,7 +530,7 @@ export default function MinSide() {
         return date && date >= weekStart && date <= today;
       });
       const weekEarnings = contractsWeek.reduce((sum, c) => {
-        let produktName = c.produkt || '';
+        let produktName = (c.produkt || '').toLowerCase().trim();
         
         // Try exact match first
         let provisjon = produktProvisjon[produktName] || 0;
@@ -535,7 +538,11 @@ export default function MinSide() {
         // If no exact match, try partial match
         if (provisjon === 0) {
           for (const key in produktProvisjon) {
-            const cleanKey = key.replace(/\\"/g, '"').replace(/^"|"$/g, '');
+            const cleanKey = key
+              .replace(/\\"/g, '')
+              .replace(/^["']|["']$/g, '')
+              .toLowerCase()
+              .trim();
             if (produktName.startsWith(cleanKey)) {
               provisjon = produktProvisjon[key];
               break;
@@ -553,7 +560,7 @@ export default function MinSide() {
         return date && date >= monthStart && date <= today;
       });
       const monthEarnings = contractsMonth.reduce((sum, c) => {
-        let produktName = c.produkt || '';
+        let produktName = (c.produkt || '').toLowerCase().trim();
         
         // Try exact match first
         let provisjon = produktProvisjon[produktName] || 0;
@@ -561,7 +568,11 @@ export default function MinSide() {
         // If no exact match, try partial match
         if (provisjon === 0) {
           for (const key in produktProvisjon) {
-            const cleanKey = key.replace(/\\"/g, '"').replace(/^"|"$/g, '');
+            const cleanKey = key
+              .replace(/\\"/g, '')
+              .replace(/^["']|["']$/g, '')
+              .toLowerCase()
+              .trim();
             if (produktName.startsWith(cleanKey)) {
               provisjon = produktProvisjon[key];
               break;
