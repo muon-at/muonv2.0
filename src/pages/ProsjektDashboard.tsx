@@ -199,23 +199,9 @@ const ProsjektDashboard = ({ userProject }: { userProject?: string } = {}) => {
         })
         .map(s => ({ selger: s.selger, dato: s.dato })));
 
-      allSales.forEach((sale: any) => {
-        const selgerKey = sale.selger?.trim();
-        if (!selgerKey) return;
-        
-        // ONLY count sales from employees in THIS project
-        if (!projEmployeeNames.has(selgerKey)) return;
-
-        const saleDate = parseDate(sale.dato);
-        if (!saleDate || saleDate.getTime() === 0) return;
-
-        // Count for today
-        if (saleDate.toDateString() === today.toDateString()) {
-          const current = salesByEmployee.get(selgerKey) || { dag: 0, uke: 0, maned: 0 };
-          current.dag += 1;
-          salesByEmployee.set(selgerKey, current);
-        }
-      });
+      // NOTE: For DAG, we ONLY count emojis (not contracts)
+      // Contracts are only for UKE and MÅNED
+      // This section removed - contracts won't be counted for DAG
       
       console.log(`✅ SALES BY EMPLOYEE (after today count):`, Array.from(salesByEmployee.entries()).slice(0, 10));
 
