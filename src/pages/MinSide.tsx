@@ -362,11 +362,19 @@ export default function MinSide() {
         contracts.push({ id: doc.id, ...data });
       });
 
-      // Filter for this employee
+      // Normalize function - remove diakritikks (Å→A, ø→o, é→e, etc)
+      const normalize = (str: string): string => {
+        return str
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')  // Remove diakritikks
+          .trim();
+      };
+
+      // Filter for this employee - normalize both seller and external name
+      const normalizedExternalName = normalize(user?.externalName || '');
       const employeeContracts = contracts.filter(c => {
-        const selger = c.selger || '';
-        const externalName = user?.externalName || '';
-        return selger === externalName || selger.startsWith(externalName + ' /');
+        const selger = normalize(c.selger || '');
+        return selger === normalizedExternalName || selger.startsWith(normalizedExternalName + ' /');
       });
 
       const now = new Date();
