@@ -38,7 +38,7 @@ interface Message {
     content: string;
   };
   attachments?: {
-    type: 'file' | 'gif';
+    type: 'file' | 'gif' | 'image';
     url: string;
     name?: string;
   }[];
@@ -765,6 +765,36 @@ export default function Chat() {
       unsubscribeRef.current = unsubscribe;
     } catch (err) {
       console.error('Error loading DM messages:', err);
+    }
+  };
+
+  const handleSendImage = async (imageData: string, fileName: string) => {
+    if (!selectedChannel) return;
+    
+    const ninetyDaysMs = 90 * 24 * 60 * 60 * 1000;
+    const deleteAtDate = new Date(Date.now() + ninetyDaysMs);
+    
+    try {
+      const messagesRef = collection(db, 'chat_channels', selectedChannel, 'messages');
+      const msgData: any = {
+        sender: user?.name || 'Unknown',
+        content: '📸 [Image]',
+        timestamp: Date.now(),
+        deleteAt: deleteAtDate,
+        attachments: [
+          {
+            type: 'image',
+            url: imageData,
+            name: fileName,
+          }
+        ],
+      };
+      
+      await addDoc(messagesRef, msgData);
+      console.log('✅ Image sent successfully!');
+    } catch (err) {
+      console.error('Error sending image:', err);
+      alert('Feil ved sending av bilde');
     }
   };
 
@@ -1685,7 +1715,7 @@ export default function Chat() {
                       <div className="message-attachments">
                         {msg.attachments.map((att, idx) => (
                           <div key={idx} className="attachment">
-                            {att.type === 'gif' && <img src={att.url} alt="GIF" />}
+                            {(att.type === 'gif' || att.type === 'image') && <img src={att.url} alt={att.name || 'Image'} style={{ maxWidth: '300px', borderRadius: '6px' }} />}
                             {att.type === 'file' && <span>📎 {att.name}</span>}
                           </div>
                         ))}
@@ -2046,7 +2076,28 @@ export default function Chat() {
                       sendMessage();
                     }
                   }}
-                  placeholder="Skriv melding... (Shift+Enter for ny linje)"
+                  onPaste={(e) => {
+                    const items = e.clipboardData?.items;
+                    if (items) {
+                      for (let i = 0; i < items.length; i++) {
+                        if (items[i].type.indexOf('image') !== -1) {
+                          e.preventDefault();
+                          const file = items[i].getAsFile();
+                          if (file) {
+                            const reader = new FileReader();
+                            reader.onload = (event) => {
+                              const imageData = event.target?.result as string;
+                              // Send image directly
+                              handleSendImage(imageData, file.name);
+                            };
+                            reader.readAsDataURL(file);
+                          }
+                          break;
+                        }
+                      }
+                    }
+                  }}
+                  placeholder="Skriv melding... (Shift+Enter for ny linje, eller paste bilde)"
                   className="message-input"
                 />
                 <button
