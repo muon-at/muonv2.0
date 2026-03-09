@@ -453,25 +453,19 @@ export default function MinSide() {
       const bestDay = Math.max(0, ...Object.values(dayMap));
       console.log('📅 Best day for', user?.name, ':', bestDay, 'contracts');
 
-      // Load products with provisjon - strip ALL escape characters
-      let produktProvisjon: { [key: string]: number } = {};
-      try {
-        const produktRef = collection(db, 'allente_products');
-        const produktSnapshot = await getDocs(produktRef);
-        produktSnapshot.forEach((doc) => {
-          const data = doc.data();
-          const provisjon = parseFloat(data.provisjon || 0);
-          // Clean key: remove ALL backslashes and outer quotes
-          let cleanKey = doc.id
-            .replace(/\\/g, '')  // Remove ALL backslashes
-            .replace(/^"|"$/g, '')  // Remove outer quotes only
-            .trim();
-          produktProvisjon[cleanKey] = provisjon;
-        });
-        console.log('💼 Products loaded:', Object.keys(produktProvisjon).length, 'produkter');
-      } catch (err) {
-        console.error('Error loading products:', err);
-      }
+      // HARDCODED products - bypass Firestore issues!
+      let produktProvisjon: { [key: string]: number } = {
+        '"Flex 2 with ads - 50,- rabatt i 6 mneder (6)"': 600,
+        '"Flex 2 without ads - 50,- rabatt i 6 mneder (6)"': 600,
+        '"Flex Basic - 50,- rabatt i 6 mneder (6)"': 500,
+        '"Basic - 4 frimmneder (12)"': 500,
+        '"Standard - 50% rabatt i 6 mneder (12)"': 800,
+        '"Standard - 1 frimned (12)"': 800,
+        '"Standard - 2 frimmneder (12)"': 800,
+        '"Standard - 4 frimmneder (12)"': 800,
+        '"Large - 100% Discount 1 month + 200 nok discount 11 months (12)"': 1000
+      };
+      console.log('💼 Products hardcoded:', Object.keys(produktProvisjon).length, 'produkter');
 
       // Get emoji counts for today with breakdown
       let bellCountToday = 0, gemCountToday = 0, giftCountTodayEarnings = 0;
