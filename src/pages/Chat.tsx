@@ -816,11 +816,18 @@ export default function Chat() {
           fullChannelData: channelData
         });
         const messagesRef = collection(db, 'chat_channels', selectedChannel, 'messages');
+        
+        // Count emojis in message for tracking
+        const msgBellCount = (messageContent.match(/🔔/g) || []).length;
+        const msgGemCount = (messageContent.match(/💎/g) || []).length;
+        const msgGiftCount = (messageContent.match(/🎁/g) || []).length;
+        
         const msgData: any = {
           sender: user?.name || 'Unknown',
           content: messageContent,
           timestamp: Date.now(),
           deleteAt: deleteAtDate, // Auto-delete after 90 days
+          emojiCounts: { '🔔': msgBellCount, '💎': msgGemCount, '🎁': msgGiftCount }, // Store for deletion tracking
         };
         
         console.log('💾 ACTUAL MESSAGE DATA BEING SAVED:', {
@@ -828,7 +835,8 @@ export default function Chat() {
           content: msgData.content,
           currentUserName: user?.name,
           currentUserEmail: user?.email,
-          currentUser: user
+          currentUser: user,
+          emojiCounts: msgData.emojiCounts
         });
         if (replyingTo) {
           msgData.replyTo = {
@@ -1052,6 +1060,32 @@ export default function Chat() {
     try {
       if (selectedChannel) {
         const msgRef = doc(db, 'chat_channels', selectedChannel, 'messages', messageId);
+        const msgSnap = await getDoc(msgRef);
+        
+        if (msgSnap.exists()) {
+          const msgData = msgSnap.data();
+          const sender = msgData.sender || '';
+          
+          // Subtract emoji counts if message had emojis
+          if (msgData.emojiCounts && (msgData.emojiCounts['🔔'] > 0 || msgData.emojiCounts['💎'] > 0 || msgData.emojiCounts['🎁'] > 0)) {
+            const today = new Date();
+            const today_str = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+            const emojiDocRef = doc(db, 'emoji_counts_daily', today_str);
+            const emojiSnap = await getDoc(emojiDocRef);
+            
+            if (emojiSnap.exists()) {
+              const counts = emojiSnap.data().counts || {};
+              if (counts[sender]) {
+                counts[sender]['🔔'] = Math.max(0, (counts[sender]['🔔'] || 0) - (msgData.emojiCounts['🔔'] || 0));
+                counts[sender]['💎'] = Math.max(0, (counts[sender]['💎'] || 0) - (msgData.emojiCounts['💎'] || 0));
+                counts[sender]['🎁'] = Math.max(0, (counts[sender]['🎁'] || 0) - (msgData.emojiCounts['🎁'] || 0));
+                await setDoc(emojiDocRef, { counts }, { merge: true });
+                console.log(`✅ Subtracted emojis from ${sender} (message deleted)`);
+              }
+            }
+          }
+        }
+        
         await updateDoc(msgRef, {
           content: '[Deleted]',
           isDeleted: true,
@@ -1077,9 +1111,43 @@ export default function Chat() {
     try {
       if (selectedChannel) {
         const msgRef = doc(db, 'chat_channels', selectedChannel, 'messages', messageId);
+        const msgSnap = await getDoc(msgRef);
+        
+        // Count emojis in new content (declare here for later use)
+        const editBellCount = (newContent.match(/🔔/g) || []).length;
+        const editGemCount = (newContent.match(/💎/g) || []).length;
+        const editGiftCount = (newContent.match(/🎁/g) || []).length;
+        
+        if (msgSnap.exists()) {
+          const oldData = msgSnap.data();
+          const sender = oldData.sender || '';
+          const oldEmojis = oldData.emojiCounts || { '🔔': 0, '💎': 0, '🎁': 0 };
+          const newEmojis = { '🔔': editBellCount, '💎': editGemCount, '🎁': editGiftCount };
+          
+          // Adjust emoji counts if they changed
+          if (JSON.stringify(oldEmojis) !== JSON.stringify(newEmojis)) {
+            const today = new Date();
+            const today_str = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+            const emojiDocRef = doc(db, 'emoji_counts_daily', today_str);
+            const emojiSnap = await getDoc(emojiDocRef);
+            
+            if (emojiSnap.exists()) {
+              const counts = emojiSnap.data().counts || {};
+              if (counts[sender]) {
+                counts[sender]['🔔'] = Math.max(0, (counts[sender]['🔔'] || 0) - oldEmojis['🔔'] + newEmojis['🔔']);
+                counts[sender]['💎'] = Math.max(0, (counts[sender]['💎'] || 0) - oldEmojis['💎'] + newEmojis['💎']);
+                counts[sender]['🎁'] = Math.max(0, (counts[sender]['🎁'] || 0) - oldEmojis['🎁'] + newEmojis['🎁']);
+                await setDoc(emojiDocRef, { counts }, { merge: true });
+                console.log(`✅ Adjusted emojis for ${sender} (message edited)`);
+              }
+            }
+          }
+        }
+        
         await updateDoc(msgRef, {
           content: newContent,
           editedAt: new Date().getTime(),
+          emojiCounts: { '🔔': editBellCount || 0, '💎': editGemCount || 0, '🎁': editGiftCount || 0 },
         });
       } else if (selectedDM) {
         const msgRef = doc(db, 'chat_dms', selectedDM, 'messages', messageId);
