@@ -461,10 +461,16 @@ export default function MinSide() {
           produktProvisjon[cleanKey] = provisjon;
         });
         console.log('💼 Products loaded (cleaned):', Object.keys(produktProvisjon).length, 'produkter');
-        console.log('🔑 Sample keys:', Object.keys(produktProvisjon).slice(0, 3));
+        console.log('🔑 ALL ADMIN PRODUCT KEYS:');
+        console.table(Object.keys(produktProvisjon).sort());
       } catch (err) {
         console.error('Error loading products:', err);
       }
+
+      // Extract all unique product names from contracts
+      const uniqueContractProducts = [...new Set(employeeContracts.map(c => (c.produkt || '').trim()))].sort();
+      console.log('📋 ALL UNIQUE CONTRACT PRODUCTS:');
+      console.table(uniqueContractProducts);
 
       // Get emoji counts for today with breakdown
       let bellCountToday = 0, gemCountToday = 0, giftCountTodayEarnings = 0;
