@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { db } from '../lib/firebase';
-import { collection, getDocs, setDoc, doc } from 'firebase/firestore';
+import { collection, getDocs, setDoc, doc, getDoc } from 'firebase/firestore';
 import '../styles/Teamleder.css';
 
 export default function Teamleder() {
@@ -113,23 +113,42 @@ export default function Teamleder() {
         weekStart.setDate(today.getDate() - today.getDay());
         const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
 
-        // Filter and count
-        const todaySales = contracts.filter(c => {
-          const cDate = parseDate(c.dato);
-          return cDate.toDateString() === today.toDateString();
-        }).length;
+        // ✅ FETCH EMOJIS FROM FIRESTORE
+        const todayDateKey = today.toISOString().split('T')[0]; // YYYY-MM-DD
+        let todayEmojisCount = 0;
+        try {
+          const emojiCountsRef = doc(db, 'emoji_counts_daily', todayDateKey);
+          const emojiDoc = await getDoc(emojiCountsRef);
+          if (emojiDoc.exists()) {
+            const data = emojiDoc.data();
+            const counts = data.counts || {};
+            // Sum all emojis (🔔 + 💎) for all team members
+            Object.values(counts).forEach((emojiSet: any) => {
+              todayEmojisCount += (emojiSet['🔔'] || 0) + (emojiSet['💎'] || 0);
+            });
+            console.log('🔔 Emojis loaded for today:', todayEmojisCount);
+          }
+        } catch (err) {
+          console.error('Error fetching emojis:', err);
+        }
 
-        const weekSales = contracts.filter(c => {
+        // Filter and count CONTRACTS
+        const weekContractsCount = contracts.filter(c => {
           const cDate = parseDate(c.dato);
           return cDate >= weekStart && cDate <= today;
         }).length;
 
-        const monthSales = contracts.filter(c => {
+        const monthContractsCount = contracts.filter(c => {
           const cDate = parseDate(c.dato);
           return cDate >= monthStart && cDate <= today;
         }).length;
 
-        console.log('🔔 TOTALS - Today:', todaySales, 'Week:', weekSales, 'Month:', monthSales);
+        // ✅ COMBINE: DAG = emojis only | UKE/MÅNED = contracts + emojis
+        const todaySales = todayEmojisCount;  // DAG = emojis ONLY
+        const weekSales = weekContractsCount + todayEmojisCount;  // UKE = contracts + emojis
+        const monthSales = monthContractsCount + todayEmojisCount; // MÅNED = contracts + emojis
+
+        console.log('🔔 TOTALS - Today (emojis):', todayEmojisCount, ' Week (contracts+emojis):', weekSales, ' Month (contracts+emojis):', monthSales);
         console.log('✅ All contracts loaded:', contracts.length);
 
         setSalesToday(todaySales);
