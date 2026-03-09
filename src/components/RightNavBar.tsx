@@ -12,6 +12,16 @@ export const RightNavBar: React.FC = () => {
   const [unreadChannels, setUnreadChannels] = useState<Set<string>>(new Set());
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  // Debug: Log user role on RightNavBar render
+  useEffect(() => {
+    console.log('📍 RightNavBar - User role:', {
+      user: user?.name,
+      role: user?.role,
+      showTeamledere: (user?.role === 'owner' || user?.role === 'teamleder'),
+      showAdmin: (user?.role === 'owner')
+    });
+  }, [user?.role]);
+
   const handleLogout = () => {
     logout();
     navigate('/login');

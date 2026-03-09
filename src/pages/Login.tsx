@@ -77,7 +77,12 @@ export default function Login() {
           navigate('/reset-password');
         } else {
           // Normal login
-          console.log('✅ Logging in:', foundEmployee.name);
+          console.log('✅ Logging in:', {
+            name: foundEmployee.name,
+            id: foundEmployee.id,
+            role: foundEmployee.role,
+            allData: foundEmployee
+          });
           login(foundEmployee.name, foundEmployee.id, foundEmployee.role, foundEmployee);
           navigate('/min-side');
         }

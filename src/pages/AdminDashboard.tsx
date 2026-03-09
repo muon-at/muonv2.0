@@ -1017,6 +1017,13 @@ export default function AdminDashboard() {
       
       await updateDoc(empRef, updateData);
 
+      console.log('💾 SAVED EMPLOYEE:', {
+        id: editingEmployee.id,
+        name: editingEmployee.name,
+        role: editingEmployee.role,
+        updateData
+      });
+
       // Update local state
       setEmployees(employees.map((emp) => 
         emp.id === editingEmployee.id ? editingEmployee : emp

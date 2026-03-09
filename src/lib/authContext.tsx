@@ -37,10 +37,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = (name: string, id: string, role: string, fullEmployee?: any) => {
+    const finalRole = (role as 'owner' | 'teamleder' | 'employee') || 'employee';
+    console.log('🔐 LOGIN CONTEXT:', {
+      input: { name, id, role },
+      final: { role: finalRole },
+      hasAccess: finalRole === 'owner' || finalRole === 'teamleder'
+    });
+    
     const newUser: AuthUser = {
       id,
       name,
-      role: (role as 'owner' | 'teamleder' | 'employee') || 'employee',
+      role: finalRole,
       ...(fullEmployee && {
         email: fullEmployee.email,
         username: fullEmployee.username,
