@@ -389,33 +389,50 @@ export default function MinSide() {
 
       const now = new Date();
       const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      
+      // Calculate Monday of this week (correctly!)
+      const daysToMonday = today.getDay() === 0 ? 6 : today.getDay() - 1;
       const weekStart = new Date(today);
-      weekStart.setDate(today.getDate() - today.getDay());
+      weekStart.setDate(today.getDate() - daysToMonday);
+      
       const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
       const yearStart = new Date(now.getFullYear(), 0, 1); // Jan 1 of current year
+      
+      console.log('📅 DATE DEBUG:', {
+        today: today.toISOString().split('T')[0],
+        weekStart: weekStart.toISOString().split('T')[0],
+        monthStart: monthStart.toISOString().split('T')[0],
+        dayOfWeek: today.getDay() === 0 ? 'Sunday' : ['Mon','Tue','Wed','Thu','Fri','Sat'][today.getDay() - 1]
+      });
 
       // Load emoji counts for today (🔔 + 💎)
       const emojiCountToday = await loadEmojiCountsForToday();
 
       // Count contracts this week
-      const contractsThisWeek = employeeContracts.filter(c => {
+      const weekContracts = employeeContracts.filter(c => {
         const date = parseDate(c.dato || '');
         return date && date >= weekStart && date <= today;
-      }).length;
+      });
+      const contractsThisWeek = weekContracts.length;
       
       // Add emojis from today to weekly progress
       const salesThisWeek = contractsThisWeek + emojiCountToday;
       console.log('📊 Weekly Progress:', { contractsThisWeek, emojiCountToday, total: salesThisWeek });
+      console.log(`  🔎 Week range: ${weekStart.toISOString().split('T')[0]} to ${today.toISOString().split('T')[0]}`);
+      console.log(`  📋 Week contracts (${contractsThisWeek}):`, weekContracts.map((c: any) => `${c.dato}: ${c.produkt}`));
 
       // Count contracts this month
-      const contractsThisMonth = employeeContracts.filter(c => {
+      const monthContracts = employeeContracts.filter(c => {
         const date = parseDate(c.dato || '');
         return date && date >= monthStart && date <= today;
-      }).length;
+      });
+      const contractsThisMonth = monthContracts.length;
       
       // Add emojis from today to monthly progress
       const salesThisMonth = contractsThisMonth + emojiCountToday;
       console.log('📈 Monthly Progress:', { contractsThisMonth, emojiCountToday, total: salesThisMonth });
+      console.log(`  🔎 Month range: ${monthStart.toISOString().split('T')[0]} to ${today.toISOString().split('T')[0]}`);
+      console.log(`  📋 Month contracts (${contractsThisMonth}):`, monthContracts.map((c: any) => `${c.dato}: ${c.produkt}`).slice(0, 10));
 
       // Calculate BEST WEEK HISTORICALLY (any Monday-Sunday period)
       const weekMap: { [key: string]: number } = {};
