@@ -1664,26 +1664,20 @@ export default function Chat() {
                         </button>
                       </div>
                     ) : (
-                      <div className="message-header">
-                        <span className="message-sender">
-                          {topDepartment && employeeMapByName[msg.sender]?.department === topDepartment ? '👑' : ''}
-                          {msg.sender}
-                          {topDepartment && employeeMapByName[msg.sender]?.department === topDepartment ? '👑' : ''}
-                        </span>
-                        <span className="message-content" style={{
-                          color: msg.isDeleted ? '#999' : '#333',
+                      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
+                        <span style={{
+                          color: msg.isDeleted ? '#999' : '#e0e0e0',
                           fontStyle: msg.isDeleted ? 'italic' : 'normal',
                           opacity: msg.isDeleted ? 0.7 : 1,
                         }}>
+                          {topDepartment && employeeMapByName[msg.sender]?.department === topDepartment ? '👑 ' : ''}
                           {msg.content}
-                        </span>
-                        {msg.editedAt && (
-                          <span style={{ fontSize: '0.7rem', color: '#999', marginLeft: '0.5rem' }}>
-                            (edited)
-                          </span>
-                        )}
-                        <span className="message-time">
-                          {new Date(msg.timestamp).toLocaleTimeString()}
+                          {topDepartment && employeeMapByName[msg.sender]?.department === topDepartment ? ' 👑' : ''}
+                          {msg.editedAt && (
+                            <span style={{ fontSize: '0.7rem', color: '#999', marginLeft: '0.5rem' }}>
+                              (edited)
+                            </span>
+                          )}
                         </span>
                       </div>
                     )}
