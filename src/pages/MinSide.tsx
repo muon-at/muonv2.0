@@ -488,7 +488,10 @@ export default function MinSide() {
 
       // Calculate earnings
       // Get provisjon per product from contracts - MATCH ON PRODUCT BASE (before " - ")
-      const contractEarnings = employeeContracts.reduce((sum, c) => {
+      console.log('🔍 CONTRACT MATCHING DEBUG:');
+      console.log('Available admin products:', Object.keys(produktProvisjon));
+      
+      const contractEarnings = employeeContracts.reduce((sum, c, idx) => {
         // Clean contract product name: remove backslashes, trim
         let produktName = (c.produkt || '')
           .replace(/\\/g, '')  // Remove backslashes
@@ -498,24 +501,29 @@ export default function MinSide() {
         let provisjon = produktProvisjon[produktName] || 0;
         
         // If no exact match, try matching on product base (before " - " separator)
-        // This handles "Flex 2 with ads - 50% discount..." vs "Flex 2 with ads - 50,- rabatt..."
-        // Both split to "Flex 2 with ads"
         if (provisjon === 0) {
-          const productBase = produktName.split(' - ')[0];  // Get part before " - "
+          const productBase = produktName.split(' - ')[0].trim();  // Get part before " - "
+          console.log(`[${idx}] Contract: "${produktName}" → base: "${productBase}"`);
           
           for (const key in produktProvisjon) {
-            const adminBase = key.split(' - ')[0];  // Get part before " - "
+            const adminBase = key.split(' - ')[0].trim();  // Get part before " - "
             
-            // Match if product bases are same
             if (adminBase === productBase) {
               provisjon = produktProvisjon[key];
+              console.log(`  ✅ Match! Admin: "${adminBase}" → ${provisjon} kr`);
               break;
             }
+          }
+          
+          if (provisjon === 0) {
+            console.log(`  ❌ No match found`);
           }
         }
         
         return sum + provisjon;
       }, 0);
+      
+      console.log('✅ TOTAL EARNINGS:', contractEarnings, 'kr');
       console.log('💼 Contract earnings:', { contractEarnings, contractCount: employeeContracts.length });
 
       // Emoji values: 🔔=800, 💎=1000, 🎁=-200
