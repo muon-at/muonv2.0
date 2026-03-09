@@ -110,18 +110,22 @@
 /* Header Right Tracker - Compact */
 .header-right-tracker {
   display: flex;
-  gap: 0.6rem;
+  gap: 0.8rem;
   align-items: center;
+  flex-wrap: nowrap;
+  white-space: nowrap;
 }
 
 .tracker-box {
   background: rgba(255, 255, 255, 0.15);
   border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 6px;
-  padding: 0.4rem 0.6rem;
+  padding: 0.5rem 0.8rem;
   text-align: center;
-  min-width: 80px;
+  min-width: 100px;
   transition: all 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .tracker-box:hover {
