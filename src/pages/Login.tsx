@@ -95,7 +95,6 @@ export default function Login() {
         {/* Logo */}
         <div className="login-header">
           <div className="logo">muon</div>
-          <h1>Admin Portal</h1>
         </div>
 
         {/* Form */}
