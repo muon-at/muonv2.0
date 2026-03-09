@@ -144,11 +144,15 @@ export default function MinSide() {
     }
   };
 
+  // Load data on mount and when user ID changes
   useEffect(() => {
+    if (user?.id) {
+      console.log('👤 User loaded, loading goals...');
+      loadSavedGoals();  // Load goals as soon as user.id is available
+    }
     loadEmployeeData();
-    loadSavedGoals();  // ✅ RESTORED: Load goals on initial mount
     loadCachedBadges();
-  }, [user]);
+  }, [user?.id]);  // ✅ Changed: Trigger when user.id changes (not whole user object)
 
   // Also reload goals when activeTab changes to 'target' (Mål tab)
   useEffect(() => {
