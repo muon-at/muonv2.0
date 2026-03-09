@@ -95,18 +95,23 @@ export default function MinSide() {
 
   // Load saved goals from Firestore
   const loadSavedGoals = async () => {
+    console.log('🎯 loadSavedGoals() called! User:', user);
+    
     try {
       // ✅ USE USER ID as document ID (always unique and consistent)
       const goalKey = user?.id || '';
+      console.log('🔑 Goal key (user.id):', goalKey);
+      
       if (!goalKey) {
         console.warn('⚠️ No user ID found for goals');
         // Try localStorage as fallback
         const stored = localStorage.getItem(`goals_${user?.name}`);
+        console.log('💾 Trying localStorage for:', user?.name, '→', stored);
         if (stored) {
           const parsed = JSON.parse(stored);
           setWeeklyGoal(parsed.weeklyGoal || 0);
           setMonthlyGoal(parsed.monthlyGoal || 0);
-          console.log('💾 Goals loaded from localStorage:', parsed);
+          console.log('✅ Goals loaded from localStorage:', parsed);
         }
         return;
       }
