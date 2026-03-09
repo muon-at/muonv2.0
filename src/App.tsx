@@ -16,6 +16,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Login />} />
           <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/change-password-first-login" element={<ResetPassword />} />
           <Route 
             path="/min-side" 
             element={

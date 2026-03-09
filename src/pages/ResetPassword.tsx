@@ -56,10 +56,18 @@ export default function ResetPassword() {
     try {
       // Update employee password in Firestore
       const empRef = doc(db, 'employees', tempEmployee.id);
-      await updateDoc(empRef, {
+      const updateData: any = {
         password: newPassword,
         passwordChanged: true,
-      });
+      };
+      
+      // Clear requiresPasswordChange flag if it was set
+      if (tempEmployee.requiresPasswordChange) {
+        updateData.requiresPasswordChange = false;
+        console.log('✅ Clearing requiresPasswordChange flag');
+      }
+      
+      await updateDoc(empRef, updateData);
 
       setSuccess(true);
       
@@ -67,7 +75,12 @@ export default function ResetPassword() {
       localStorage.removeItem('tempEmployee');
       
       // Update employee object with new password
-      const updatedEmployee = { ...tempEmployee, password: newPassword, passwordChanged: true };
+      const updatedEmployee = { 
+        ...tempEmployee, 
+        password: newPassword, 
+        passwordChanged: true,
+        requiresPasswordChange: false 
+      };
       
       // Login and redirect
       login(updatedEmployee.name, updatedEmployee.id, updatedEmployee.role, updatedEmployee);

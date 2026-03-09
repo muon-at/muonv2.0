@@ -971,12 +971,32 @@ export default function AdminDashboard() {
     setShowEditModal(true);
   };
 
+  // Generate random password
+  const generateRandomPassword = () => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%';
+    let password = '';
+    for (let i = 0; i < 12; i++) {
+      password += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return password;
+  };
+
+  const handleGeneratePassword = () => {
+    const newPassword = generateRandomPassword();
+    setEditingEmployee({ 
+      ...editingEmployee, 
+      password: newPassword,
+      requiresPasswordChange: true 
+    });
+    alert(`✅ Nytt passord generert:\n\n${newPassword}\n\nAnsatt vil måtte lage nytt passord ved første innlogging.`);
+  };
+
   const handleSaveEdit = async () => {
     if (!editingEmployee) return;
     
     try {
       const empRef = doc(db, 'employees', editingEmployee.id);
-      await updateDoc(empRef, {
+      const updateData: any = {
         name: editingEmployee.name || '',
         email: editingEmployee.email || '',
         password: editingEmployee.password || '',
@@ -987,7 +1007,15 @@ export default function AdminDashboard() {
         externalName: editingEmployee.externalName || '',
         tmgName: editingEmployee.tmgName || '',
         stilling: editingEmployee.stilling || '',
-      });
+      };
+      
+      // If password was changed, set requiresPasswordChange flag
+      if (editingEmployee.requiresPasswordChange) {
+        updateData.requiresPasswordChange = true;
+        updateData.passwordChangedAt = new Date().toISOString();
+      }
+      
+      await updateDoc(empRef, updateData);
 
       // Update local state
       setEmployees(employees.map((emp) => 
@@ -2450,7 +2478,7 @@ export default function AdminDashboard() {
               </div>
               <div className="form-group">
                 <label>Passord *</label>
-                <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                <div style={{ position: 'relative', display: 'flex', alignItems: 'center', marginBottom: '0.5rem' }}>
                   <input 
                     type={showPasswordInEdit ? "text" : "password"}
                     value={editingEmployee.password || ''}
@@ -2474,6 +2502,23 @@ export default function AdminDashboard() {
                     {showPasswordInEdit ? '👁️' : '👁️‍🗨️'}
                   </button>
                 </div>
+                <button
+                  type="button"
+                  onClick={handleGeneratePassword}
+                  style={{
+                    padding: '0.5rem 1rem',
+                    background: '#667eea',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontSize: '0.85rem',
+                    fontWeight: '600',
+                    width: '100%',
+                  }}
+                >
+                  🔐 Generer nytt passord
+                </button>
               </div>
               <div className="form-group">
                 <label>Rolle</label>

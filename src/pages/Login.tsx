@@ -65,9 +65,14 @@ export default function Login() {
       });
 
       if (foundEmployee) {
-        // Check if default password - must change it
-        if (foundEmployee.password === '1234' || !foundEmployee.passwordChanged) {
-          console.log('🔄 First login - redirecting to password reset');
+        // Check if requiresPasswordChange flag is set by admin
+        if (foundEmployee.requiresPasswordChange) {
+          console.log('🔄 Admin-generated password - must create new password');
+          localStorage.setItem('tempEmployee', JSON.stringify(foundEmployee));
+          navigate('/change-password-first-login');
+        } else if (foundEmployee.password === '1234' || !foundEmployee.passwordChanged) {
+          // Legacy default password check
+          console.log('🔄 First login (legacy) - redirecting to password reset');
           localStorage.setItem('tempEmployee', JSON.stringify(foundEmployee));
           navigate('/reset-password');
         } else {
