@@ -453,17 +453,17 @@ export default function MinSide() {
       const bestDay = Math.max(0, ...Object.values(dayMap));
       console.log('📅 Best day for', user?.name, ':', bestDay, 'contracts');
 
-      // HARDCODED products - bypass Firestore issues!
+      // HARDCODED products - bypass Firestore issues! (without outer quotes)
       let produktProvisjon: { [key: string]: number } = {
-        '"Flex 2 with ads - 50,- rabatt i 6 mneder (6)"': 600,
-        '"Flex 2 without ads - 50,- rabatt i 6 mneder (6)"': 600,
-        '"Flex Basic - 50,- rabatt i 6 mneder (6)"': 500,
-        '"Basic - 4 frimmneder (12)"': 500,
-        '"Standard - 50% rabatt i 6 mneder (12)"': 800,
-        '"Standard - 1 frimned (12)"': 800,
-        '"Standard - 2 frimmneder (12)"': 800,
-        '"Standard - 4 frimmneder (12)"': 800,
-        '"Large - 100% Discount 1 month + 200 nok discount 11 months (12)"': 1000
+        'Flex 2 with ads - 50,- rabatt i 6 mneder (6)': 600,
+        'Flex 2 without ads - 50,- rabatt i 6 mneder (6)': 600,
+        'Flex Basic - 50,- rabatt i 6 mneder (6)': 500,
+        'Basic - 4 frimmneder (12)': 500,
+        'Standard - 50% rabatt i 6 mneder (12)': 800,
+        'Standard - 1 frimned (12)': 800,
+        'Standard - 2 frimmneder (12)': 800,
+        'Standard - 4 frimmneder (12)': 800,
+        'Large - 100% Discount 1 month + 200 nok discount 11 months (12)': 1000
       };
       console.log('💼 Products hardcoded:', Object.keys(produktProvisjon).length, 'produkter');
 
