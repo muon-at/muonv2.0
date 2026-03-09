@@ -96,14 +96,15 @@ export default function MinSide() {
   // Load saved goals from Firestore
   const loadSavedGoals = async () => {
     try {
-      // Use multiple fallbacks: externalName → email → name
-      const goalKey = user?.externalName || user?.email || user?.name || '';
+      // MUST use email as document ID (externalName contains "/" which breaks Firestore)
+      // Fallback: email → name
+      const goalKey = user?.email || user?.name || '';
       if (!goalKey) {
-        console.warn('⚠️ No user identifier found for goals');
+        console.warn('⚠️ No email/name found for goals');
         return;
       }
       
-      console.log('🔍 Loading goals for:', { externalName: user?.externalName, email: user?.email, name: user?.name, using: goalKey });
+      console.log('🔍 Loading goals for:', { email: user?.email, name: user?.name, using: goalKey });
       
       const goalsRef = doc(db, 'employee_goals', goalKey);
       const goalsDoc = await getDoc(goalsRef);
@@ -928,8 +929,9 @@ export default function MinSide() {
             if (showGoalEdit) {
               // Save mode: save and close
               try {
-                // Use multiple fallbacks: externalName → email → name
-                const goalKey = user?.externalName || user?.email || user?.name || '';
+                // MUST use email as document ID (externalName contains "/" which breaks Firestore)
+                // Fallback: email → name
+                const goalKey = user?.email || user?.name || '';
                 if (!goalKey) {
                   alert('❌ Kunne ikke lagre: Bruker ikke identifisert');
                   return;
