@@ -123,10 +123,16 @@ export default function MinSide() {
 
   useEffect(() => {
     loadEmployeeData();
-    loadSavedGoals();
-    // Load cached badges from Firestore
     loadCachedBadges();
   }, [user]);
+
+  // Reload goals when activeTab changes to 'target' (Mål tab)
+  useEffect(() => {
+    if (activeTab === 'target') {
+      loadSavedGoals();
+      console.log('📊 Reloading goals when opening Mål tab');
+    }
+  }, [activeTab]);
 
   // Count working days this week (Monday to today)
   const countWorkingDaysThisWeek = (date: Date) => {
