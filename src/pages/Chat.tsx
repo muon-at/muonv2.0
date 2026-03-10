@@ -2282,6 +2282,10 @@ export default function Chat() {
                 )}
 
                 {/* DMs: Layout with Upload + GIF buttons */}
+                {(() => {
+                  console.log('🔍 DM Input Render - selectedDM:', selectedDM, 'selectedChannel:', selectedChannel);
+                  return null;
+                })()}
                 {selectedDM && (
                   <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end' }}>
                     {/* DM Upload Button */}
