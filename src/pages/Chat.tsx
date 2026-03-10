@@ -2231,9 +2231,9 @@ export default function Chat() {
                   </div>
                 )}
 
-                {/* CHANNELS: Original layout (Emoji buttons + Textarea + Send) */}
+                {/* CHANNELS: Original layout (Textarea + Send) */}
                 {selectedChannel && (
-                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end' }}>
+                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', width: '100%' }}>
                     <textarea
                       value={newMessage}
                       onChange={(e) => {
@@ -2268,12 +2268,13 @@ export default function Chat() {
                       }}
                       placeholder="Skriv melding... (Shift+Enter for ny linje, eller paste bilde)"
                       className="message-input"
-                      style={{ flex: 1 }}
+                      style={{ flex: 1, minHeight: '3rem' }}
                     />
                     <button
                       onClick={() => sendMessage()}
                       className="send-button"
                       disabled={!newMessage.trim()}
+                      style={{ minWidth: '80px', height: 'auto' }}
                     >
                       📤 Send
                     </button>
