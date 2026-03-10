@@ -77,6 +77,9 @@ export default function Chat() {
   const [hoveredMessageId, setHoveredMessageId] = useState<string | null>(null); // Track which message is hovered
   const [topDepartment, setTopDepartment] = useState<string | null>(null); // Best department this week
   const [employeeMapByName, setEmployeeMapByName] = useState<any>({}); // Map of displayName -> {department}
+  const [imagePreview, setImagePreview] = useState<string | null>(null); // DM image preview
+  const [previewFileName, setPreviewFileName] = useState<string>(''); // DM preview filename
+  const [gifPreview, setGifPreview] = useState<string | null>(null); // DM GIF preview
   const fileInputRef = useRef<HTMLInputElement>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const unsubscribeRef = useRef<(() => void) | undefined>(undefined);
@@ -893,10 +896,26 @@ export default function Chat() {
         const messagesRef = collection(db, 'chat_dms', selectedDM, 'messages');
         const msgData: any = {
           sender: user?.name || 'Unknown',
-          content: messageContent,
+          content: messageContent || (imagePreview ? '📸 Image' : gifPreview ? '🎬 GIF' : ''),
           timestamp: Date.now(),
           deleteAt: deleteAtDate, // Auto-delete after 90 days
         };
+        
+        // Add attachments if image/GIF preview exists
+        if (imagePreview) {
+          msgData.attachments = [{
+            type: 'image',
+            url: imagePreview,
+            name: previewFileName,
+          }];
+        } else if (gifPreview) {
+          msgData.attachments = [{
+            type: 'gif',
+            url: gifPreview,
+            name: 'giphy.gif',
+          }];
+        }
+        
         if (replyingTo) {
           msgData.replyTo = {
             id: replyingTo.id,
@@ -937,6 +956,10 @@ export default function Chat() {
       
       setNewMessage('');
       setReplyingTo(null);
+      // Clear preview states
+      setImagePreview(null);
+      setGifPreview(null);
+      setPreviewFileName('');
     } catch (err) {
       console.error('❌ Error sending message:', err);
     }
@@ -2166,6 +2189,90 @@ export default function Chat() {
                   )}
                 </div>
 
+                {/* DM Upload + GIF Buttons */}
+                {selectedDM && (
+                  <div style={{ display: 'flex', gap: '0.5rem', padding: '0.5rem', borderTop: '1px solid #e2e8f0' }}>
+                    {/* File Upload Button */}
+                    <label style={{ cursor: 'pointer', fontSize: '1.2rem' }} title="Upload file">
+                      📎
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            const reader = new FileReader();
+                            reader.onload = (event) => {
+                              setImagePreview(event.target?.result as string);
+                              setPreviewFileName(file.name);
+                            };
+                            reader.readAsDataURL(file);
+                          }
+                        }}
+                        style={{ display: 'none' }}
+                      />
+                    </label>
+
+                    {/* GIF Picker Button */}
+                    <button
+                      onClick={() => setIsPickingGif(true)}
+                      style={{
+                        background: 'transparent',
+                        border: 'none',
+                        fontSize: '1.2rem',
+                        cursor: 'pointer',
+                        opacity: 0.6,
+                        transition: 'opacity 0.2s',
+                      }}
+                      onMouseEnter={(e) => (e.currentTarget.style.opacity = '1')}
+                      onMouseLeave={(e) => (e.currentTarget.style.opacity = '0.6')}
+                      title="Search GIF"
+                    >
+                      🎬
+                    </button>
+                  </div>
+                )}
+
+                {/* Image/GIF Preview Area */}
+                {(imagePreview || gifPreview) && (
+                  <div style={{
+                    padding: '1rem',
+                    background: '#f0f0f0',
+                    borderTop: '1px solid #e2e8f0',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                      <img
+                        src={imagePreview || gifPreview || ''}
+                        alt="preview"
+                        style={{ maxHeight: '100px', maxWidth: '150px', borderRadius: '4px' }}
+                      />
+                      <div style={{ fontSize: '0.85rem', color: '#666' }}>
+                        {previewFileName || 'GIF preview'}
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setImagePreview(null);
+                        setGifPreview(null);
+                        setPreviewFileName('');
+                      }}
+                      style={{
+                        background: '#ff6b6b',
+                        color: 'white',
+                        border: 'none',
+                        padding: '0.5rem 1rem',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                )}
+
                 <textarea
                   value={newMessage}
                   onChange={(e) => {
@@ -2189,8 +2296,15 @@ export default function Chat() {
                             const reader = new FileReader();
                             reader.onload = (event) => {
                               const imageData = event.target?.result as string;
-                              // Send image directly
-                              handleSendImage(imageData, file.name);
+                              
+                              if (selectedDM) {
+                                // DM: Show preview, require SEND button
+                                setImagePreview(imageData);
+                                setPreviewFileName(file.name);
+                              } else if (selectedChannel) {
+                                // Channel: Auto-send (old behavior)
+                                handleSendImage(imageData, file.name);
+                              }
                             };
                             reader.readAsDataURL(file);
                           }
