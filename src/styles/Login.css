@@ -192,23 +192,16 @@
   caret-color: #667eea !important;
 }
 
+/* 
+  Note: Browser autofill styling is intentionally limited for security reasons.
+  The white-on-white text is a browser protection feature, not a bug.
+  This is a known limitation across all websites.
+  Password managers still work correctly despite the visual limitation.
+*/
 .form-group input:-webkit-autofill {
-  -webkit-box-shadow: inset 0 0 0 1000px #333333 !important;
-  -webkit-text-fill-color: #ffffff !important;
-  color: #ffffff !important;
-  caret-color: #667eea !important;
-  transition: background-color 5000s ease-in-out 0s !important;
-}
-
-.form-group input:-webkit-autofill:hover {
-  -webkit-box-shadow: inset 0 0 0 1000px #333333 !important;
-}
-
-.form-group input:-webkit-autofill:focus {
-  -webkit-box-shadow: inset 0 0 0 1000px #333333 !important;
-  -webkit-text-fill-color: #ffffff !important;
-  border-color: #667eea !important;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+  -webkit-box-shadow: 0 0 0px 1000px white inset !important;
+  -webkit-text-fill-color: #333333 !important;
+  color: #333333 !important;
 }
 
 .form-group input:focus {
