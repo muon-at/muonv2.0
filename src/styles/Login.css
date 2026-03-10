@@ -193,11 +193,21 @@
   caret-color: #000000 !important;
 }
 
-.form-group input:-webkit-autofill,
-.form-group input:-webkit-autofill:hover,
-.form-group input:-webkit-autofill:focus {
+.form-group input:-webkit-autofill {
   -webkit-box-shadow: 0 0 0 1000px white inset !important;
-  -webkit-text-fill-color: #000000 !important;
+  -webkit-text-fill-color: #1f2937 !important;
+  color: #1f2937 !important;
+  caret-color: #667eea !important;
+}
+
+.form-group input:-webkit-autofill:hover {
+  -webkit-box-shadow: 0 0 0 1000px white inset !important;
+  -webkit-text-fill-color: #1f2937 !important;
+}
+
+.form-group input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1), 0 0 0 1000px white inset !important;
+  -webkit-text-fill-color: #1f2937 !important;
 }
 
 .form-group input:focus {
