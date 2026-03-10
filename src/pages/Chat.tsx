@@ -1988,7 +1988,11 @@ export default function Chat() {
                     {msg.reactions && (
                       <div className="message-reactions">
                         {Object.entries(msg.reactions).slice(0, 4).map(([emoji, users]) => (
-                          <button key={emoji} className="reaction-count">
+                          <button 
+                            key={emoji} 
+                            className="reaction-count"
+                            title={`Reacted by: ${users.join(', ')}`}
+                          >
                             {emoji} {users.length}
                           </button>
                         ))}
