@@ -363,6 +363,8 @@
   gap: 0.75rem;
   background: #1e1e1e;
   align-items: flex-end;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .emoji-action-buttons {
@@ -408,8 +410,8 @@
   color: #ffffff !important;
   background: #1e1e1e;
   resize: none;
-  max-height: 100px;
-  min-height: 40px;
+  max-height: 120px;
+  min-height: 50px;
   width: 100%;
   order: 2;
 }
@@ -431,7 +433,7 @@
 }
 
 .send-button {
-  padding: 0.75rem 1.5rem;
+  padding: 0.5rem 1rem;
   background: #667eea;
   color: white;
   border: none;
@@ -441,6 +443,8 @@
   transition: all 0.2s ease;
   order: 3;
   align-self: flex-end;
+  white-space: nowrap;
+  font-size: 0.9rem;
 }
 
 .send-button:hover:not(:disabled) {
