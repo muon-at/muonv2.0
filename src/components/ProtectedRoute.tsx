@@ -1,3 +1,4 @@
+import { useState, cloneElement } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../lib/authContext';
 import { RightNavBar } from './RightNavBar';
@@ -9,6 +10,7 @@ interface ProtectedRouteProps {
 
 export function ProtectedRoute({ children, requiredRole = 'employee' }: ProtectedRouteProps) {
   const { user, isAuthenticated } = useAuth();
+  const [isChatSidebarOpen, setIsChatSidebarOpen] = useState(false);
 
   if (!isAuthenticated) {
     return <Navigate to="/" replace />;
@@ -32,8 +34,8 @@ export function ProtectedRoute({ children, requiredRole = 'employee' }: Protecte
 
   return (
     <>
-      {children}
-      <RightNavBar />
+      {cloneElement(children as React.ReactElement, { isChatSidebarOpen, setIsChatSidebarOpen } as any)}
+      <RightNavBar onChatToggle={(isOpen) => setIsChatSidebarOpen(isOpen)} />
     </>
   );
 }

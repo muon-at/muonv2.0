@@ -1,0 +1,194 @@
+.left-chat-sidebar {
+  position: fixed;
+  left: -320px;
+  top: 0;
+  width: 320px;
+  height: 100vh;
+  background: white;
+  border-right: 1px solid #e2e8f0;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  z-index: 98;
+  transition: left 0.3s ease;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.left-chat-sidebar.open {
+  left: 0;
+}
+
+.sidebar-content {
+  padding: 1.5rem 1rem;
+}
+
+.sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.sidebar-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: #1e293b;
+  font-weight: 700;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #64748b;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  display: none;
+}
+
+.close-btn:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+/* Channel Sections */
+.channel-section {
+  margin-bottom: 2rem;
+}
+
+.section-title {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0 0.5rem;
+}
+
+/* Channel Buttons */
+.channel-button {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 0.5rem;
+  color: #475569;
+  font-weight: 500;
+}
+
+.channel-button:hover {
+  background: #f1f5f9;
+  color: #667eea;
+}
+
+.channel-button:active {
+  background: #e0e7ff;
+}
+
+/* Channel Icons */
+.channel-icon {
+  font-size: 1.25rem;
+  min-width: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Channel Circles (for departments) */
+.channel-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* Channel Name */
+.channel-name {
+  flex: 1;
+  text-align: left;
+  font-size: 0.95rem;
+}
+
+/* Sidebar Overlay (mobile) */
+.sidebar-overlay {
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 97;
+  display: none;
+}
+
+.left-chat-sidebar.open ~ .sidebar-overlay {
+  display: block;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .left-chat-sidebar {
+    width: 280px;
+    left: -280px;
+  }
+
+  .close-btn {
+    display: block;
+  }
+
+  .sidebar-content {
+    padding: 1rem 0.75rem;
+  }
+
+  .sidebar-header {
+    margin-bottom: 1.5rem;
+  }
+
+  .section-title {
+    font-size: 0.7rem;
+  }
+
+  .channel-button {
+    padding: 0.65rem 0.75rem;
+    margin-bottom: 0.35rem;
+  }
+
+  .channel-section {
+    margin-bottom: 1.5rem;
+  }
+}
+
+/* Scrollbar Styling */
+.left-chat-sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.left-chat-sidebar::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.left-chat-sidebar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.left-chat-sidebar::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}

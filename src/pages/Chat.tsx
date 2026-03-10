@@ -4,6 +4,7 @@ import { useAuth } from '../lib/authContext';
 import { db } from '../lib/firebase';
 import { collection, getDocs, addDoc, onSnapshot, query, orderBy, updateDoc, doc, arrayUnion, getDoc, setDoc } from 'firebase/firestore';
 import ChannelModal from '../components/ChannelModal';
+import { LeftChatSidebar } from '../components/LeftChatSidebar';
 import '../styles/Chat.css';
 
 interface Channel {
@@ -47,7 +48,12 @@ interface Message {
   isDeleted?: boolean;
 }
 
-export default function Chat() {
+interface ChatProps {
+  isChatSidebarOpen?: boolean;
+  setIsChatSidebarOpen?: (isOpen: boolean) => void;
+}
+
+export default function Chat({ isChatSidebarOpen = false, setIsChatSidebarOpen }: ChatProps) {
   const location = useLocation();
   const { user } = useAuth();
   const [selectedChannel, setSelectedChannel] = useState<string | null>(null);
@@ -1363,6 +1369,12 @@ export default function Chat() {
 
   return (
     <div className="chat-container">
+      {/* Left Chat Sidebar */}
+      <LeftChatSidebar 
+        isOpen={isChatSidebarOpen || false}
+        onClose={() => setIsChatSidebarOpen && setIsChatSidebarOpen(false)}
+      />
+
       {/* Channel Creation Modal */}
       <ChannelModal 
         isOpen={isChannelModalOpen}
