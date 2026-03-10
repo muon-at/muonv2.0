@@ -849,8 +849,9 @@ export default function Chat() {
         console.log('✅ Message sent successfully! Will auto-delete on:', deleteAtDate.toLocaleDateString());
         
         // Log emojis to emoji_counts_daily - ALL channels check!
-        const today = new Date().toISOString().split('T')[0];
-        console.log(`🔍 Emoji check - selectedChannel: "${selectedChannel}", message: "${messageContent}"`);
+        const now = new Date();
+        const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+        console.log(`🔍 Emoji check - selectedChannel: "${selectedChannel}", date: "${today}", message: "${messageContent}"`);
         
         // Count emojis in message
         const bellCount = (messageContent.match(/🔔/g) || []).length;
