@@ -234,6 +234,47 @@ const ProsjektDashboard = ({ userProject }: { userProject?: string } = {}) => {
       });
       
       const emojiCountsToday = await getEmojiCountsForDate(today);
+      // Week calculation FIRST (Monday of current week to today)
+      const weekStart = new Date(today);
+      const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+      const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // How many days ago was Monday?
+      weekStart.setDate(today.getDate() - daysToMonday);
+      
+      // ✅ COUNT CONTRACTS FROM ALLSALES INTO salesByEmployee
+      allSales.forEach((sale: any) => {
+        let selgerKey = sale.selger?.trim();
+        if (!selgerKey) return;
+        
+        // Strip " / selger" suffix (e.g., "Håkon Nilsen / selger" → "Håkon Nilsen")
+        if (selgerKey.includes(' / ')) {
+          selgerKey = selgerKey.split(' / ')[0].trim();
+        }
+        
+        // Check if this seller is in our project
+        const externalName = nameToExternalName.get(selgerKey);
+        if (!externalName) return;
+        
+        const saleDate = parseDate(sale.dato);
+        if (!saleDate || saleDate.getTime() === 0) return;
+        
+        const current = salesByEmployee.get(externalName) || { dag: 0, uke: 0, maned: 0 };
+        
+        // Count for this day
+        if (saleDate.toDateString() === today.toDateString()) {
+          current.dag += 1;
+        }
+        // Count for this week
+        if (saleDate >= weekStart && saleDate <= today) {
+          current.uke += 1;
+        }
+        // Count for this month
+        if (saleDate.getMonth() === today.getMonth() && saleDate.getFullYear() === today.getFullYear()) {
+          current.maned += 1;
+        }
+        
+        salesByEmployee.set(externalName, current);
+      });
+
       const emojiStringsToday = new Map<string, string>(); // Store emoji strings like "🎁🎁"
       emojiCountsToday.forEach((count, employeeName) => {
         // employeeName is the display name (e.g., "Oliver T Jenssen")
@@ -251,51 +292,13 @@ const ProsjektDashboard = ({ userProject }: { userProject?: string } = {}) => {
 
       // Emojis only from TODAY are used for UKE and MÅNED
       // (contracts provide the historical totals, emojis are just for today's progress)
-
-      // Week calculation (Monday of current week to today)
-      const weekStart = new Date(today);
-      const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
-      const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // How many days ago was Monday?
-      weekStart.setDate(today.getDate() - daysToMonday);
       
       console.log(`📅 Today: ${today.toLocaleDateString('no-NO')} (${['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][today.getDay()]})`);
       console.log(`📅 Week start: ${weekStart.toLocaleDateString('no-NO')} to ${today.toLocaleDateString('no-NO')}`);
       console.log(`📅 All sales count: ${allSales.length}, Project employees: ${projEmployeeNames.size}`);
-
-      // Count sales for week and month
-      let projSalesCount = 0;
-      let weekSalesCount = 0;
-      let monthSalesCount = 0;
       
-      allSales.forEach((sale: any) => {
-        const selgerKey = sale.selger?.trim();
-        if (!selgerKey) return;
-        
-        // ONLY count sales from employees in THIS project
-        if (!projEmployeeNames.has(selgerKey)) return;
-        projSalesCount++;
-
-        const saleDate = parseDate(sale.dato);
-        if (!saleDate || saleDate.getTime() === 0) return;
-
-        // Count for this week
-        if (saleDate >= weekStart && saleDate <= today) {
-          const current = salesByEmployee.get(selgerKey) || { dag: 0, uke: 0, maned: 0 };
-          current.uke += 1;
-          salesByEmployee.set(selgerKey, current);
-          weekSalesCount++;
-        }
-
-        // Count for this month
-        if (saleDate.getMonth() === today.getMonth() && saleDate.getFullYear() === today.getFullYear()) {
-          const current = salesByEmployee.get(selgerKey) || { dag: 0, uke: 0, maned: 0 };
-          current.maned += 1;
-          salesByEmployee.set(selgerKey, current);
-          monthSalesCount++;
-        }
-      });
-      
-      console.log(`📊 Sales filtered: proj=${projSalesCount}, week=${weekSalesCount}, month=${monthSalesCount}`);
+      // Debug: show what's in salesByEmployee after counting
+      console.log(`📊 salesByEmployee after counting:`, Array.from(salesByEmployee.entries()).map(([k, v]) => ({ name: k, dag: v.dag, uke: v.uke, maned: v.maned })));
 
       // Calculate totals (combining contracts + emojis)
       let totalDag = 0;
