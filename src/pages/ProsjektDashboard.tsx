@@ -320,29 +320,25 @@ const ProsjektDashboard = ({ userProject }: { userProject?: string } = {}) => {
       ukeList.sort((a, b) => b.salg - a.salg);
       maanedList.sort((a, b) => b.salg - a.salg);
 
-      // Calculate top 3 avdelinger (departments)
+      // Calculate top 3 avdelinger (departments) by summing ALL employees in each department
       const avdelingMap = new Map<string, { dag: number; uke: number; maned: number }>();
+      
+      // Initialize departments
       employees.forEach(emp => {
         if (!avdelingMap.has(emp.department)) {
           avdelingMap.set(emp.department, { dag: 0, uke: 0, maned: 0 });
         }
-        const entry = avdelingMap.get(emp.department)!;
-        const empData = dagList.find(e => e.displayName === emp.name) || { salg: 0 };
-        entry.dag += empData.salg;
       });
       
-      // For UKE/MÅNED, use the lists
-      ukeList.forEach(emp => {
-        const empObj = employees.find(e => e.name === emp.displayName);
+      // Sum salg from ALL employees in each department
+      salesByEmployee.forEach((counts, externalName) => {
+        const displayName = employeeNameMap.get(externalName) || externalName;
+        const empObj = employees.find(e => e.name === displayName);
         if (empObj && avdelingMap.has(empObj.department)) {
-          avdelingMap.get(empObj.department)!.uke += emp.salg;
-        }
-      });
-      
-      maanedList.forEach(emp => {
-        const empObj = employees.find(e => e.name === emp.displayName);
-        if (empObj && avdelingMap.has(empObj.department)) {
-          avdelingMap.get(empObj.department)!.maned += emp.salg;
+          const entry = avdelingMap.get(empObj.department)!;
+          entry.dag += counts.dag;
+          entry.uke += counts.uke;
+          entry.maned += counts.maned;
         }
       });
 
@@ -504,7 +500,7 @@ const ProsjektDashboard = ({ userProject }: { userProject?: string } = {}) => {
                 const medals = ['🥇', '🥈', '🥉'];
                 return (
                   <div key={idx} className="top-five-item">
-                    <span className="rank">{medals[idx]} {dept.emojis || ''}</span>
+                    <span className="rank">{medals[idx]}</span>
                     <span className="name">{dept.avdeling}</span>
                     <span className="count">{dept.salg}</span>
                   </div>
@@ -520,7 +516,7 @@ const ProsjektDashboard = ({ userProject }: { userProject?: string } = {}) => {
                   const medals = ['🥇', '🥈', '🥉'];
                   return (
                     <div key={idx} className="top-five-item">
-                      <span className="rank">{medals[idx]} {emp.emojis || ''}</span>
+                      <span className="rank">{medals[idx]}</span>
                       <span className="name">{emp.displayName}</span>
                       <span className="count">{emp.salg}</span>
                     </div>
