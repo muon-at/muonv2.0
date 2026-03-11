@@ -240,7 +240,7 @@ const ProsjektDashboard = ({ userProject }: { userProject?: string } = {}) => {
       const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // How many days ago was Monday?
       weekStart.setDate(today.getDate() - daysToMonday);
       
-      // ✅ COUNT CONTRACTS FROM ALLSALES INTO salesByEmployee
+      // ✅ COUNT CONTRACTS FROM ALLSALES INTO salesByEmployee (EXACT MATCH ONLY)
       let contractCount = 0;
       allSales.forEach((sale: any) => {
         let selgerKey = sale.selger?.trim();
@@ -251,26 +251,9 @@ const ProsjektDashboard = ({ userProject }: { userProject?: string } = {}) => {
           selgerKey = selgerKey.split(' / ')[0].trim();
         }
         
-        // Check if this seller is in our employees list
+        // EXACT match only - check if this seller is in our employees list
         const externalName = nameToExternalName.get(selgerKey);
-        if (!externalName) {
-          // Try reverse lookup - maybe employee name is different
-          for (const [name, extName] of nameToExternalName.entries()) {
-            if (extName.includes(selgerKey) || selgerKey.includes(name)) {
-              const current = salesByEmployee.get(extName) || { dag: 0, uke: 0, maned: 0 };
-              const saleDate = parseDate(sale.dato);
-              if (saleDate && saleDate.getTime() !== 0) {
-                if (saleDate.toDateString() === today.toDateString()) current.dag += 1;
-                if (saleDate >= weekStart && saleDate <= today) current.uke += 1;
-                if (saleDate.getMonth() === today.getMonth() && saleDate.getFullYear() === today.getFullYear()) current.maned += 1;
-              }
-              salesByEmployee.set(extName, current);
-              contractCount++;
-              return;
-            }
-          }
-          return; // No match found
-        }
+        if (!externalName) return; // No match = skip this contract
         
         const saleDate = parseDate(sale.dato);
         if (!saleDate || saleDate.getTime() === 0) return;
@@ -293,7 +276,6 @@ const ProsjektDashboard = ({ userProject }: { userProject?: string } = {}) => {
         salesByEmployee.set(externalName, current);
         contractCount++;
       });
-      console.log(`📊 Contracts counted: ${contractCount}`);
 
       const emojiStringsToday = new Map<string, string>(); // Store emoji strings like "🎁🎁"
       console.log(`🔍 nameToExternalName keys:`, Array.from(nameToExternalName.keys()));
