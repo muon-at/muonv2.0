@@ -280,15 +280,20 @@ const ProsjektDashboard = ({ userProject }: { userProject?: string } = {}) => {
         // employeeName is the display name (e.g., "Oliver T Jenssen")
         // We need to find the corresponding externalName in our sales data
         const externalName = nameToExternalName.get(employeeName);
+        console.log(`🎁 Emoji for ${employeeName}: count=${count}, externalName=${externalName}`);
         if (externalName) {
           const current = salesByEmployee.get(externalName) || { dag: 0, uke: 0, maned: 0 };
+          console.log(`  Before: dag=${current.dag}, uke=${current.uke}, maned=${current.maned}`);
           current.dag += count;  // ADD emojis to DAG
           current.uke += count;  // ADD emojis to UKE (today's emojis on week total)
           current.maned += count;  // ADD emojis to MANED (today's emojis on month total)
+          console.log(`  After:  dag=${current.dag}, uke=${current.uke}, maned=${current.maned}`);
           salesByEmployee.set(externalName, current);
           
           // Build emoji string for display
           emojiStringsToday.set(employeeName, '🎁'.repeat(count)); // Use 🎁 as placeholder
+        } else {
+          console.log(`  ❌ Not found in nameToExternalName!`);
         }
       });
 
