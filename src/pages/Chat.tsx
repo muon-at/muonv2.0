@@ -55,18 +55,24 @@ export default function Chat() {
 
   // Expose toggle function to window so RightNavBar can call it
   useEffect(() => {
+    console.log('🎯 Chat.tsx useEffect - Setting window.toggleChatSidebar');
     (window as any).toggleChatSidebar = (isOpen?: boolean) => {
-      console.log('🔄 toggleChatSidebar called with:', isOpen);
+      console.log('🔄 toggleChatSidebar called with:', isOpen, 'Current state:', isChatSidebarOpen);
       if (typeof isOpen === 'boolean') {
         setIsChatSidebarOpen(isOpen);
       } else {
-        setIsChatSidebarOpen(prev => !prev);
+        setIsChatSidebarOpen(prev => {
+          console.log('🔄 Toggling from', prev, 'to', !prev);
+          return !prev;
+        });
       }
     };
+    console.log('✅ window.toggleChatSidebar is now:', typeof (window as any).toggleChatSidebar);
     return () => {
+      console.log('🧹 Cleaning up window.toggleChatSidebar');
       delete (window as any).toggleChatSidebar;
     };
-  }, []);
+  }, [isChatSidebarOpen]);
 
   const [selectedChannel, setSelectedChannel] = useState<string | null>(null);
   const [selectedDM, setSelectedDM] = useState<string | null>(null);
