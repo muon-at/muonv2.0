@@ -58,7 +58,11 @@ export default function Teamleder() {
   const monthlyTarget = 800;
   const [departmentData, setDepartmentData] = useState<any>({});
   const [targetData, setTargetData] = useState<any>({});
-  const [topSellers, setTopSellers] = useState<any>([]);
+  // @ts-ignore - For future use
+  const [topSellersByDay, setTopSellersByDay] = useState<any>([]); // For future DAY ranking
+  // @ts-ignore - For future use
+  const [topSellersByWeek, setTopSellersByWeek] = useState<any>([]); // For future WEEK ranking
+  const [topSellersByMonth, setTopSellersByMonth] = useState<any>([]);
   const [goals, setGoals] = useState<any>({
     KRS: { dag: '', uke: '', måned: '' },
     OSL: { dag: '', uke: '', måned: '' },
@@ -210,29 +214,52 @@ export default function Teamleder() {
         console.log('✅ Final Department Data:', deptMap);
         console.log('✅ Target Data:', targets);
 
-        // All sellers - THIS MONTH ONLY
+        // Create separate rankings for DAG, UKE, MND
+        const createSellerRanking = (periodContracts: any) => {
+          const sellerMap: any = {};
+          periodContracts.forEach((c: any) => {
+            const sellerKey = c.selger || 'Unknown';
+            const dept = employeeMap[c.selger] || c.avdeling || 'Annet';
+            // Skip MUON sellers
+            if (dept && dept.toLowerCase() === 'muon') return;
+            if (!sellerMap[sellerKey]) {
+              sellerMap[sellerKey] = { count: 0, department: dept };
+            }
+            sellerMap[sellerKey].count += 1;
+          });
+          return Object.entries(sellerMap)
+            .map(([name, data]: any) => ({ name, count: data.count, department: data.department }))
+            .filter((s: any) => s.department && s.department.toLowerCase() !== 'muon') // Filter out MUON department
+            .sort((a, b) => (b.count as any) - (a.count as any))
+            .map((s, idx) => ({ rank: idx + 1, name: s.name, value: s.count, department: s.department }));
+        };
+
+        // DAG - Today only
+        const dayContracts = contracts.filter(c => {
+          const cDate = parseDate(c.dato);
+          return cDate.toDateString() === today.toDateString();
+        });
+        const dayRanking = createSellerRanking(dayContracts);
+        setTopSellersByDay(dayRanking);
+        console.log('📈 Sellers today:', dayRanking);
+
+        // UKE - This week
+        const weekContracts = contracts.filter(c => {
+          const cDate = parseDate(c.dato);
+          return cDate >= weekStart && cDate <= today;
+        });
+        const weekRanking = createSellerRanking(weekContracts);
+        setTopSellersByWeek(weekRanking);
+        console.log('📈 Sellers this week:', weekRanking);
+
+        // MÅNED - This month
         const monthContracts = contracts.filter(c => {
           const cDate = parseDate(c.dato);
           return cDate >= monthStart && cDate <= today;
         });
-
-        const sellerMap: any = {};
-        monthContracts.forEach(c => {
-          const sellerKey = c.selger || 'Unknown';
-          const dept = employeeMap[c.selger] || c.avdeling || 'Annet';
-          if (!sellerMap[sellerKey]) {
-            sellerMap[sellerKey] = { count: 0, department: dept };
-          }
-          sellerMap[sellerKey].count += 1;
-        });
-        console.log('📈 Sellers this month:', sellerMap);
-
-        const sellers = Object.entries(sellerMap)
-          .map(([name, data]: any) => ({ name, count: data.count, department: data.department }))
-          .sort((a, b) => (b.count as any) - (a.count as any))
-          .map((s, idx) => ({ rank: idx + 1, name: s.name, value: s.count, department: s.department }));
-
-        setTopSellers(sellers);
+        const monthRanking = createSellerRanking(monthContracts);
+        setTopSellersByMonth(monthRanking);
+        console.log('📈 Sellers this month:', monthRanking);
       } catch (err) {
         console.error('Error loading team data:', err);
       }
@@ -437,7 +464,7 @@ export default function Teamleder() {
             <h3>🏆 Sælgere Denne Måneden</h3>
           </div>
           <div className="sellers-list">
-            {topSellers.map((seller: any, idx: number) => (
+            {topSellersByMonth.map((seller: any, idx: number) => (
               <div key={idx} className="seller-row">
                 <div className="seller-rank">{seller.rank}</div>
                 <div className="seller-name">
