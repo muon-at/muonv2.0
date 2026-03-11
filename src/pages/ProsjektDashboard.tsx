@@ -282,7 +282,9 @@ const ProsjektDashboard = ({ userProject }: { userProject?: string } = {}) => {
         const externalName = nameToExternalName.get(employeeName);
         if (externalName) {
           const current = salesByEmployee.get(externalName) || { dag: 0, uke: 0, maned: 0 };
-          current.dag += count;  // ADD emojis to existing contract count
+          current.dag += count;  // ADD emojis to DAG
+          current.uke += count;  // ADD emojis to UKE (today's emojis on week total)
+          current.maned += count;  // ADD emojis to MANED (today's emojis on month total)
           salesByEmployee.set(externalName, current);
           
           // Build emoji string for display
