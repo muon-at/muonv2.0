@@ -1,140 +1,128 @@
 .left-chat-sidebar {
   position: fixed;
-  left: -320px;
+  left: -100px;
   top: 0;
-  width: 320px;
+  width: 100px;
   height: 100vh;
-  background: white;
-  border-right: 1px solid #e2e8f0;
-  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   z-index: 98;
   transition: left 0.3s ease;
   overflow-y: auto;
   overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.5rem 0;
+  gap: 0.75rem;
 }
 
 .left-chat-sidebar.open {
   left: 0;
 }
 
-.sidebar-content {
-  padding: 1.5rem 1rem;
-}
-
+/* Header */
 .sidebar-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-  padding-bottom: 1rem;
-  border-bottom: 2px solid #e2e8f0;
-}
-
-.sidebar-header h2 {
-  margin: 0;
-  font-size: 1.25rem;
-  color: #1e293b;
+  width: 100%;
+  text-align: center;
+  margin-bottom: 1rem;
+  color: #667eea;
   font-weight: 700;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  opacity: 0.6;
 }
 
 .close-btn {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: #64748b;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  transition: all 0.2s ease;
   display: none;
-}
-
-.close-btn:hover {
-  background: #f1f5f9;
-  color: #1e293b;
 }
 
 /* Channel Sections */
 .channel-section {
-  margin-bottom: 2rem;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .section-title {
-  margin: 0 0 0.75rem 0;
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: #94a3b8;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 0 0.5rem;
+  display: none;
 }
 
-/* Channel Buttons */
+/* Channel Buttons - Circular Style */
 .channel-button {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.95);
+  border: none;
+  cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  width: 100%;
-  padding: 0.75rem 1rem;
-  background: transparent;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
+  justify-content: center;
+  flex-direction: column;
+  gap: 0.25rem;
   transition: all 0.2s ease;
-  margin-bottom: 0.5rem;
-  color: #475569;
-  font-weight: 500;
+  color: #667eea;
+  font-weight: 700;
+  font-size: 0.65rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  text-transform: uppercase;
 }
 
 .channel-button:hover {
-  background: #f1f5f9;
-  color: #667eea;
+  background: white;
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .channel-button:active {
-  background: #e0e7ff;
+  transform: scale(0.95);
 }
 
-/* Channel Icons */
+/* Channel Icons - Larger */
 .channel-icon {
-  font-size: 1.25rem;
-  min-width: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  font-size: 1.75rem;
+  display: block;
 }
 
-/* Channel Circles (for departments) */
+/* Channel Circles - Departments */
 .channel-circle {
-  width: 32px;
-  height: 32px;
+  width: 70px;
+  height: 70px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: rgba(255, 255, 255, 0.95);
+  color: #667eea;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.75rem;
+  font-size: 0.65rem;
   font-weight: 700;
   flex-shrink: 0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* Channel Name */
+.channel-circle:hover {
+  background: white;
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.channel-circle:active {
+  transform: scale(0.95);
+}
+
+/* Channel Name - Hidden on sidebar buttons */
 .channel-name {
-  flex: 1;
-  text-align: left;
-  font-size: 0.95rem;
+  display: none;
 }
 
-/* Sidebar Overlay (mobile) */
+/* Overlay */
 .sidebar-overlay {
-  position: fixed;
-  left: 0;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 97;
   display: none;
 }
 
@@ -142,53 +130,113 @@
   display: block;
 }
 
-/* Mobile Responsiveness */
+/* Mobile: Expand to full width */
 @media (max-width: 768px) {
   .left-chat-sidebar {
     width: 280px;
     left: -280px;
+    padding: 1.5rem 1rem;
+    gap: 1rem;
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .left-chat-sidebar.open {
+    left: 0;
+  }
+
+  .sidebar-header {
+    width: 100%;
+    text-align: left;
+    font-size: 1.25rem;
+    color: white;
+    margin-bottom: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    opacity: 1;
   }
 
   .close-btn {
     display: block;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    transition: all 0.2s ease;
   }
 
-  .sidebar-content {
-    padding: 1rem 0.75rem;
-  }
-
-  .sidebar-header {
-    margin-bottom: 1.5rem;
+  .close-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
   }
 
   .section-title {
-    font-size: 0.7rem;
-  }
-
-  .channel-button {
-    padding: 0.65rem 0.75rem;
-    margin-bottom: 0.35rem;
+    display: block;
+    margin: 0 0 0.75rem 0;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.6);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0 0.5rem;
+    width: 100%;
   }
 
   .channel-section {
-    margin-bottom: 1.5rem;
+    width: 100%;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .channel-button,
+  .channel-circle {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 0.75rem;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+  }
+
+  .channel-button:hover,
+  .channel-circle:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: none;
+  }
+
+  .channel-icon {
+    font-size: 1.25rem;
+  }
+
+  .channel-name {
+    display: block;
+    flex: 1;
+    text-align: left;
+    font-size: 0.95rem;
+    color: white;
   }
 }
 
-/* Scrollbar Styling */
+/* Scrollbar */
 .left-chat-sidebar::-webkit-scrollbar {
-  width: 6px;
+  width: 4px;
 }
 
 .left-chat-sidebar::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: transparent;
 }
 
 .left-chat-sidebar::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
 }
 
 .left-chat-sidebar::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: rgba(255, 255, 255, 0.5);
 }

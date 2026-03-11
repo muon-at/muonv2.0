@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../lib/authContext';
+import { useChatSidebar } from '../lib/ChatSidebarContext';
 import '../styles/LeftChatSidebar.css';
 
 interface LeftChatSidebarProps {
@@ -11,140 +12,130 @@ interface LeftChatSidebarProps {
 export const LeftChatSidebar: React.FC<LeftChatSidebarProps> = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { setIsChatSidebarOpen } = useChatSidebar();
 
   const handleChannelClick = (channelId: string) => {
     navigate('/chat', { state: { selectedChannel: channelId } });
-    if (onClose) onClose();
+    setIsChatSidebarOpen(false);
   };
 
   const handleDMClick = () => {
     navigate('/chat', { state: { selectedDM: 'list' } });
-    if (onClose) onClose();
+    setIsChatSidebarOpen(false);
   };
 
   return (
     <div className={`left-chat-sidebar ${isOpen ? 'open' : ''}`}>
-      <div className="sidebar-content">
-        {/* HEADER */}
-        <div className="sidebar-header">
-          <h2>💬 Chat</h2>
-          {onClose && (
-            <button className="close-btn" onClick={onClose}>
-              ✕
-            </button>
-          )}
-        </div>
-
-        {/* GLOBAL SECTION */}
-        <div className="channel-section">
-          <h3 className="section-title">🌍 GLOBAL</h3>
-          <button 
-            className="channel-button"
-            onClick={() => handleChannelClick('global')}
-          >
-            <span className="channel-icon">🌐</span>
-            <span className="channel-name">Global</span>
+      {/* Header */}
+      <div className="sidebar-header">
+        CHAT
+        {onClose && (
+          <button className="close-btn" onClick={onClose}>
+            ✕
           </button>
-        </div>
-
-        {/* DEPARTMENTS SECTION (Owner only) */}
-        {user?.role === 'owner' && (
-          <div className="channel-section">
-            <h3 className="section-title">📍 AVDELINGER</h3>
-            <button 
-              className="channel-button"
-              onClick={() => handleChannelClick('dept-krs')}
-            >
-              <span className="channel-circle">KRS</span>
-              <span className="channel-name">KRS</span>
-            </button>
-            <button 
-              className="channel-button"
-              onClick={() => handleChannelClick('dept-osl')}
-            >
-              <span className="channel-circle">OSL</span>
-              <span className="channel-name">OSL</span>
-            </button>
-            <button 
-              className="channel-button"
-              onClick={() => handleChannelClick('dept-skien')}
-            >
-              <span className="channel-circle">SKN</span>
-              <span className="channel-name">Skien</span>
-            </button>
-          </div>
         )}
-
-        {/* USER'S DEPARTMENT */}
-        {user?.department && user.department !== 'MUON' && user?.role !== 'owner' && (
-          <div className="channel-section">
-            <h3 className="section-title">📍 MIN AVDELING</h3>
-            <button 
-              className="channel-button"
-              onClick={() => handleChannelClick(`dept-${(user.department || '').toLowerCase()}`)}
-            >
-              <span className="channel-circle">
-                {user.department === 'KRS' ? 'KRS' : user.department === 'OSL' ? 'OSL' : 'SKN'}
-              </span>
-              <span className="channel-name">{user.department}</span>
-            </button>
-          </div>
-        )}
-
-        {/* PROJECTS */}
-        {user?.project && (
-          <div className="channel-section">
-            <h3 className="section-title">💼 PROSJEKTER</h3>
-            <button 
-              className="channel-button"
-              onClick={() => handleChannelClick('project-allente')}
-            >
-              <span className="channel-icon">📊</span>
-              <span className="channel-name">Allente</span>
-            </button>
-          </div>
-        )}
-
-        {/* TEAMS */}
-        {(user?.role === 'owner' || user?.role === 'teamleder') && (
-          <div className="channel-section">
-            <h3 className="section-title">👥 TEAM</h3>
-            <button 
-              className="channel-button"
-              onClick={() => handleChannelClick('team')}
-            >
-              <span className="channel-icon">👥</span>
-              <span className="channel-name">Teamledere</span>
-            </button>
-          </div>
-        )}
-
-        {/* ADMIN */}
-        {user?.role === 'owner' && (
-          <div className="channel-section">
-            <h3 className="section-title">🔒 ADMIN</h3>
-            <button 
-              className="channel-button"
-              onClick={() => handleChannelClick('admin')}
-            >
-              <span className="channel-icon">🔒</span>
-              <span className="channel-name">Admin</span>
-            </button>
-          </div>
-        )}
-
-        {/* DIRECT MESSAGES */}
-        <div className="channel-section">
-          <h3 className="section-title">💬 DIREKTEMELDINGER</h3>
-          <button 
-            className="channel-button"
-            onClick={handleDMClick}
-          >
-            <span className="channel-icon">✉️</span>
-            <span className="channel-name">Direktemeldinger</span>
-          </button>
-        </div>
       </div>
+
+      {/* GLOBAL */}
+      <div className="channel-section">
+        <button 
+          className="channel-button"
+          onClick={() => handleChannelClick('global')}
+          title="Global"
+        >
+          <span className="channel-icon">🌐</span>
+        </button>
+      </div>
+
+      {/* DEPARTMENTS (Owner only) */}
+      {user?.role === 'owner' && (
+        <div className="channel-section">
+          <button 
+            className="channel-circle"
+            onClick={() => handleChannelClick('dept-krs')}
+            title="KRS"
+          >
+            KRS
+          </button>
+          <button 
+            className="channel-circle"
+            onClick={() => handleChannelClick('dept-osl')}
+            title="OSL"
+          >
+            OSL
+          </button>
+          <button 
+            className="channel-circle"
+            onClick={() => handleChannelClick('dept-skien')}
+            title="SKN"
+          >
+            SKN
+          </button>
+        </div>
+      )}
+
+      {/* USER'S DEPARTMENT (non-owner) */}
+      {user?.department && user.department !== 'MUON' && user?.role !== 'owner' && (
+        <div className="channel-section">
+          <button 
+            className="channel-circle"
+            onClick={() => handleChannelClick(`dept-${(user.department || '').toLowerCase()}`)}
+            title={user.department}
+          >
+            {user.department === 'KRS' ? 'KRS' : user.department === 'OSL' ? 'OSL' : 'SKN'}
+          </button>
+        </div>
+      )}
+
+      {/* DM */}
+      <div className="channel-section">
+        <button 
+          className="channel-button"
+          onClick={handleDMClick}
+          title="Direct Messages"
+        >
+          <span className="channel-icon">💬</span>
+        </button>
+      </div>
+
+      {/* PROJECTS */}
+      {user?.project && (
+        <div className="channel-section">
+          <button 
+            className="channel-button"
+            onClick={() => handleChannelClick('project-allente')}
+            title="Allente"
+          >
+            <span className="channel-icon">📊</span>
+          </button>
+        </div>
+      )}
+
+      {/* TEAMS */}
+      {(user?.role === 'owner' || user?.role === 'teamleder') && (
+        <div className="channel-section">
+          <button 
+            className="channel-button"
+            onClick={() => handleChannelClick('team')}
+            title="Teamledere"
+          >
+            <span className="channel-icon">👥</span>
+          </button>
+        </div>
+      )}
+
+      {/* ADMIN */}
+      {user?.role === 'owner' && (
+        <div className="channel-section">
+          <button 
+            className="channel-button"
+            onClick={() => handleChannelClick('admin')}
+            title="Admin"
+          >
+            <span className="channel-icon">🔒</span>
+          </button>
+        </div>
+      )}
 
       {/* Overlay (mobile) */}
       {isOpen && (
