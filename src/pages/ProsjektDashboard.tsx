@@ -276,21 +276,29 @@ const ProsjektDashboard = ({ userProject }: { userProject?: string } = {}) => {
       });
 
       const emojiStringsToday = new Map<string, string>(); // Store emoji strings like "🎁🎁"
+      let emojiFound = 0;
+      let emojiNotInProject = 0;
       emojiCountsToday.forEach((count, employeeName) => {
         // employeeName is the display name (e.g., "Oliver T Jenssen")
         // We need to find the corresponding externalName in our sales data
         const externalName = nameToExternalName.get(employeeName);
         if (externalName) {
+          emojiFound += count;
+          // ✅ Create entry even if no contracts exist!
           const current = salesByEmployee.get(externalName) || { dag: 0, uke: 0, maned: 0 };
           current.dag += count;  // ADD emojis to DAG
           current.uke += count;  // ADD emojis to UKE (today's emojis on week total)
           current.maned += count;  // ADD emojis to MANED (today's emojis on month total)
-          salesByEmployee.set(externalName, current);
+          salesByEmployee.set(externalName, current);  // ← Will create entry if missing!
           
           // Build emoji string for display
           emojiStringsToday.set(employeeName, '🎁'.repeat(count)); // Use 🎁 as placeholder
+        } else {
+          emojiNotInProject += count;
+          console.log(`⚠️ Emoji posted by ${employeeName} (${count}) - NOT in Muon project!`);
         }
       });
+      console.log(`📊 Emojis: ${emojiFound} telt, ${emojiNotInProject} fra andre prosjekter`);
 
       // Calculate totals (combining contracts + emojis)
       let totalDag = 0;
