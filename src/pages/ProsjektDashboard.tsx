@@ -276,9 +276,13 @@ const ProsjektDashboard = ({ userProject }: { userProject?: string } = {}) => {
       });
 
       const emojiStringsToday = new Map<string, string>(); // Store emoji strings like "🎁🎁"
+      console.log(`🔍 nameToExternalName keys:`, Array.from(nameToExternalName.keys()));
+      console.log(`🔍 emojiCountsToday keys:`, Array.from(emojiCountsToday.keys()));
+      
       emojiCountsToday.forEach((count, employeeName) => {
         // Direct lookup in nameToExternalName (no fuzzy matching)
         const externalName = nameToExternalName.get(employeeName);
+        console.log(`🎁 ${employeeName} (${count} emojis) → ${externalName ? 'FOUND' : 'NOT FOUND'}`);
         
         if (externalName) {
           const current = salesByEmployee.get(externalName) || { dag: 0, uke: 0, maned: 0 };
