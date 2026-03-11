@@ -1,7 +1,8 @@
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../lib/authContext';
 import { RightNavBar } from './RightNavBar';
-import { ChatSidebarProvider } from '../lib/ChatSidebarContext';
+import { LeftChatSidebar } from './LeftChatSidebar';
+import { ChatSidebarProvider, useChatSidebar } from '../lib/ChatSidebarContext';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -33,8 +34,24 @@ export function ProtectedRoute({ children, requiredRole = 'employee' }: Protecte
 
   return (
     <ChatSidebarProvider>
+      <ProtectedRouteInner>{children}</ProtectedRouteInner>
+    </ChatSidebarProvider>
+  );
+}
+
+// Inner component that uses the ChatSidebar hook
+function ProtectedRouteInner({ children }: { children: React.ReactNode }) {
+  const { isChatSidebarOpen, setIsChatSidebarOpen } = useChatSidebar();
+
+  return (
+    <>
+      {/* Sidebar always mounted and accessible */}
+      <LeftChatSidebar 
+        isOpen={isChatSidebarOpen}
+        onClose={() => setIsChatSidebarOpen(false)}
+      />
       {children}
       <RightNavBar />
-    </ChatSidebarProvider>
+    </>
   );
 }

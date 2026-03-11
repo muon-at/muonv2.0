@@ -1,11 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useAuth } from '../lib/authContext';
-import { useChatSidebar } from '../lib/ChatSidebarContext';
 import { db } from '../lib/firebase';
 import { collection, getDocs, addDoc, onSnapshot, query, orderBy, updateDoc, doc, arrayUnion, getDoc, setDoc } from 'firebase/firestore';
 import ChannelModal from '../components/ChannelModal';
-import { LeftChatSidebar } from '../components/LeftChatSidebar';
 import '../styles/Chat.css';
 
 interface Channel {
@@ -52,7 +50,6 @@ interface Message {
 export default function Chat() {
   const location = useLocation();
   const { user } = useAuth();
-  const { isChatSidebarOpen, setIsChatSidebarOpen } = useChatSidebar(); // Use Context
 
   const [selectedChannel, setSelectedChannel] = useState<string | null>(null);
   const [selectedDM, setSelectedDM] = useState<string | null>(null);
@@ -1367,12 +1364,6 @@ export default function Chat() {
 
   return (
     <div className="chat-container">
-      {/* Left Chat Sidebar */}
-      <LeftChatSidebar 
-        isOpen={isChatSidebarOpen}
-        onClose={() => setIsChatSidebarOpen(false)}
-      />
-
       {/* Channel Creation Modal */}
       <ChannelModal 
         isOpen={isChannelModalOpen}
