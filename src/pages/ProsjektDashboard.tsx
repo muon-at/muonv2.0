@@ -280,32 +280,17 @@ const ProsjektDashboard = ({ userProject }: { userProject?: string } = {}) => {
         // employeeName is the display name (e.g., "Oliver T Jenssen")
         // We need to find the corresponding externalName in our sales data
         const externalName = nameToExternalName.get(employeeName);
-        console.log(`🎁 Emoji for ${employeeName}: count=${count}, externalName=${externalName}`);
         if (externalName) {
           const current = salesByEmployee.get(externalName) || { dag: 0, uke: 0, maned: 0 };
-          console.log(`  Before: dag=${current.dag}, uke=${current.uke}, maned=${current.maned}`);
           current.dag += count;  // ADD emojis to DAG
           current.uke += count;  // ADD emojis to UKE (today's emojis on week total)
           current.maned += count;  // ADD emojis to MANED (today's emojis on month total)
-          console.log(`  After:  dag=${current.dag}, uke=${current.uke}, maned=${current.maned}`);
           salesByEmployee.set(externalName, current);
           
           // Build emoji string for display
           emojiStringsToday.set(employeeName, '🎁'.repeat(count)); // Use 🎁 as placeholder
-        } else {
-          console.log(`  ❌ Not found in nameToExternalName!`);
         }
       });
-
-      // Emojis only from TODAY are used for UKE and MÅNED
-      // (contracts provide the historical totals, emojis are just for today's progress)
-      
-      console.log(`📅 Today: ${today.toLocaleDateString('no-NO')} (${['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][today.getDay()]})`);
-      console.log(`📅 Week start: ${weekStart.toLocaleDateString('no-NO')} to ${today.toLocaleDateString('no-NO')}`);
-      console.log(`📅 All sales count: ${allSales.length}, Project employees: ${projEmployeeNames.size}`);
-      
-      // Debug: show what's in salesByEmployee after counting
-      console.log(`📊 salesByEmployee after counting:`, Array.from(salesByEmployee.entries()).map(([k, v]) => ({ name: k, dag: v.dag, uke: v.uke, maned: v.maned })));
 
       // Calculate totals (combining contracts + emojis)
       let totalDag = 0;
@@ -321,19 +306,16 @@ const ProsjektDashboard = ({ userProject }: { userProject?: string } = {}) => {
         // displayName is the employee's name (e.g., "Oliver T Jenssen")
         const displayName = employeeNameMap.get(externalName) || externalName;
         
-        // Look up emojis using displayName (e.g., "Oliver T Jenssen")
-        // Emojis only from TODAY for both UKE and MÅNED
-        const todayEmojis = emojiCountsToday.get(displayName) || 0;
-
+        // counts already include emojis (added in emoji loop above)
         const dagTotal = counts.dag;
-        const ukeTotal = counts.uke + todayEmojis;
-        const maanedTotal = counts.maned + todayEmojis;
+        const ukeTotal = counts.uke;  // ← Already includes emojis!
+        const maanedTotal = counts.maned;  // ← Already includes emojis!
 
         totalDag += dagTotal;
         totalUke += ukeTotal;
         totalManed += maanedTotal;
 
-        const emojiStr = emojiStringsToday.get(displayName) || ''; // Get today's emojis
+        const emojiStr = emojiStringsToday.get(displayName) || ''; // Get today's emojis for display
         dagList.push({ externalName, displayName, salg: dagTotal, emojis: emojiStr });
         ukeList.push({ externalName, displayName, salg: ukeTotal, emojis: emojiStr });
         maanedList.push({ externalName, displayName, salg: maanedTotal, emojis: emojiStr });
