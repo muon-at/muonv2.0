@@ -120,11 +120,11 @@ const ProsjektDashboard = ({ userProject }: { userProject?: string } = {}) => {
       
       console.log(`🔍 PROJECT ${proj} - ALL EMPLOYEES:`, employees.map(e => ({ name: e.name, externalName: e.externalName, department: e.department, project: e.project })));
       
-      // Create a set of externalNames that belong to this project
+      // Use ALL employees from organization (include all for emoji matching)
       const projEmployeeNames = new Set<string>();
       employees.forEach(emp => {
         const externalName = emp.externalName?.trim();
-        if (externalName && emp.project === proj) {
+        if (externalName) {
           projEmployeeNames.add(externalName);
         }
       });
