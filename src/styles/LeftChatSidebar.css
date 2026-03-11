@@ -12,8 +12,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 1.5rem 0;
-  gap: 0.75rem;
+  padding: 0.5rem 0;
+  gap: 0.15rem;
 }
 
 .left-chat-sidebar.open {
@@ -24,10 +24,10 @@
 .sidebar-header {
   width: 100%;
   text-align: center;
-  margin-bottom: 1rem;
-  color: #667eea;
+  margin-bottom: 0.5rem;
+  color: rgba(255, 255, 255, 0.6);
   font-weight: 700;
-  font-size: 0.75rem;
+  font-size: 0.65rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   opacity: 0.6;
@@ -43,80 +43,122 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.15rem;
 }
 
 .section-title {
   display: none;
 }
 
-/* Channel Buttons - Circular Style */
+/* Channel Buttons - Match navbar style */
 .channel-button {
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.95);
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  background: transparent;
   border: none;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  gap: 0.25rem;
-  transition: all 0.2s ease;
-  color: #667eea;
-  font-weight: 700;
-  font-size: 0.65rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  text-transform: uppercase;
+  transition: all 0.3s ease;
+  position: relative;
+  flex-shrink: 0;
 }
 
 .channel-button:hover {
-  background: white;
+  background: transparent;
   transform: scale(1.1);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.channel-button:hover .icon-circle {
+  border-color: #666;
+  background: #e8e8e8;
+}
+
+.channel-button:hover .nav-icon {
+  stroke: #666;
+  color: #666;
 }
 
 .channel-button:active {
   transform: scale(0.95);
 }
 
-/* Channel Icons - Larger */
-.channel-icon {
-  font-size: 1.75rem;
-  display: block;
-}
-
-/* Channel Circles - Departments */
-.channel-circle {
-  width: 70px;
-  height: 70px;
+/* Icon Circle */
+.icon-circle {
+  width: 36px;
+  height: 36px;
+  aspect-ratio: 1 / 1;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.95);
-  color: #667eea;
+  background: #f0f0f0;
+  border: 2px solid #999;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.65rem;
-  font-weight: 700;
   flex-shrink: 0;
-  cursor: pointer;
-  transition: all 0.2s ease;
+  overflow: visible;
+  position: relative;
+}
+
+/* SVG Icons */
+.nav-icon {
+  width: 20px;
+  height: 20px;
+  stroke: #999;
+  color: #999;
+  fill: none;
+  stroke-width: 2;
+  transition: all 0.3s ease;
+}
+
+/* Department Circles */
+.channel-circle {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  background: transparent;
   border: none;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 0.7rem;
+  font-weight: 700;
+  transition: all 0.3s ease;
+  position: relative;
+  color: #999;
+}
+
+.channel-circle::before {
+  content: '';
+  position: absolute;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #f0f0f0;
+  border: 2px solid #999;
+  z-index: -1;
+  transition: all 0.3s ease;
 }
 
 .channel-circle:hover {
-  background: white;
   transform: scale(1.1);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  color: #666;
+}
+
+.channel-circle:hover::before {
+  border-color: #666;
+  background: #e8e8e8;
 }
 
 .channel-circle:active {
   transform: scale(0.95);
 }
 
-/* Channel Name - Hidden on sidebar buttons */
+/* Channel Name - Hidden */
 .channel-name {
   display: none;
 }
@@ -130,7 +172,7 @@
   display: block;
 }
 
-/* Mobile: Expand to full width */
+/* Mobile: Full sidebar */
 @media (max-width: 768px) {
   .left-chat-sidebar {
     width: 280px;
@@ -202,16 +244,35 @@
     gap: 0.75rem;
     background: rgba(255, 255, 255, 0.1);
     color: white;
+    position: relative;
   }
 
   .channel-button:hover,
   .channel-circle:hover {
     background: rgba(255, 255, 255, 0.2);
     transform: none;
+    color: white;
   }
 
-  .channel-icon {
-    font-size: 1.25rem;
+  .channel-circle::before {
+    display: none;
+  }
+
+  .icon-circle {
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.4);
+  }
+
+  .nav-icon {
+    stroke: white;
+    color: white;
+  }
+
+  .channel-button:hover .icon-circle {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: white;
   }
 
   .channel-name {
