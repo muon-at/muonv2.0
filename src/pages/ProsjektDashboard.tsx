@@ -263,12 +263,17 @@ const ProsjektDashboard = ({ userProject }: { userProject?: string } = {}) => {
       console.log(`📅 All sales count: ${allSales.length}, Project employees: ${projEmployeeNames.size}`);
 
       // Count sales for week and month
+      let projSalesCount = 0;
+      let weekSalesCount = 0;
+      let monthSalesCount = 0;
+      
       allSales.forEach((sale: any) => {
         const selgerKey = sale.selger?.trim();
         if (!selgerKey) return;
         
         // ONLY count sales from employees in THIS project
         if (!projEmployeeNames.has(selgerKey)) return;
+        projSalesCount++;
 
         const saleDate = parseDate(sale.dato);
         if (!saleDate || saleDate.getTime() === 0) return;
@@ -278,6 +283,7 @@ const ProsjektDashboard = ({ userProject }: { userProject?: string } = {}) => {
           const current = salesByEmployee.get(selgerKey) || { dag: 0, uke: 0, maned: 0 };
           current.uke += 1;
           salesByEmployee.set(selgerKey, current);
+          weekSalesCount++;
         }
 
         // Count for this month
@@ -285,8 +291,11 @@ const ProsjektDashboard = ({ userProject }: { userProject?: string } = {}) => {
           const current = salesByEmployee.get(selgerKey) || { dag: 0, uke: 0, maned: 0 };
           current.maned += 1;
           salesByEmployee.set(selgerKey, current);
+          monthSalesCount++;
         }
       });
+      
+      console.log(`📊 Sales filtered: proj=${projSalesCount}, week=${weekSalesCount}, month=${monthSalesCount}`);
 
       // Calculate totals (combining contracts + emojis)
       let totalDag = 0;
