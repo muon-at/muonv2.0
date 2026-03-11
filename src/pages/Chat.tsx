@@ -48,14 +48,26 @@ interface Message {
   isDeleted?: boolean;
 }
 
-interface ChatProps {
-  isChatSidebarOpen?: boolean;
-  setIsChatSidebarOpen?: (isOpen: boolean) => void;
-}
-
-export default function Chat({ isChatSidebarOpen = false, setIsChatSidebarOpen }: ChatProps) {
+export default function Chat() {
   const location = useLocation();
   const { user } = useAuth();
+  const [isChatSidebarOpen, setIsChatSidebarOpen] = useState(false); // Local sidebar state
+
+  // Expose toggle function to window so RightNavBar can call it
+  useEffect(() => {
+    (window as any).toggleChatSidebar = (isOpen?: boolean) => {
+      console.log('🔄 toggleChatSidebar called with:', isOpen);
+      if (typeof isOpen === 'boolean') {
+        setIsChatSidebarOpen(isOpen);
+      } else {
+        setIsChatSidebarOpen(prev => !prev);
+      }
+    };
+    return () => {
+      delete (window as any).toggleChatSidebar;
+    };
+  }, []);
+
   const [selectedChannel, setSelectedChannel] = useState<string | null>(null);
   const [selectedDM, setSelectedDM] = useState<string | null>(null);
   const [selectedDMUser, setSelectedDMUser] = useState<any>(null);

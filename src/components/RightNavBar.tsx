@@ -19,12 +19,18 @@ export const RightNavBar: React.FC<RightNavBarProps> = ({ isChatOpen = false, on
   };
 
   const handleChatToggle = () => {
-    console.log('🔵 Chat button clicked!', { isChatOpen, onChatToggle: !!onChatToggle });
-    if (onChatToggle) {
-      console.log('✅ Calling onChatToggle with:', !isChatOpen);
-      onChatToggle(!isChatOpen);
+    console.log('🔵 Chat button clicked!');
+    // Call the toggle function exposed by Chat.tsx
+    const toggleFn = (window as any).toggleChatSidebar;
+    if (toggleFn) {
+      console.log('✅ Calling toggleChatSidebar');
+      toggleFn(!isChatOpen);
     } else {
-      console.log('❌ onChatToggle is undefined!');
+      console.log('❌ toggleChatSidebar not found on window!');
+      // Fallback: try onChatToggle prop
+      if (onChatToggle) {
+        onChatToggle(!isChatOpen);
+      }
     }
   };
 
