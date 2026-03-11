@@ -252,13 +252,14 @@ const ProsjektDashboard = ({ userProject }: { userProject?: string } = {}) => {
       // Emojis only from TODAY are used for UKE and MÅNED
       // (contracts provide the historical totals, emojis are just for today's progress)
 
-      // Week calculation (ONE TIME, not in loop!)
+      // Week calculation (Monday of current week to today)
       const weekStart = new Date(today);
-      const day = weekStart.getDay();
-      const diff = weekStart.getDate() - day + (day === 0 ? -6 : 1);
-      weekStart.setDate(diff);
+      const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+      const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // How many days ago was Monday?
+      weekStart.setDate(today.getDate() - daysToMonday);
       
-      console.log(`📅 Week range: ${weekStart.toLocaleDateString('no-NO')} to ${today.toLocaleDateString('no-NO')}`);
+      console.log(`📅 Today: ${today.toLocaleDateString('no-NO')} (${['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][today.getDay()]})`);
+      console.log(`📅 Week start: ${weekStart.toLocaleDateString('no-NO')} to ${today.toLocaleDateString('no-NO')}`);
       console.log(`📅 All sales count: ${allSales.length}, Project employees: ${projEmployeeNames.size}`);
 
       // Count sales for week and month
