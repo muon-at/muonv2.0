@@ -1372,8 +1372,17 @@ export default function Chat({ isChatSidebarOpen = false, setIsChatSidebarOpen }
       {/* Left Chat Sidebar */}
       <LeftChatSidebar 
         isOpen={isChatSidebarOpen || false}
-        onClose={() => setIsChatSidebarOpen && setIsChatSidebarOpen(false)}
+        onClose={() => {
+          console.log('🟦 LeftChatSidebar onClose called');
+          setIsChatSidebarOpen && setIsChatSidebarOpen(false);
+        }}
       />
+      {/* DEBUG: Show sidebar state */}
+      {typeof isChatSidebarOpen !== 'undefined' && (
+        <div style={{ position: 'fixed', top: 0, right: 0, background: 'red', color: 'white', padding: '10px', zIndex: 999 }}>
+          Sidebar Open: {String(isChatSidebarOpen)}
+        </div>
+      )}
 
       {/* Channel Creation Modal */}
       <ChannelModal 
