@@ -61,14 +61,6 @@ const parseDate = (dateStr: string): Date => {
 export default function MinSide() {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
-  
-  // Check for preview mode (?user=<userId>)
-  const urlParams = new URLSearchParams(window.location.search);
-  const previewUserId = urlParams.get('user');
-  const isPreviewMode = !!previewUserId;
-  
-  // Debug logging
-  console.log('🎯 MinSide.tsx rendered. URL params:', window.location.search, 'previewUserId:', previewUserId, 'isPreviewMode:', isPreviewMode);
   const [previewEmployee, setPreviewEmployee] = useState<any>(null);
   const [stats, setStats] = useState<any[]>([]);
   const [earnedBadges, setEarnedBadges] = useState<string[]>([]);
@@ -110,6 +102,14 @@ export default function MinSide() {
     monthly: 0,
     monthlyRunrate: 0,
   });
+
+  // Check for preview mode (?user=<userId>) - AFTER all useState hooks!
+  const urlParams = new URLSearchParams(window.location.search);
+  const previewUserId = urlParams.get('user');
+  const isPreviewMode = !!previewUserId;
+  
+  // Debug logging
+  console.log('🎯 MinSide.tsx rendered. URL params:', window.location.search, 'previewUserId:', previewUserId, 'isPreviewMode:', isPreviewMode);
 
   // Load saved goals from Firestore
   const loadSavedGoals = async () => {
