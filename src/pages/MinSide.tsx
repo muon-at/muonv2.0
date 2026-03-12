@@ -936,7 +936,7 @@ export default function MinSide() {
   console.log('🏅 Rendering MinSide with earnedBadges:', earnedBadges);
 
   // Preview mode: show STATIC snapshot of Min Side (read-only, no tabs)
-  if (isPreviewMode && previewEmployee && stats.length > 0) {
+  if (isPreviewMode && previewEmployee) {
     return (
       <div style={{ minHeight: '100vh', background: '#f5f5f5', padding: '2rem' }}>
         {/* Preview Header */}
