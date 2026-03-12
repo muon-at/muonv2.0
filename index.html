@@ -3,7 +3,35 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5.0" />
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#667eea" />
+    <meta name="description" content="Complete sales dashboard and CRM for Muon sellers. Track contracts, earnings, team performance, and chat in real-time." />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Muon Nexus" />
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect fill='%23667eea' width='180' height='180' rx='40'/><text x='90' y='90' font-size='100' font-weight='bold' fill='white' text-anchor='middle' dy='0.35em'>M</text></svg>" />
+    
+    <!-- Manifest -->
+    <link rel="manifest" href="/manifest.json" />
+    
+    <!-- Service Worker Registration -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/service-worker.js').then(
+            (registration) => {
+              console.log('✅ Service Worker registered:', registration);
+            },
+            (error) => {
+              console.warn('Service Worker registration failed:', error);
+            }
+          );
+        });
+      }
+    </script>
+    
     <title>MuoNexus</title>
   </head>
   <body>
