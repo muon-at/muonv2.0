@@ -1,66 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../lib/authContext';
 import { useChatSidebar } from '../lib/ChatSidebarContext';
-import { useDMUnread } from '../lib/DMUnreadContext';
-import { useChannelUnread } from '../lib/ChannelUnreadContext';
 import '../styles/RightNavBar.css';
 
 export const RightNavBar: React.FC = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const { isChatSidebarOpen, setIsChatSidebarOpen } = useChatSidebar();
-  const { totalDMUnread } = useDMUnread();
-  const { channelUnreadCounts } = useChannelUnread();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [unreadCount, setUnreadCount] = useState<number>(0);
 
   const handleLogout = () => {
     logout();
     navigate('/login');
   };
 
-  // Update unread count from Context (same as sidebar!)
-  // Sum all channel badges + DM badges
-  useEffect(() => {
-    // Sum all channel unread from context
-    const channelTotal = Object.values(channelUnreadCounts).reduce((sum, count) => sum + count, 0);
-    
-    // Add DM unread from context
-    const total = channelTotal + totalDMUnread;
-    
-    setUnreadCount(total);
-    
-    console.log('📊 Navbar badge (Context):', { channels: channelTotal, dms: totalDMUnread, total });
-  }, [channelUnreadCounts, totalDMUnread]);
-  
-  // Poll storage periodically as safety net
-  useEffect(() => {
-    const readUnreadCount = () => {
-      const stored = localStorage.getItem('chat_unread_count') || sessionStorage.getItem('chat_unread_count');
-      const channelUnread = stored ? parseInt(stored, 10) : 0;
-      
-      // Check DM counts in both storages
-      const allLocalKeys = Object.keys(localStorage);
-      const allSessionKeys = Object.keys(sessionStorage);
-      const allKeys = new Set([...allLocalKeys, ...allSessionKeys]);
-      
-      let dmUnread = 0;
-      allKeys.forEach(key => {
-        if (key.startsWith('chat_unread_dm_')) {
-          const count = parseInt(localStorage.getItem(key) || sessionStorage.getItem(key) || '0', 10);
-          dmUnread += count;
-        }
-      });
-      
-      const total = channelUnread + dmUnread;
-      setUnreadCount(total);
-    };
-
-    // Poll every 500ms for faster updates
-    const interval = setInterval(readUnreadCount, 500);
-    return () => clearInterval(interval);
-  }, []);
+  // TODO: Navbar badge disabled for now - will setup from scratch later
+  // Sidebar DM badges work correctly (shows 2)
 
   const handleChatToggle = () => {
     console.log('🔵 Chat button clicked!', 'Current state:', isChatSidebarOpen);
@@ -153,33 +109,12 @@ export const RightNavBar: React.FC = () => {
             onClick={handleChatToggle}
             title="Chat"
           >
-            <div className="icon-circle" style={{ position: 'relative' }}>
+            <div className="icon-circle">
               <svg className="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
               </svg>
-              {/* Unread badge */}
-              {unreadCount > 0 && (
-                <div style={{
-                  position: 'absolute',
-                  top: '-4px',
-                  right: '-4px',
-                  background: '#ef4444',
-                  color: 'white',
-                  borderRadius: '50%',
-                  width: '20px',
-                  height: '20px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '0.7rem',
-                  fontWeight: 'bold',
-                  border: '2px solid white',
-                }}>
-                  {unreadCount > 99 ? '99+' : unreadCount}
-                </div>
-              )}
             </div>
-            <div className="nav-tooltip">Chat {unreadCount > 0 ? `(${unreadCount})` : ''}</div>
+            <div className="nav-tooltip">Chat</div>
           </button>
         </div>
       </div>
