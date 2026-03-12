@@ -2354,8 +2354,8 @@ export default function AdminDashboard() {
                 </div>
 
                 <div style={{ width: '100%', marginBottom: '1rem', overflowX: 'auto' }}>
-                  <div className="employees-table" style={{ width: '100%', minWidth: '1100px' }}>
-                    <div className="table-header" style={{ display: 'grid', gridTemplateColumns: '140px 220px 80px 90px 85px 100px 95px 180px 110px', gap: '0.5rem', padding: '0.75rem 0.5rem', background: '#f9fafb', borderRadius: '6px 6px 0 0', fontWeight: '700', fontSize: '0.9rem', position: 'sticky', top: 0 }}>
+                  <div className="employees-table" style={{ width: '100%', minWidth: '1200px' }}>
+                    <div className="table-header" style={{ display: 'grid', gridTemplateColumns: '140px 220px 80px 90px 85px 100px 95px 180px 70px 110px', gap: '0.5rem', padding: '0.75rem 0.5rem', background: '#f9fafb', borderRadius: '6px 6px 0 0', fontWeight: '700', fontSize: '0.9rem', position: 'sticky', top: 0 }}>
                       <div>Navn</div>
                       <div>E-post</div>
                       <div>Rolle</div>
@@ -2364,6 +2364,7 @@ export default function AdminDashboard() {
                       <div>TMG-navn</div>
                       <div>Stilling</div>
                       <div>Ekstern navn</div>
+                      <div>Min Side</div>
                       <div>Handlinger</div>
                     </div>
                     {employees
@@ -2384,7 +2385,7 @@ export default function AdminDashboard() {
                           }
                         };
                         return (
-                      <div key={emp.id} style={{ display: 'grid', gridTemplateColumns: '140px 220px 80px 90px 85px 100px 95px 180px 110px', gap: '0.5rem', padding: '0.75rem 0.5rem', background: 'white', borderBottom: '1px solid #e5e7eb', alignItems: 'center', fontWeight: '600', fontSize: '0.9rem' }}>
+                      <div key={emp.id} style={{ display: 'grid', gridTemplateColumns: '140px 220px 80px 90px 85px 100px 95px 180px 70px 110px', gap: '0.5rem', padding: '0.75rem 0.5rem', background: 'white', borderBottom: '1px solid #e5e7eb', alignItems: 'center', fontWeight: '600', fontSize: '0.9rem' }}>
                         <div style={{ fontWeight: '700', color: '#1f2937', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{emp.name && emp.name !== 'N/A' ? emp.name : '⚠️ Ingen navn'}</div>
                         <div style={{ fontSize: '0.85rem', color: '#4b5563', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{emp.email || '-'}</div>
                         <div><span style={{ background: getRoleColor(emp.role), color: 'white', padding: '0.3rem 0.6rem', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '600', whiteSpace: 'nowrap' }}>{getRoleLabel(emp.role)}</span></div>
@@ -2393,6 +2394,36 @@ export default function AdminDashboard() {
                         <div style={{ color: '#1f2937', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{emp.tmgName || '-'}</div>
                         <div style={{ color: '#1f2937', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{emp.stilling || '-'}</div>
                         <div style={{ color: '#1f2937', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{emp.externalName || '-'}</div>
+                        <div style={{ textAlign: 'center' }}>
+                          <a 
+                            href={`/min-side?user=${emp.id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                              color: '#10b981',
+                              textDecoration: 'none',
+                              fontWeight: '600',
+                              fontSize: '0.85rem',
+                              whiteSpace: 'nowrap',
+                              padding: '0.3rem 0.6rem',
+                              borderRadius: '4px',
+                              border: '1px solid #10b981',
+                              display: 'inline-block',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s'
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.background = '#10b981';
+                              e.currentTarget.style.color = 'white';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.background = 'transparent';
+                              e.currentTarget.style.color = '#10b981';
+                            }}
+                          >
+                            👁️ Se
+                          </a>
+                        </div>
                         <div style={{ display: 'flex', gap: '0.75rem', fontSize: '0.85rem', justifyContent: 'space-between' }}>
                           <button 
                             onClick={() => handleEditClick(emp)}
