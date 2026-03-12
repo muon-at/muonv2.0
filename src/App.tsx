@@ -17,6 +17,9 @@ function App() {
           <Route path="/" element={<Login />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/change-password-first-login" element={<ResetPassword />} />
+          {/* Public preview route - no auth required */}
+          <Route path="/min-side-preview" element={<MinSide />} />
+          {/* Protected route for normal use */}
           <Route 
             path="/min-side" 
             element={

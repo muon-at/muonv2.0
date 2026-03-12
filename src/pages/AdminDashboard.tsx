@@ -2396,7 +2396,7 @@ export default function AdminDashboard() {
                         <div style={{ color: '#1f2937', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{emp.externalName || '-'}</div>
                         <div style={{ textAlign: 'center' }}>
                           <a 
-                            href={`/min-side?user=${emp.id}`}
+                            href={`/min-side-preview?user=${emp.id}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             style={{
