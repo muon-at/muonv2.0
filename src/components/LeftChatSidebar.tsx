@@ -27,7 +27,7 @@ export const LeftChatSidebar: React.FC<LeftChatSidebarProps> = ({ isOpen, onClos
     const loadFromStorage = () => {
       const channelIds = ['global', 'project-allente', 'dept-krs', 'dept-osl', 'dept-skien'];
       const channelCounts: Record<string, number> = {};
-      
+
       channelIds.forEach(channelId => {
         // Try localStorage first (persists across sessions), then sessionStorage
         const stored = localStorage.getItem(`chat_unread_${channelId}`) || sessionStorage.getItem(`chat_unread_${channelId}`);
@@ -38,14 +38,14 @@ export const LeftChatSidebar: React.FC<LeftChatSidebarProps> = ({ isOpen, onClos
           }
         }
       });
-      
+
       setFallbackChannelUnread(channelCounts);
-      
+
       // Also load total DM unread from both storages
       const allLocalKeys = Object.keys(localStorage);
       const allSessionKeys = Object.keys(sessionStorage);
       const allKeys = new Set([...allLocalKeys, ...allSessionKeys]);
-      
+
       let totalDM = 0;
       allKeys.forEach(key => {
         if (key.startsWith('chat_unread_dm_')) {
@@ -54,22 +54,35 @@ export const LeftChatSidebar: React.FC<LeftChatSidebarProps> = ({ isOpen, onClos
         }
       });
       setFallbackDMUnread(totalDM);
-      
+
       console.log('📚 Sidebar loaded from storage:', { channelCounts, totalDM });
     };
 
     loadFromStorage();
-    
+
     // Poll every 500ms to catch updates
     const interval = setInterval(loadFromStorage, 500);
     return () => clearInterval(interval);
   }, []);
 
-  // Use Context data if available, otherwise fallback to sessionStorage
+  // Use Context data if available, otherwise fallback to localStorage/sessionStorage
   const dmUnreadCount = contextDMUnread > 0 ? contextDMUnread : fallbackDMUnread;
   const channelUnread = Object.keys(contextChannelUnread).length > 0 ? contextChannelUnread : fallbackChannelUnread;
-
-  console.log('📊 Sidebar unread state:', { contextDMUnread, contextChannelUnread, fallbackChannelUnread, fallbackDMUnread, final: { dmUnreadCount, channelUnread } });
+  
+  console.log('📊 Sidebar DEBUG:', { 
+    contextDM: contextDMUnread, 
+    contextChannels: contextChannelUnread, 
+    fallbackChannels: fallbackChannelUnread,
+    fallbackDM: fallbackDMUnread,
+    usingContext: Object.keys(contextChannelUnread).length > 0,
+    final: { dmUnreadCount, channelUnread },
+    localStorageData: {
+      total: localStorage.getItem('chat_unread_count'),
+      global: localStorage.getItem('chat_unread_global'),
+      krs: localStorage.getItem('chat_unread_dept-krs'),
+      dms: Object.keys(localStorage).filter(k => k.startsWith('chat_unread_dm_'))
+    }
+  });
 
   const handleChannelClick = (channelId: string) => {
     navigate('/chat', { state: { selectedChannel: channelId } });
