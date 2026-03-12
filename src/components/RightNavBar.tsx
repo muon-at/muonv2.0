@@ -18,37 +18,57 @@ export const RightNavBar: React.FC = () => {
     navigate('/login');
   };
 
-  // Update unread count from BOTH DMs (context) + channels (sessionStorage)
+  // Update unread count from BOTH DMs (context + sessionStorage fallback) + channels (sessionStorage)
   useEffect(() => {
     // Get channel unread from sessionStorage
     const stored = sessionStorage.getItem('chat_unread_count');
     const channelUnread = stored ? parseInt(stored, 10) : 0;
     
     // Get DM unread from context
-    const dmUnread = totalDMUnread;
+    let dmUnread = totalDMUnread;
+    
+    // Fallback: if context is empty, read from sessionStorage
+    if (dmUnread === 0) {
+      const allKeys = Object.keys(sessionStorage);
+      allKeys.forEach(key => {
+        if (key.startsWith('chat_unread_dm_')) {
+          const count = parseInt(sessionStorage.getItem(key) || '0', 10);
+          dmUnread += count;
+        }
+      });
+    }
     
     // Total = channels + DMs
     const total = channelUnread + dmUnread;
     setUnreadCount(total);
     
-    console.log('📊 Badge update:', { channelUnread, dmUnread, total });
+    console.log('📊 Navbar badge:', { channelUnread, contextDM: totalDMUnread, fallbackDM: dmUnread, total });
   }, [totalDMUnread]);
   
-  // Also poll sessionStorage periodically to catch channel unread updates
+  // Poll sessionStorage periodically as safety net
   useEffect(() => {
     const readUnreadCount = () => {
       const stored = sessionStorage.getItem('chat_unread_count');
-      if (stored) {
-        const channelUnread = parseInt(stored, 10);
-        const total = channelUnread + totalDMUnread;
-        setUnreadCount(total);
-      }
+      const channelUnread = stored ? parseInt(stored, 10) : 0;
+      
+      // Also check DM counts in sessionStorage
+      const allKeys = Object.keys(sessionStorage);
+      let dmUnread = 0;
+      allKeys.forEach(key => {
+        if (key.startsWith('chat_unread_dm_')) {
+          const count = parseInt(sessionStorage.getItem(key) || '0', 10);
+          dmUnread += count;
+        }
+      });
+      
+      const total = channelUnread + dmUnread;
+      setUnreadCount(total);
     };
 
-    // Poll every 1000ms 
-    const interval = setInterval(readUnreadCount, 1000);
+    // Poll every 500ms for faster updates
+    const interval = setInterval(readUnreadCount, 500);
     return () => clearInterval(interval);
-  }, [totalDMUnread]);
+  }, []);
 
   const handleChatToggle = () => {
     console.log('🔵 Chat button clicked!', 'Current state:', isChatSidebarOpen);
