@@ -61,6 +61,12 @@ const parseDate = (dateStr: string): Date => {
 export default function MinSide() {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
+  
+  // Check for preview mode (?user=<userId>)
+  const urlParams = new URLSearchParams(window.location.search);
+  const previewUserId = urlParams.get('user');
+  const isPreviewMode = !!previewUserId;
+  const [previewEmployee, setPreviewEmployee] = useState<any>(null);
   const [stats, setStats] = useState<any[]>([]);
   const [earnedBadges, setEarnedBadges] = useState<string[]>([]);
   const [badgeStatus, setBadgeStatus] = useState<{ [key: string]: boolean }>({});
@@ -152,6 +158,24 @@ export default function MinSide() {
       console.error('❌ Error loading goals:', err);
     }
   };
+
+  // Load preview employee data if in preview mode
+  useEffect(() => {
+    if (isPreviewMode && previewUserId) {
+      const loadPreviewEmployee = async () => {
+        try {
+          const employeeRef = doc(db, 'employees', previewUserId);
+          const employeeSnap = await getDoc(employeeRef);
+          if (employeeSnap.exists()) {
+            setPreviewEmployee(employeeSnap.data());
+          }
+        } catch (err) {
+          console.error('Error loading preview employee:', err);
+        }
+      };
+      loadPreviewEmployee();
+    }
+  }, [isPreviewMode, previewUserId]);
 
   // Load data on mount and when user ID changes
   useEffect(() => {
@@ -901,6 +925,70 @@ export default function MinSide() {
   if (loading) return <div className="minside-container"><div style={{ padding: '2rem', textAlign: 'center' }}>Laster...</div></div>;
 
   console.log('🏅 Rendering MinSide with earnedBadges:', earnedBadges);
+
+  // Preview mode: show just the dashboard without navbar/chat
+  if (isPreviewMode && previewEmployee && user?.id) {
+    return (
+      <div style={{ minHeight: '100vh', background: '#f5f5f5', padding: '2rem' }}>
+        {/* Preview Header */}
+        <div style={{ 
+          background: 'white', 
+          padding: '2rem', 
+          borderRadius: '12px', 
+          marginBottom: '2rem',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between'
+        }}>
+          <div>
+            <h2 style={{ margin: '0 0 0.5rem 0', fontSize: '2rem', fontWeight: '700', color: '#1f2937' }}>
+              {previewEmployee.name}
+            </h2>
+            <p style={{ margin: 0, color: '#666', fontSize: '0.95rem' }}>
+              {previewEmployee.department || 'Ukjent avdeling'} • {previewEmployee.role || 'selger'}
+            </p>
+          </div>
+          <a 
+            href="/admin"
+            style={{
+              padding: '0.75rem 1.5rem',
+              background: '#667eea',
+              color: 'white',
+              textDecoration: 'none',
+              borderRadius: '6px',
+              fontWeight: '600',
+              cursor: 'pointer'
+            }}
+          >
+            ← Tilbake
+          </a>
+        </div>
+
+        {/* Dashboard Content - Stats cards only, no tabs */}
+        <div className="minside-container" style={{ background: 'transparent', paddingTop: 0 }}>
+          <div style={{ background: 'white', padding: '2rem', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+            <h3 style={{ marginBottom: '1.5rem', color: '#1f2937' }}>Statistikk</h3>
+            {stats.length > 0 && (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+                {stats.map((stat, idx) => (
+                  <div key={idx} style={{ 
+                    padding: '1.5rem', 
+                    background: '#f9fafb', 
+                    borderRadius: '8px',
+                    border: '1px solid #e5e7eb'
+                  }}>
+                    <p style={{ margin: '0 0 0.5rem 0', color: '#666', fontSize: '0.9rem', fontWeight: '600' }}>{stat.label}</p>
+                    <p style={{ margin: 0, fontSize: '1.8rem', fontWeight: '700', color: '#667eea' }}>{stat.value}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="minside-container">
