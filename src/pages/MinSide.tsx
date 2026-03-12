@@ -936,7 +936,7 @@ export default function MinSide() {
   console.log('🏅 Rendering MinSide with earnedBadges:', earnedBadges);
 
   // Preview mode: show just the dashboard without navbar/chat
-  if (isPreviewMode && previewEmployee && user?.id) {
+  if (isPreviewMode && previewEmployee) {
     return (
       <div style={{ minHeight: '100vh', background: '#f5f5f5', padding: '2rem' }}>
         {/* Preview Header */}
