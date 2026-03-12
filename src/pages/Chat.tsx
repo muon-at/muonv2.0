@@ -229,6 +229,31 @@ export default function Chat() {
     load();
   }, [user]);
 
+  // Initialize localStorage with current unread state on mount
+  useEffect(() => {
+    console.log('⚡ Chat.tsx mounted - initializing localStorage');
+    
+    // Immediately write current state to localStorage for sidebar to read
+    const initializeStorage = () => {
+      const total = channels.reduce((sum, ch) => sum + (ch.unread || 0), 0) + 
+                   Object.values(dmUnreadCounts).reduce((sum, count) => sum + count, 0);
+      
+      localStorage.setItem('chat_unread_count', total.toString());
+      
+      channels.forEach(ch => {
+        localStorage.setItem(`chat_unread_${ch.id}`, (ch.unread || 0).toString());
+      });
+      
+      Object.entries(dmUnreadCounts).forEach(([dmUser, count]) => {
+        localStorage.setItem(`chat_unread_dm_${dmUser}`, count.toString());
+      });
+      
+      console.log('💾 localStorage initialized:', { total, channels: channels.length, dms: Object.keys(dmUnreadCounts).length });
+    };
+    
+    initializeStorage();
+  }, [channels, dmUnreadCounts]);
+
   // Request notification permission when chat opens
   useEffect(() => {
     if (user?.id) {
