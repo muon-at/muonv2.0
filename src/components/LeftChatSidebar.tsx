@@ -27,7 +27,7 @@ export const LeftChatSidebar: React.FC<LeftChatSidebarProps> = ({ isOpen, onClos
     const loadFromStorage = () => {
       const channelIds = ['global', 'project-allente', 'dept-krs', 'dept-osl', 'dept-skien'];
       const channelCounts: Record<string, number> = {};
-
+      
       channelIds.forEach(channelId => {
         // Try localStorage first (persists across sessions), then sessionStorage
         const stored = localStorage.getItem(`chat_unread_${channelId}`) || sessionStorage.getItem(`chat_unread_${channelId}`);
@@ -38,14 +38,14 @@ export const LeftChatSidebar: React.FC<LeftChatSidebarProps> = ({ isOpen, onClos
           }
         }
       });
-
+      
       setFallbackChannelUnread(channelCounts);
-
+      
       // Also load total DM unread from both storages
       const allLocalKeys = Object.keys(localStorage);
       const allSessionKeys = Object.keys(sessionStorage);
       const allKeys = new Set([...allLocalKeys, ...allSessionKeys]);
-
+      
       let totalDM = 0;
       allKeys.forEach(key => {
         if (key.startsWith('chat_unread_dm_')) {
@@ -54,24 +54,74 @@ export const LeftChatSidebar: React.FC<LeftChatSidebarProps> = ({ isOpen, onClos
         }
       });
       setFallbackDMUnread(totalDM);
-
+      
       console.log('📚 Sidebar loaded from storage:', { channelCounts, totalDM });
     };
 
     loadFromStorage();
-
+    
     // Poll every 500ms to catch updates
     const interval = setInterval(loadFromStorage, 500);
     return () => clearInterval(interval);
   }, []);
 
+  // Load chat data directly if localStorage empty AND sidebar is open
+  useEffect(() => {
+    if (!isOpen) return;
+    
+    const hasStorageData = localStorage.getItem('chat_unread_count') !== null;
+    if (hasStorageData) return; // Already has data
+    
+    console.log('⚡ Sidebar opened with NO stored data - loading chat data directly...');
+    
+    const loadChatDataDirectly = async () => {
+      try {
+        const { collection, getDocs } = await import('firebase/firestore');
+        const { db } = await import('../lib/firebase');
+        
+        // Load channels
+        const channelsRef = collection(db, 'chat_channels');
+        const channelSnap = await getDocs(channelsRef);
+        let totalUnread = 0;
+        
+        channelSnap.forEach(doc => {
+          const ch = doc.data();
+          const unreadCount = ch.unread || 0;
+          localStorage.setItem(`chat_unread_${doc.id}`, unreadCount.toString());
+          totalUnread += unreadCount;
+        });
+        
+        // Load DMs
+        const dmsRef = collection(db, 'chat_dms');
+        const dmSnap = await getDocs(dmsRef);
+        
+        dmSnap.forEach(doc => {
+          const dm = doc.data();
+          if (dm.participants && dm.participants.includes(user?.name)) {
+            const otherParticipant = dm.participants.find((p: string) => p !== user?.name);
+            const unreadCount = (user?.name && dm.unread?.[user.name]) || 0;
+            localStorage.setItem(`chat_unread_dm_${otherParticipant}`, unreadCount.toString());
+            totalUnread += unreadCount;
+          }
+        });
+        
+        localStorage.setItem('chat_unread_count', totalUnread.toString());
+        console.log('✅ Chat data loaded directly into localStorage, total unread:', totalUnread);
+      } catch (err) {
+        console.error('Error loading chat data:', err);
+      }
+    };
+    
+    loadChatDataDirectly();
+  }, [isOpen, user?.name]);
+
   // Use Context data if available, otherwise fallback to localStorage/sessionStorage
   const dmUnreadCount = contextDMUnread > 0 ? contextDMUnread : fallbackDMUnread;
   const channelUnread = Object.keys(contextChannelUnread).length > 0 ? contextChannelUnread : fallbackChannelUnread;
-  
-  console.log('📊 Sidebar DEBUG:', { 
-    contextDM: contextDMUnread, 
-    contextChannels: contextChannelUnread, 
+
+  console.log('📊 Sidebar DEBUG:', {
+    contextDM: contextDMUnread,
+    contextChannels: contextChannelUnread,
     fallbackChannels: fallbackChannelUnread,
     fallbackDM: fallbackDMUnread,
     usingContext: Object.keys(contextChannelUnread).length > 0,
