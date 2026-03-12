@@ -4,8 +4,7 @@ import { useAuth } from '../lib/authContext';
 import { db } from '../lib/firebase';
 import { collection, getDocs, addDoc, onSnapshot, query, orderBy, updateDoc, doc, arrayUnion, getDoc, setDoc } from 'firebase/firestore';
 import ChannelModal from '../components/ChannelModal';
-import { requestNotificationPermission } from '../lib/push-notification-handler';
-// TODO: Use showNotification, playNotificationSound, vibrateDevice when Firestore listener is integrated
+import { requestNotificationPermission, showNotification, playNotificationSound, vibrateDevice } from '../lib/push-notification-handler';
 import '../styles/Chat.css';
 
 interface Channel {
@@ -78,6 +77,7 @@ export default function Chat() {
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
   const [editingMessageContent, setEditingMessageContent] = useState('');
   const [hoveredMessageId, setHoveredMessageId] = useState<string | null>(null); // Track which message is hovered
+  const [lastNotifiedMessageTime, setLastNotifiedMessageTime] = useState<Record<string, number>>({}); // Track last notified message time per channel/DM
   const [topDepartment, setTopDepartment] = useState<string | null>(null); // Best department this week
   const [employeeMapByName, setEmployeeMapByName] = useState<any>({}); // Map of displayName -> {department}
   const [imagePreview, setImagePreview] = useState<string | null>(null); // DM image preview
@@ -736,6 +736,31 @@ export default function Chat() {
     }
   };
 
+  // Mark channel as read - reset unread count
+  const markChannelAsRead = async (channelId: string) => {
+    try {
+      // Update channel unread to 0
+      const updatedChannels = channels.map(ch => 
+        ch.id === channelId ? { ...ch, unread: 0 } : ch
+      );
+      setChannels(updatedChannels);
+      
+      console.log('✅ Channel marked as read:', channelId);
+    } catch (error) {
+      console.error('❌ Error marking channel as read:', error);
+    }
+  };
+
+  // Mark DM as read - reset unread count
+  const markDMAsRead = async (dmId: string) => {
+    try {
+      setDmUnreadCounts(prev => ({ ...prev, [dmId]: 0 }));
+      console.log('✅ DM marked as read:', dmId);
+    } catch (error) {
+      console.error('❌ Error marking DM as read:', error);
+    }
+  };
+
   const loadChannelMessages = async (channelId: string) => {
     try {
       const channelInfo = channels.find(c => c.id === channelId);
@@ -762,9 +787,38 @@ export default function Chat() {
           console.log('📋 MESSAGE SENDERS IN CHANNEL:', msgs.map(m => ({ sender: m.sender, content: m.content.substring(0, 30), time: m.timestamp })));
           console.log('First message:', msgs[0]);
           console.log('Last message:', msgs[msgs.length - 1]);
+          
+          // Check for new messages and send notifications
+          const lastNotified = lastNotifiedMessageTime[channelId] || 0;
+          const newMessages = msgs.filter(m => (m.timestamp || 0) > lastNotified && m.sender !== user?.name);
+          
+          if (newMessages.length > 0 && lastNotified > 0) {
+            // Only notify if this isn't the first load
+            newMessages.forEach(msg => {
+              console.log('🔔 NEW MESSAGE NOTIFICATION:', msg.sender, '-', msg.content.substring(0, 50));
+              showNotification({
+                senderName: msg.sender,
+                text: msg.content,
+                senderId: msg.id,
+              });
+              playNotificationSound();
+              vibrateDevice();
+            });
+          }
+          
+          // Update last notified time
+          if (msgs.length > 0) {
+            setLastNotifiedMessageTime(prev => ({
+              ...prev,
+              [channelId]: Math.max(...msgs.map(m => m.timestamp || 0))
+            }));
+          }
         }
         setMessages(msgs);
       });
+      
+      // Mark channel as read when loaded
+      await markChannelAsRead(channelId);
       
       // Store unsubscribe in ref for cleanup
       unsubscribeRef.current = unsubscribe;
@@ -786,8 +840,38 @@ export default function Chat() {
             ...doc.data() as any,
           });
         });
+        
+        // Check for new messages and send notifications
+        const lastNotified = lastNotifiedMessageTime[dmId] || 0;
+        const newMessages = msgs.filter(m => (m.timestamp || 0) > lastNotified && m.sender !== user?.name);
+        
+        if (newMessages.length > 0 && lastNotified > 0) {
+          // Only notify if this isn't the first load
+          newMessages.forEach(msg => {
+            console.log('🔔 NEW DM NOTIFICATION:', msg.sender, '-', msg.content.substring(0, 50));
+            showNotification({
+              senderName: msg.sender,
+              text: msg.content,
+              senderId: msg.id,
+            });
+            playNotificationSound();
+            vibrateDevice();
+          });
+        }
+        
+        // Update last notified time
+        if (msgs.length > 0) {
+          setLastNotifiedMessageTime(prev => ({
+            ...prev,
+            [dmId]: Math.max(...msgs.map(m => m.timestamp || 0))
+          }));
+        }
+        
         setMessages(msgs);
       });
+      
+      // Mark DM as read when loaded
+      await markDMAsRead(dmId);
       
       // Store unsubscribe in ref for cleanup
       unsubscribeRef.current = unsubscribe;
