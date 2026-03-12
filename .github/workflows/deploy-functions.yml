@@ -20,13 +20,12 @@ jobs:
         with:
           node-version: '20'
       
-      - name: Decode and write credentials
+      - name: Write credentials file
         env:
-          GCP_KEY_BASE64: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+          GCP_KEY: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
         run: |
           mkdir -p ~/.config/gcloud
-          echo "$GCP_KEY_BASE64" | base64 --decode > ~/.config/gcloud/credentials.json
-          cat ~/.config/gcloud/credentials.json | head -5
+          echo "$GCP_KEY" > ~/.config/gcloud/credentials.json
       
       - name: Setup gcloud CLI
         uses: google-github-actions/setup-gcloud@v1
