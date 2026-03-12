@@ -18,12 +18,38 @@ export const LeftChatSidebar: React.FC<LeftChatSidebarProps> = ({ isOpen }) => {
   const { totalDMUnread: contextDMUnread } = useDMUnread(); // Get DM unread from context
   const { channelUnreadCounts: contextChannelUnread } = useChannelUnread(); // Get channel unread from context
 
-  // Use Context data directly - Chat.tsx syncs to context
-  // No fallbacks needed - if Chat loaded, context has data
-  const dmUnreadCount = contextDMUnread;
-  const channelUnread = contextChannelUnread;
+  // Use Context data if available, fallback to localStorage
+  const dmUnreadCount = contextDMUnread > 0 ? contextDMUnread : (() => {
+    let total = 0;
+    Object.keys(localStorage).forEach(key => {
+      if (key.startsWith('chat_unread_dm_')) {
+        total += parseInt(localStorage.getItem(key) || '0', 10);
+      }
+    });
+    return total;
+  })();
 
-  console.log('📊 Sidebar - Context data:', { contextDM: contextDMUnread, contextChannels: contextChannelUnread });
+  const channelUnread = Object.keys(contextChannelUnread).length > 0 ? contextChannelUnread : (() => {
+    const counts: Record<string, number> = {};
+    const channelIds = ['global', 'project-allente', 'dept-krs', 'dept-osl', 'dept-skien'];
+    channelIds.forEach(id => {
+      const stored = localStorage.getItem(`chat_unread_${id}`);
+      if (stored) {
+        const count = parseInt(stored, 10);
+        if (count > 0) {
+          counts[id] = count;
+        }
+      }
+    });
+    return counts;
+  })();
+
+  console.log('📊 Sidebar - Using:', {
+    dmFromContext: contextDMUnread,
+    dmFallback: dmUnreadCount,
+    channelsFromContext: Object.keys(contextChannelUnread).length,
+    channelsFallback: Object.keys(channelUnread).length
+  });
 
   const handleChannelClick = (channelId: string) => {
     navigate('/chat', { state: { selectedChannel: channelId } });
