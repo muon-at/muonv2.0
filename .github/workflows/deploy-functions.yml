@@ -20,18 +20,21 @@ jobs:
         with:
           node-version: '20'
       
-      - name: Decode credentials
+      - name: Decode and write credentials
+        env:
+          GCP_KEY_BASE64: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
         run: |
-          echo "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}" | base64 --decode > ${GITHUB_WORKSPACE}/credentials.json
-          ls -la ${GITHUB_WORKSPACE}/credentials.json
-      
-      - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v2
-        with:
-          credentials_json: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+          mkdir -p ~/.config/gcloud
+          echo "$GCP_KEY_BASE64" | base64 --decode > ~/.config/gcloud/credentials.json
+          cat ~/.config/gcloud/credentials.json | head -5
       
       - name: Setup gcloud CLI
         uses: google-github-actions/setup-gcloud@v1
+      
+      - name: Authenticate to Google Cloud
+        run: |
+          gcloud auth activate-service-account --key-file ~/.config/gcloud/credentials.json
+          gcloud config set project brukerstats-dashboard
       
       - name: Install Firebase CLI
         run: npm install -g firebase-tools
