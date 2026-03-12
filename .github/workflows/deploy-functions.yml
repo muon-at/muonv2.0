@@ -20,18 +20,25 @@ jobs:
         with:
           node-version: '20'
       
-      - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v1
-        with:
-          credentials_json: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+      - name: Decode and setup credentials
+        run: |
+          echo "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}" | base64 -d > /tmp/credentials.json
+          echo "GOOGLE_APPLICATION_CREDENTIALS=/tmp/credentials.json" >> $GITHUB_ENV
       
       - name: Setup gcloud CLI
         uses: google-github-actions/setup-gcloud@v1
+        with:
+          version: 'latest'
+      
+      - name: Authenticate to Google Cloud
+        run: |
+          gcloud auth activate-service-account --key-file=/tmp/credentials.json
+          gcloud config set project brukerstats-dashboard
       
       - name: Install Firebase CLI
         run: npm install -g firebase-tools
       
-      - name: Deploy Cloud Functions
+      - name: Deploy sendChatNotification function
         run: |
           gcloud functions deploy sendChatNotification \
             --runtime nodejs20 \
@@ -40,8 +47,11 @@ jobs:
             --source functions \
             --entry-point sendChatNotification \
             --region us-central1 \
-            --project brukerstats-dashboard
-          
+            --project brukerstats-dashboard \
+            --quiet
+      
+      - name: Deploy sendDMNotification function
+        run: |
           gcloud functions deploy sendDMNotification \
             --runtime nodejs20 \
             --trigger-resource chat_dms \
@@ -49,4 +59,5 @@ jobs:
             --source functions \
             --entry-point sendDMNotification \
             --region us-central1 \
-            --project brukerstats-dashboard
+            --project brukerstats-dashboard \
+            --quiet
