@@ -4,7 +4,7 @@ import { useAuth } from '../lib/authContext';
 import { db } from '../lib/firebase';
 import { collection, getDocs, addDoc, onSnapshot, query, orderBy, updateDoc, doc, arrayUnion, getDoc, setDoc } from 'firebase/firestore';
 import ChannelModal from '../components/ChannelModal';
-import { requestNotificationPermission, showNotification, playNotificationSound, vibrateDevice } from '../lib/push-notification-handler';
+import { requestNotificationPermission, showNotification, playNotificationSound, vibrateDevice, subscribeToWebPush } from '../lib/push-notification-handler';
 import { useChannelUnread } from '../lib/ChannelUnreadContext';
 import '../styles/Chat.css';
 
@@ -232,14 +232,20 @@ export default function Chat() {
   // NOTE: Do NOT initialize localStorage - sidebar is the source of truth
   // Chat.tsx syncs to context only, not to storage
 
-  // Request notification permission when chat opens
+  // Request notification permission and subscribe to Web Push when chat opens
   useEffect(() => {
     if (user?.id) {
       console.log('🔔 Requesting notification permission for user:', user.name);
       requestNotificationPermission().then((granted) => {
         if (granted) {
           console.log('✅ Notifications enabled!');
-          // TODO: Subscribe to Firestore messages when Valg A is integrated
+          
+          // Subscribe to Web Push for guaranteed notifications
+          subscribeToWebPush(user.id).then((subscription) => {
+            if (subscription) {
+              console.log('✅ Web Push subscribed - will notify even when app closed!');
+            }
+          });
         }
       });
     }

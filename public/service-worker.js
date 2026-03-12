@@ -100,3 +100,65 @@ self.addEventListener('message', (event) => {
     self.skipWaiting();
   }
 });
+
+// Handle push notifications from backend
+self.addEventListener('push', (event) => {
+  if (!event.data) {
+    console.log('Push received but no data');
+    return;
+  }
+
+  try {
+    const data = event.data.json();
+    const options = {
+      body: data.body || 'Ny melding',
+      icon: '/manifest.json',
+      badge: '/manifest.json',
+      tag: data.tag || 'chat-notification',
+      requireInteraction: false,
+      vibrate: [100, 50, 100],
+      sound: 'default',
+      actions: [
+        {
+          action: 'open',
+          title: 'Åpne',
+        },
+        {
+          action: 'close',
+          title: 'Lukk',
+        }
+      ]
+    };
+
+    event.waitUntil(
+      self.registration.showNotification(data.title || 'Ny melding', options)
+    );
+
+    console.log('✅ Push notification shown:', data.title);
+  } catch (error) {
+    console.error('Error handling push:', error);
+  }
+});
+
+// Handle notification clicks
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+
+  if (event.action === 'close') {
+    return;
+  }
+
+  // Open the app or focus existing window
+  event.waitUntil(
+    clients.matchAll({ type: 'window' }).then((clientList) => {
+      for (let i = 0; i < clientList.length; i++) {
+        if (clientList[i].url === '/' && 'focus' in clientList[i]) {
+          return clientList[i].focus();
+        }
+      }
+      if (clients.openWindow) {
+        return clients.openWindow('/');
+      }
+    })
+  );
+});

@@ -1,9 +1,8 @@
 // Push Notification Handler for Chat Messages
-// Valg A: Service Worker listens to Firestore directly
-// TODO: Valg B upgrade - add backend Web Push API integration here
+// Web Push API for guaranteed notifications (even when app is closed)
 
 import { db } from './firebase';
-import { collection, onSnapshot, query, orderBy, limit } from 'firebase/firestore';
+import { collection, onSnapshot, query, orderBy, limit, doc, setDoc } from 'firebase/firestore';
 
 /**
  * Request notification permission from user
@@ -179,12 +178,93 @@ export const vibrateDevice = () => {
 
 export const setupValg_B_WebPush = async () => {
   console.log('TODO: Setup Valg B Web Push when backend is ready');
-  
-  // Placeholder for future implementation
-  // This will be called from Chat.tsx when user enables notifications
-  
-  // Steps:
-  // 1. const vapidKey = await fetch('/api/push-vapid-key');
-  // 2. const subscription = await serviceWorkerRegistration.pushManager.subscribe({...});
-  // 3. await fetch('/api/push-subscribe', { method: 'POST', body: JSON.stringify(subscription) });
+};
+
+/**
+ * Subscribe device to Web Push notifications
+ * Guarantees notification even when app is closed
+ * VAPID public key from environment
+ */
+export const subscribeToWebPush = async (userId: string): Promise<PushSubscription | null> => {
+  try {
+    // Check if browser supports Push API
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+      console.warn('Browser does not support Web Push');
+      return null;
+    }
+
+    // VAPID public key from environment variables
+    const VAPID_PUBLIC_KEY = 'BBo0I4DuK1Sk-MExUGj7UrgE2y4HTgAGO6nisAQxJu4TFYUiPb1IEOwRk0ZYr4YmtEx_Ag256ogjznbuKLw9NtU';
+
+    // Get service worker registration
+    const registration = await navigator.serviceWorker.ready;
+
+    // Check if already subscribed
+    let subscription = await registration.pushManager.getSubscription();
+    
+    if (!subscription) {
+      // Subscribe to push notifications
+      subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlB64ToUint8Array(VAPID_PUBLIC_KEY),
+      });
+
+      console.log('✅ Subscribed to Web Push:', subscription);
+    }
+
+    // Store subscription in Firestore under user document
+    if (subscription && userId) {
+      await setDoc(
+        doc(db, 'push_subscriptions', userId),
+        {
+          subscription: subscription.toJSON(),
+          updatedAt: new Date().toISOString(),
+        },
+        { merge: true }
+      );
+      
+      console.log('✅ Push subscription stored in Firestore');
+    }
+
+    return subscription;
+  } catch (error) {
+    console.error('❌ Error subscribing to Web Push:', error);
+    return null;
+  }
+};
+
+/**
+ * Helper function: Convert VAPID key from base64url to Uint8Array
+ */
+function urlB64ToUint8Array(base64String: string): BufferSource {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding)
+    .replace(/\-/g, '+')
+    .replace(/_/g, '/');
+
+  const rawData = window.atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+
+  for (let i = 0; i < rawData.length; ++i) {
+    outputArray[i] = rawData.charCodeAt(i);
+  }
+
+  return outputArray;
+}
+
+/**
+ * Unsubscribe from Web Push
+ */
+export const unsubscribeFromWebPush = async (): Promise<void> => {
+  try {
+    const registration = await navigator.serviceWorker.ready;
+    const subscription = await registration.pushManager.getSubscription();
+
+    if (subscription) {
+      await subscription.unsubscribe();
+      console.log('✅ Unsubscribed from Web Push');
+    }
+  } catch (error) {
+    console.error('❌ Error unsubscribing from Web Push:', error);
+  }
 };
