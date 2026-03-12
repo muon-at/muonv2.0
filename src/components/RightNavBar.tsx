@@ -26,15 +26,20 @@ export const RightNavBar: React.FC = () => {
     const allKeys = new Set([...allLocalKeys, ...allSessionKeys]);
     
     let channelUnread = 0;
+    const channelBreakdown: Record<string, number> = {};
     allKeys.forEach(key => {
       if (key.startsWith('chat_unread_') && key !== 'chat_unread_count' && !key.startsWith('chat_unread_dm_')) {
         const count = parseInt(localStorage.getItem(key) || sessionStorage.getItem(key) || '0', 10);
         channelUnread += count;
+        if (count > 0) {
+          channelBreakdown[key] = count;
+        }
       }
     });
     
     // Get DM unread from context
     let dmUnread = totalDMUnread;
+    const dmBreakdown: Record<string, number> = {};
     
     // Fallback: if context is empty, read from storage
     if (dmUnread === 0) {
@@ -42,6 +47,9 @@ export const RightNavBar: React.FC = () => {
         if (key.startsWith('chat_unread_dm_')) {
           const count = parseInt(localStorage.getItem(key) || sessionStorage.getItem(key) || '0', 10);
           dmUnread += count;
+          if (count > 0) {
+            dmBreakdown[key] = count;
+          }
         }
       });
     }
@@ -50,7 +58,10 @@ export const RightNavBar: React.FC = () => {
     const total = channelUnread + dmUnread;
     setUnreadCount(total);
     
-    console.log('📊 Navbar badge calculated:', { channelUnread, dmUnread, total, contextDM: totalDMUnread });
+    console.log('📊 Navbar badge calculation breakdown:');
+    console.log('  Channels:', channelBreakdown, '= total', channelUnread);
+    console.log('  DMs:', dmBreakdown, '= total', dmUnread);
+    console.log('  NAVBAR TOTAL:', total);
   }, [totalDMUnread]);
   
   // Poll storage periodically as safety net
