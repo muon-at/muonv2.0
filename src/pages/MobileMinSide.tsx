@@ -64,7 +64,6 @@ export default function MobileMinSide() {
   }
 
   // Calculate daily/weekly/monthly/yearly earnings
-  const today = new Date().toLocaleDateString('nb-NO', { year: 'numeric', month: '2-digit', day: '2-digit' });
   const dagEarnings = earnings?.status || 0;
   const ukeEarnings = earnings?.weeklyStatus || 0;
   const måned = earnings?.monthlyStatus || 0;
