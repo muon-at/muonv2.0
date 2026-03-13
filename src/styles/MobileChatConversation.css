@@ -142,6 +142,91 @@
   }
 }
 
+/* GIF PICKER MODAL */
+.gif-picker-modal {
+  position: absolute;
+  bottom: 60px;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 300px;
+  background: #2a2a2a;
+  border-top: 1px solid #333;
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+  border-radius: 12px 12px 0 0;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.4);
+}
+
+.gif-picker-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #333;
+}
+
+.gif-picker-header h3 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 1rem;
+}
+
+.gif-picker-close {
+  background: none;
+  border: none;
+  color: #ffffff;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+}
+
+.gif-search-input {
+  padding: 0.75rem;
+  margin: 0.75rem;
+  border: 1px solid #444;
+  border-radius: 6px;
+  background: #333;
+  color: #ffffff;
+  font-size: 0.9rem;
+}
+
+.gif-search-input:focus {
+  outline: none;
+  border-color: #007AFF;
+}
+
+.gif-loading {
+  padding: 1rem;
+  text-align: center;
+  color: #aaa;
+}
+
+.gif-results {
+  flex: 1;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  padding: 0.5rem;
+}
+
+.gif-result-item {
+  width: 100%;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.gif-result-item:hover {
+  transform: scale(1.05);
+}
+
 /* Mobile: Smaller screens */
 @media (max-width: 480px) {
   .messages-container {
@@ -157,5 +242,13 @@
   .write-input {
     font-size: 0.9rem;
     padding: 0.6rem;
+  }
+
+  .gif-picker-modal {
+    height: 250px;
+  }
+
+  .gif-results {
+    grid-template-columns: repeat(2, 1fr);
   }
 }

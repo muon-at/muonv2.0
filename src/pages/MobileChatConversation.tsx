@@ -22,6 +22,10 @@ export default function MobileChatConversation() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [messageText, setMessageText] = useState('');
   const [chatTitle, setChatTitle] = useState('');
+  const [showGifPicker, setShowGifPicker] = useState(false);
+  const [gifSearch, setGifSearch] = useState('');
+  const [gifResults, setGifResults] = useState<any[]>([]);
+  const [gifLoading, setGifLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -278,33 +282,57 @@ export default function MobileChatConversation() {
     }
   };
 
-  const handleGifClick = async () => {
-    const gifUrl = prompt('Paste GIF URL:');
-    if (gifUrl) {
-      try {
-        if (isDM) {
-          const participants = [user!.name, chatName].sort();
-          const dmId = participants.join('_').toLowerCase().replace(/[^a-z0-9_]/g, '_');
-          await addDoc(collection(db, 'chat_dms', dmId, 'messages'), {
-            sender: user!.name,
-            senderId: user!.id,
-            content: gifUrl,
-            timestamp: serverTimestamp(),
-            type: 'image'
-          });
-        } else {
-          await addDoc(collection(db, 'chat_channels', chatName, 'messages'), {
-            sender: user!.name,
-            senderId: user!.id,
-            content: gifUrl,
-            timestamp: serverTimestamp(),
-            type: 'image'
-          });
-        }
-      } catch (error) {
-        console.error('GIF send error:', error);
-      }
+  const searchGifs = async (query: string) => {
+    if (!query.trim()) {
+      setGifResults([]);
+      return;
     }
+    setGifLoading(true);
+    try {
+      const response = await fetch(
+        `https://api.giphy.com/v1/gifs/search?q=${encodeURIComponent(query)}&limit=20&api_key=rocNGj67aZ4GXyTkBiLKHDgso3j4EQ3c`
+      );
+      const data = await response.json();
+      setGifResults(data.data || []);
+    } catch (error) {
+      console.error('GIF search error:', error);
+    } finally {
+      setGifLoading(false);
+    }
+  };
+
+  const sendGif = async (gifUrl: string) => {
+    try {
+      if (isDM) {
+        const participants = [user!.name, chatName].sort();
+        const dmId = participants.join('_').toLowerCase().replace(/[^a-z0-9_]/g, '_');
+        await addDoc(collection(db, 'chat_dms', dmId, 'messages'), {
+          sender: user!.name,
+          senderId: user!.id,
+          content: gifUrl,
+          timestamp: serverTimestamp(),
+          type: 'image'
+        });
+      } else {
+        await addDoc(collection(db, 'chat_channels', chatName, 'messages'), {
+          sender: user!.name,
+          senderId: user!.id,
+          content: gifUrl,
+          timestamp: serverTimestamp(),
+          type: 'image'
+        });
+      }
+      setShowGifPicker(false);
+      setGifSearch('');
+      setGifResults([]);
+    } catch (error) {
+      console.error('GIF send error:', error);
+    }
+  };
+
+  const handleGifClick = () => {
+    setShowGifPicker(!showGifPicker);
+    if (!showGifPicker) setGifSearch('');
   };
 
   // Safety check
@@ -368,6 +396,37 @@ export default function MobileChatConversation() {
         ))}
         <div ref={messagesEndRef} />
       </div>
+
+      {showGifPicker && (
+        <div className="gif-picker-modal">
+          <div className="gif-picker-header">
+            <h3>Søk GIFs</h3>
+            <button className="gif-picker-close" onClick={() => setShowGifPicker(false)}>×</button>
+          </div>
+          <input
+            type="text"
+            className="gif-search-input"
+            placeholder="Søk GIF..."
+            value={gifSearch}
+            onChange={(e) => {
+              setGifSearch(e.target.value);
+              searchGifs(e.target.value);
+            }}
+          />
+          {gifLoading && <div className="gif-loading">Laster...</div>}
+          <div className="gif-results">
+            {gifResults.map((gif) => (
+              <img
+                key={gif.id}
+                src={gif.images.fixed_height.url}
+                alt="GIF"
+                className="gif-result-item"
+                onClick={() => sendGif(gif.images.fixed_height.url)}
+              />
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="write-field">
         <input
