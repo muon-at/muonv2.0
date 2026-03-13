@@ -3,7 +3,7 @@
   flex-direction: column;
   height: 100vh;
   width: 100%;
-  background: #f5f5f5;
+  background: #1a1a1a;
 }
 
 .mobile-header {
@@ -12,16 +12,16 @@
   justify-content: space-between;
   padding: 1rem;
   padding-top: max(1rem, env(safe-area-inset-top));
-  background: white;
-  border-bottom: 1px solid #e0e0e0;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  background: #1a1a1a;
+  border-bottom: 1px solid #333;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .mobile-header h1 {
   font-size: 1.2rem;
   font-weight: 600;
   margin: 0;
-  color: #1f2937;
+  color: #ffffff;
   flex: 1;
   text-align: center;
 }
@@ -44,16 +44,17 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  background: #1a1a1a;
 }
 
 /* REKORDER - Circles (like desktop Min Side) */
 .rekorder-row {
   display: flex;
   gap: 0.5rem;
-  background: white;
+  background: #2a2a2a;
   padding: 1rem;
   border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
   overflow-x: auto;
   justify-content: center;
 }
@@ -93,10 +94,10 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  background: white;
+  background: #2a2a2a;
   padding: 1rem;
   border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 .progress-item {
@@ -128,7 +129,7 @@
 
 .progress-text {
   font-size: 0.75rem;
-  color: #666;
+  color: #aaa;
   text-align: right;
   font-weight: 500;
 }
@@ -141,10 +142,10 @@
 }
 
 .runrate-box {
-  background: white;
+  background: #2a2a2a;
   padding: 1rem;
   border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -155,29 +156,29 @@
 .runrate-label {
   font-size: 0.75rem;
   font-weight: 700;
-  color: #999;
+  color: #666;
   text-transform: uppercase;
 }
 
 .runrate-value {
   font-size: 1.2rem;
   font-weight: 700;
-  color: #1f2937;
+  color: #ffffff;
 }
 
 /* BADGES */
 .badges-section {
-  background: white;
+  background: #2a2a2a;
   padding: 1rem;
   border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 .badges-section h3 {
   margin: 0 0 1rem 0;
   font-size: 0.9rem;
   font-weight: 700;
-  color: #1f2937;
+  color: #ffffff;
   text-transform: uppercase;
 }
 
@@ -191,8 +192,8 @@
   width: 50px;
   height: 50px;
   border-radius: 50%;
-  background: #f5f5f5;
-  border: 2px solid #e0e0e0;
+  background: #333;
+  border: 2px solid #444;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -203,8 +204,14 @@
 
 .badge-item:hover {
   border-color: #ff6b35;
-  background: #fff5f0;
+  background: #3a2a1a;
   transform: scale(1.05);
+}
+
+.progress-item label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #ffffff;
 }
 
 /* Desktop: Hide on desktop */
