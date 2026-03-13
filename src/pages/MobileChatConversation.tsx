@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../lib/authContext';
-import { collection, query, orderBy, onSnapshot, addDoc, serverTimestamp, doc, updateDoc, setDoc, getDoc } from 'firebase/firestore';
+import { collection, query, orderBy, onSnapshot, addDoc, serverTimestamp, doc, updateDoc, setDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import '../styles/MobileChatConversation.css';
 
@@ -82,73 +82,51 @@ export default function MobileChatConversation() {
       setChatTitle(title);
       console.log('📺 Loading channel:', { chatName, title });
 
-      // Async init
-      (async () => {
-        try {
-          // First, verify/create channel document
-          const channelRef = doc(db, 'chat_channels', chatName);
-          const channelSnap = await getDoc(channelRef);
-          
-          if (!channelSnap.exists()) {
-            console.log('⚠️ Channel doc does not exist, creating it...');
-            await setDoc(channelRef, {
-              id: chatName,
-              name: title,
-              unread: 0,
-              createdAt: serverTimestamp()
-            }, { merge: true });
-          }
-          
-          // Now load messages
-          const messagesRef = collection(db, 'chat_channels', chatName, 'messages');
-          const messagesQ = query(messagesRef, orderBy('timestamp', 'asc'));
-          
-          let hasData = false;
-          const unsubscribeMessages = onSnapshot(messagesQ, (snapshot) => {
-            console.log('💬 Channel messages loaded:', snapshot.size, 'docs');
-            hasData = true;
-            const msgs: Message[] = [];
-            snapshot.forEach(doc => {
-              const data = doc.data();
-              msgs.push({
-                id: doc.id,
-                sender: data.sender || 'Unknown',
-                senderId: data.senderId || '',
-                content: data.content || '',
-                timestamp: data.timestamp,
-                type: data.type || 'text'
-              });
+      let unsubscribe: (() => void) | undefined;
+
+      // Initialize channel async
+      setDoc(doc(db, 'chat_channels', chatName), {
+        id: chatName,
+        name: title,
+        unread: 0,
+        createdAt: serverTimestamp()
+      }, { merge: true }).then(() => {
+        console.log('✅ Channel doc ready:', chatName);
+        
+        // Load messages
+        const messagesRef = collection(db, 'chat_channels', chatName, 'messages');
+        const messagesQ = query(messagesRef, orderBy('timestamp', 'asc'));
+        
+        unsubscribe = onSnapshot(messagesQ, (snapshot) => {
+          console.log('💬 Messages loaded:', snapshot.size);
+          const msgs: Message[] = [];
+          snapshot.forEach(doc => {
+            const data = doc.data();
+            msgs.push({
+              id: doc.id,
+              sender: data.sender || 'Unknown',
+              senderId: data.senderId || '',
+              content: data.content || '',
+              timestamp: data.timestamp,
+              type: data.type || 'text'
             });
-            setMessages(msgs);
-            if (msgs.length > 0) {
-              setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
-            }
-          }, (error) => {
-            console.error('❌ Channel listener error:', error);
-            // Fallback: show empty state
-            if (!hasData) {
-              setMessages([]);
-            }
           });
-          
-          // Timeout: if no data after 2 seconds, assume empty channel
-          const timeout = setTimeout(() => {
-            if (!hasData) {
-              console.log('⏱️ No data received after 2s, showing empty state');
-              setMessages([]);
-            }
-          }, 2000);
-          
-          // Store cleanup function
-          return () => {
-            clearTimeout(timeout);
-            unsubscribeMessages();
-          };
-        } catch (error) {
-          console.error('❌ Error setting up channel listener:', error);
+          setMessages(msgs);
+          if (msgs.length > 0) {
+            setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
+          }
+        }, (error) => {
+          console.error('❌ Listener error:', error);
           setMessages([]);
-        }
-      })();
+        });
+      }).catch((error) => {
+        console.error('❌ Channel init error:', error);
+        setMessages([]);
+      });
+
+      return () => {
+        if (unsubscribe) unsubscribe();
+      };
     }
   }, [chatName, isDM, user]);
 
