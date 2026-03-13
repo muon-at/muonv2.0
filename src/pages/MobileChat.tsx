@@ -1,8 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../lib/authContext';
-import { collection, query, where, onSnapshot } from 'firebase/firestore';
-import { db } from '../lib/firebase';
 import '../styles/MobileChat.css';
 
 interface Channel {
@@ -47,18 +44,22 @@ export default function MobileChat() {
 
   // Load DMs
   useEffect(() => {
-    const dmList: { [key: string]: DM } = {};
-    Object.keys(localStorage).forEach(key => {
-      if (key.startsWith('chat_unread_dm_')) {
-        const name = key.replace('chat_unread_dm_', '');
-        const count = parseInt(localStorage.getItem(key) || '0', 10);
-        dmList[name] = { name, unreadCount: count };
-      }
-    });
+    const loadDMs = () => {
+      const dmList: { [key: string]: DM } = {};
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('chat_unread_dm_')) {
+          const name = key.replace('chat_unread_dm_', '');
+          const count = parseInt(localStorage.getItem(key) || '0', 10);
+          dmList[name] = { name, unreadCount: count };
+        }
+      });
 
-    // Sort by unread first
-    const sorted = Object.values(dmList).sort((a, b) => b.unreadCount - a.unreadCount);
-    setDMs(sorted);
+      // Sort by unread first
+      const sorted = Object.values(dmList).sort((a, b) => b.unreadCount - a.unreadCount);
+      setDMs(sorted);
+    };
+
+    loadDMs();
   }, []);
 
   // Listen for updates

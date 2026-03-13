@@ -64,6 +64,7 @@ export default function MobileChatConversation() {
       return unsubscribe;
     } else {
       // Load channel
+      if (!chatName) return;
       const channelNames: { [key: string]: string } = {
         'global': 'Global',
         'project-allente': 'Allente Chat',
