@@ -44,7 +44,7 @@ export const RightNavBar: React.FC = () => {
   
   // Listen for custom chat unread updates (from Chat.tsx real-time listeners)
   useEffect(() => {
-    const handleChatUnreadUpdate = (event: Event) => {
+    const handleChatUnreadUpdate = () => {
       console.log('💌 Custom event detected - recalculating unread...');
       calculateUnread();
     };
