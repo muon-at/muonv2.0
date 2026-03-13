@@ -325,16 +325,16 @@ export default function Chat() {
       
       snapshot.forEach(doc => {
         const data = doc.data();
-        console.log(`  📄 Checking DM ${doc.id}:`, { 
-          participants: data.participants,
-          hasUnread: !!data.unread,
-          unreadForUser: data.unread?.[user.name],
-          userInParticipants: data.participants?.includes(user.name)
-        });
+        const userInParticipants = data.participants?.includes(user.name);
+        
+        console.log(`  📄 Checking DM ${doc.id}:`);
+        console.log(`      participants array: [${data.participants?.join(', ')}]`);
+        console.log(`      looking for: "${user.name}"`);
+        console.log(`      match: ${userInParticipants}`);
         
         // Check if current user is participant
-        if (!data.participants || !data.participants.includes(user.name)) {
-          console.log(`    ⏭️ Skipped - user.name not in participants`);
+        if (!data.participants || !userInParticipants) {
+          console.log(`      ⏭️ Skipped - user.name "${user.name}" not in participants`);
           return;
         }
 
