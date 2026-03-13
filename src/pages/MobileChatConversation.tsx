@@ -82,6 +82,15 @@ export default function MobileChatConversation() {
       setChatTitle(title);
       console.log('📺 Loading channel:', { chatName, title });
 
+      // Create channel if it doesn't exist
+      const channelRef = doc(db, 'chat_channels', chatName);
+      setDoc(channelRef, {
+        id: chatName,
+        name: title,
+        unread: 0,
+        createdAt: serverTimestamp()
+      }, { merge: true }).catch(err => console.error('Channel creation note:', err));
+
       const messagesRef = collection(db, 'chat_channels', chatName, 'messages');
       const messagesQ = query(messagesRef, orderBy('timestamp', 'asc'));
       const unsubscribe = onSnapshot(messagesQ, (snapshot) => {
@@ -148,6 +157,22 @@ export default function MobileChatConversation() {
           lastMessageTime: serverTimestamp()
         });
       } else {
+        // Ensure channel exists
+        const channelRef = doc(db, 'chat_channels', chatName);
+        const channelNames: { [key: string]: string } = {
+          'global': 'Global',
+          'project-allente': 'Allente Chat',
+          'dept-krs': 'KRS',
+          'dept-osl': 'OSL',
+          'dept-skien': 'Skien'
+        };
+        await setDoc(channelRef, {
+          id: chatName,
+          name: channelNames[chatName] || chatName,
+          unread: 0,
+          createdAt: serverTimestamp()
+        }, { merge: true });
+
         // Add message to channel
         await addDoc(collection(db, 'chat_channels', chatName, 'messages'), {
           sender: user.name,
