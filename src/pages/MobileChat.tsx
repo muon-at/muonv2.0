@@ -26,7 +26,7 @@ export default function MobileChat() {
     return (saved as 'dms' | 'channels') || 'channels';
   });
 
-  // Ensure all channels exist in Firestore
+  // Ensure all channels exist in Firestore (same setup as Global)
   useEffect(() => {
     const ensureChannels = async () => {
       const channelDefs = [
@@ -37,19 +37,25 @@ export default function MobileChat() {
         { id: 'dept-skien', name: 'Skien', emoji: '🏢' },
       ];
 
-      // Create all channel documents if they don't exist
+      // Create all channel documents with EXACT same structure as Global
       for (const ch of channelDefs) {
         try {
-          await setDoc(doc(db, 'chat_channels', ch.id), {
+          const channelDoc = doc(db, 'chat_channels', ch.id);
+          await setDoc(channelDoc, {
+            // Exact fields that Global should have
             id: ch.id,
             name: ch.name,
             emoji: ch.emoji,
+            type: 'global', // Same as Global
             unread: 0,
-            createdAt: serverTimestamp()
+            createdAt: serverTimestamp(),
+            lastMessage: '',
+            lastMessageTime: serverTimestamp()
           }, { merge: true });
-          console.log('✅ Channel ensured:', ch.id);
+          
+          console.log('✅ Channel created with Global structure:', ch.id);
         } catch (error) {
-          console.error('❌ Error ensuring channel:', ch.id, error);
+          console.error('❌ Error creating channel:', ch.id, error);
         }
       }
 
