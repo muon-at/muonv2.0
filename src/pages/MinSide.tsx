@@ -171,8 +171,10 @@ export default function MinSide() {
           const employeeRef = doc(db, 'employees', previewUserId);
           const employeeSnap = await getDoc(employeeRef);
           if (employeeSnap.exists()) {
-            console.log('✅ Preview employee loaded:', employeeSnap.data().name);
-            setPreviewEmployee(employeeSnap.data());
+            const empData = employeeSnap.data();
+            console.log('✅ Preview employee loaded:', empData);
+            console.log('📋 Preview employee fields:', Object.keys(empData));
+            setPreviewEmployee(empData);
           } else {
             console.warn('⚠️ Preview employee not found:', previewUserId);
           }
