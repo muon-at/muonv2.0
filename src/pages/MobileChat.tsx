@@ -32,7 +32,7 @@ export default function MobileChat() {
       const channelDefs = [
         { id: 'global', name: 'Global', emoji: '🌍' },
         { id: 'allente-chat', name: 'Allente Chat', emoji: '🏢' },
-        { id: 'dept-krs', name: 'KRS', emoji: '🏢' },
+        { id: 'krs-channel', name: 'KRS', emoji: '🏢' },
         { id: 'dept-osl', name: 'OSL', emoji: '🏢' },
         { id: 'dept-skien', name: 'Skien', emoji: '🏢' },
         { id: 'admin-channel', name: 'Admin', emoji: '⚙️' },
