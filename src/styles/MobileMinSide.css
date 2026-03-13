@@ -46,7 +46,7 @@
   gap: 1.5rem;
 }
 
-/* REKORDER - Same line */
+/* REKORDER - Circles (like desktop Min Side) */
 .rekorder-row {
   display: flex;
   gap: 0.5rem;
@@ -55,29 +55,37 @@
   border-radius: 8px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   overflow-x: auto;
+  justify-content: center;
 }
 
-.rekord-item {
+.rekord-circle {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.25rem;
-  min-width: 70px;
-  padding: 0.5rem;
+  gap: 0.5rem;
+  min-width: 65px;
 }
 
-.rekord-label {
-  font-size: 0.65rem;
+.circle-number {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ff6b35 0%, #ff8c5a 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.circle-label {
+  font-size: 0.6rem;
   font-weight: 700;
   color: #999;
   text-transform: uppercase;
-}
-
-.rekord-value {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #1f2937;
   text-align: center;
+  line-height: 1.2;
 }
 
 /* PROGRESS BARS */
@@ -120,8 +128,9 @@
 
 .progress-text {
   font-size: 0.75rem;
-  color: #999;
+  color: #666;
   text-align: right;
+  font-weight: 500;
 }
 
 /* RUNRATE */
@@ -151,9 +160,9 @@
 }
 
 .runrate-value {
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   font-weight: 700;
-  color: #ff6b35;
+  color: #1f2937;
 }
 
 /* BADGES */

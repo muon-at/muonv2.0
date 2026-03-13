@@ -8,7 +8,7 @@ import '../styles/MobileMinSide.css';
 export default function MobileMinSide() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [earnings, setEarnings] = useState<any>(null);
+  const [data, setData] = useState<any>(null);
   const [badges, setBadges] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -17,13 +17,14 @@ export default function MobileMinSide() {
 
     const loadData = async () => {
       try {
-        // Load earnings
-        const earningsRef = collection(db, 'employee_earnings');
-        const q = query(earningsRef, where('employeeId', '==', user.id));
+        // Load employee data
+        const employeesRef = collection(db, 'employees');
+        const q = query(employeesRef, where('userId', '==', user.id));
         const snapshot = await getDocs(q);
         
         if (snapshot.size > 0) {
-          setEarnings(snapshot.docs[0].data());
+          const empData = snapshot.docs[0].data();
+          setData(empData);
         }
 
         // Load badges
@@ -63,25 +64,27 @@ export default function MobileMinSide() {
     );
   }
 
-  // Calculate daily/weekly/monthly/yearly earnings
-  const dagEarnings = earnings?.status || 0;
-  const ukeEarnings = earnings?.weeklyStatus || 0;
-  const måned = earnings?.monthlyStatus || 0;
-  const år = earnings?.yearlyStatus || 0;
-  const totalt = earnings?.totalEarnings || 0;
+  // Record circles (best of each period - NO kr)
+  const besteDag = data?.besteDag || 0;
+  const besteUke = data?.besteUke || 0;
+  const besteMåned = data?.besteMåned || 0;
+  const besteÅr = data?.besteÅr || 0;
+  const totaltEarnings = data?.totalEarnings || 0;
 
-  // Progress bars (0-100%)
-  const weeklyGoal = earnings?.weeklyGoal || 10000;
-  const monthlyGoal = earnings?.monthlyGoal || 40000;
+  // Progress: Count goals completed (not percentage)
+  const weeklyGoal = data?.weeklyGoal || 10000;
+  const monthlyGoal = data?.monthlyGoal || 40000;
   const dagGoal = weeklyGoal / 5;
 
-  const dagProgress = Math.min(100, (dagEarnings / dagGoal) * 100);
-  const ukeProgress = Math.min(100, (ukeEarnings / weeklyGoal) * 100);
-  const månedProgress = Math.min(100, (måned / monthlyGoal) * 100);
+  const goalsCompleted = {
+    dag: (data?.status || 0) >= dagGoal ? 1 : 0,
+    uke: (data?.weeklyStatus || 0) >= weeklyGoal ? 1 : 0,
+    måned: (data?.monthlyStatus || 0) >= monthlyGoal ? 1 : 0
+  };
 
-  // Runrate (UKE | MÅNED)
-  const ukeRunrate = earnings?.weekRunrate || 0;
-  const månedRunrate = earnings?.monthRunrate || 0;
+  // Runrate (same as desktop - NO kr)
+  const ukeRunrate = data?.weekRunrate || 0;
+  const månedRunrate = data?.monthRunrate || 0;
 
   return (
     <div className="mobile-min-side">
@@ -94,66 +97,66 @@ export default function MobileMinSide() {
       </div>
 
       <div className="mobile-min-side-content">
-        {/* REKORDER - Same line (DAG | UKE | MÅNED | ÅR | TOTALT) */}
+        {/* REKORDER - Circles (BESTE DAG | UKE | MÅNED | ÅR | TOTALT) - NO kr */}
         <div className="rekorder-row">
-          <div className="rekord-item">
-            <div className="rekord-label">DAG</div>
-            <div className="rekord-value">{dagEarnings.toLocaleString('nb-NO', { style: 'currency', currency: 'NOK' }).replace(' kr', '')}</div>
+          <div className="rekord-circle">
+            <div className="circle-number">{besteDag}</div>
+            <div className="circle-label">BESTE DAG</div>
           </div>
-          <div className="rekord-item">
-            <div className="rekord-label">UKE</div>
-            <div className="rekord-value">{ukeEarnings.toLocaleString('nb-NO', { style: 'currency', currency: 'NOK' }).replace(' kr', '')}</div>
+          <div className="rekord-circle">
+            <div className="circle-number">{besteUke}</div>
+            <div className="circle-label">BESTE UKE</div>
           </div>
-          <div className="rekord-item">
-            <div className="rekord-label">MÅNED</div>
-            <div className="rekord-value">{måned.toLocaleString('nb-NO', { style: 'currency', currency: 'NOK' }).replace(' kr', '')}</div>
+          <div className="rekord-circle">
+            <div className="circle-number">{besteMåned}</div>
+            <div className="circle-label">BESTE MND</div>
           </div>
-          <div className="rekord-item">
-            <div className="rekord-label">ÅR</div>
-            <div className="rekord-value">{år.toLocaleString('nb-NO', { style: 'currency', currency: 'NOK' }).replace(' kr', '')}</div>
+          <div className="rekord-circle">
+            <div className="circle-number">{besteÅr}</div>
+            <div className="circle-label">BESTE ÅR</div>
           </div>
-          <div className="rekord-item">
-            <div className="rekord-label">TOTALT</div>
-            <div className="rekord-value">{totalt.toLocaleString('nb-NO', { style: 'currency', currency: 'NOK' }).replace(' kr', '')}</div>
+          <div className="rekord-circle">
+            <div className="circle-number">{totaltEarnings}</div>
+            <div className="circle-label">TOTALT</div>
           </div>
         </div>
 
-        {/* PROGRESS BARS */}
+        {/* PROGRESS BARS - Goals Completed */}
         <div className="progress-section">
           <div className="progress-item">
             <label>DAG</label>
             <div className="progress-bar-container">
-              <div className="progress-bar" style={{ width: `${dagProgress}%` }} />
+              <div className="progress-bar" style={{ width: `${(goalsCompleted.dag / 1) * 100}%` }} />
             </div>
-            <div className="progress-text">{dagProgress.toFixed(0)}%</div>
+            <div className="progress-text">{goalsCompleted.dag} of 1 goal</div>
           </div>
 
           <div className="progress-item">
             <label>UKE</label>
             <div className="progress-bar-container">
-              <div className="progress-bar" style={{ width: `${ukeProgress}%` }} />
+              <div className="progress-bar" style={{ width: `${(goalsCompleted.uke / 1) * 100}%` }} />
             </div>
-            <div className="progress-text">{ukeProgress.toFixed(0)}%</div>
+            <div className="progress-text">{goalsCompleted.uke} of 1 goal</div>
           </div>
 
           <div className="progress-item">
             <label>MÅNED</label>
             <div className="progress-bar-container">
-              <div className="progress-bar" style={{ width: `${månedProgress}%` }} />
+              <div className="progress-bar" style={{ width: `${(goalsCompleted.måned / 1) * 100}%` }} />
             </div>
-            <div className="progress-text">{månedProgress.toFixed(0)}%</div>
+            <div className="progress-text">{goalsCompleted.måned} of 1 goal</div>
           </div>
         </div>
 
-        {/* RUNRATE */}
+        {/* RUNRATE - NO kr */}
         <div className="runrate-section">
           <div className="runrate-box">
             <div className="runrate-label">RUNRATE UKE</div>
-            <div className="runrate-value">{ukeRunrate.toLocaleString('nb-NO', { style: 'currency', currency: 'NOK' }).replace(' kr', '')}</div>
+            <div className="runrate-value">{ukeRunrate}</div>
           </div>
           <div className="runrate-box">
             <div className="runrate-label">RUNRATE MÅNED</div>
-            <div className="runrate-value">{månedRunrate.toLocaleString('nb-NO', { style: 'currency', currency: 'NOK' }).replace(' kr', '')}</div>
+            <div className="runrate-value">{månedRunrate}</div>
           </div>
         </div>
 
