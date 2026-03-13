@@ -18,7 +18,11 @@ export default function MobileChat() {
   const navigate = useNavigate();
   const [channels, setChannels] = useState<Channel[]>([]);
   const [dms, setDMs] = useState<DM[]>([]);
-  const [activeTab, setActiveTab] = useState<'dms' | 'channels'>('dms');
+  // Default to channels tab (user came from channel, usually)
+  const [activeTab, setActiveTab] = useState<'dms' | 'channels'>(() => {
+    const saved = localStorage.getItem('mobile_chat_active_tab');
+    return (saved as 'dms' | 'channels') || 'channels';
+  });
 
   // Load channels (hardcoded 5 main channels)
   useEffect(() => {
@@ -102,13 +106,19 @@ export default function MobileChat() {
       <div className="mobile-chat-tabs">
         <button
           className={`tab ${activeTab === 'dms' ? 'active' : ''}`}
-          onClick={() => setActiveTab('dms')}
+          onClick={() => {
+            setActiveTab('dms');
+            localStorage.setItem('mobile_chat_active_tab', 'dms');
+          }}
         >
           💬 DM ({dms.filter(d => d.unreadCount > 0).length})
         </button>
         <button
           className={`tab ${activeTab === 'channels' ? 'active' : ''}`}
-          onClick={() => setActiveTab('channels')}
+          onClick={() => {
+            setActiveTab('channels');
+            localStorage.setItem('mobile_chat_active_tab', 'channels');
+          }}
         >
           📢 Channels ({channels.filter(c => c.unreadCount > 0).length})
         </button>
