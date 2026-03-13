@@ -310,22 +310,37 @@ export default function Chat() {
 
   // REAL-TIME listener for DM unread count changes
   useEffect(() => {
-    if (!user?.name) return;
+    console.log('🔍 DM listener useEffect - user.name:', user?.name);
+    
+    if (!user?.name) {
+      console.log('⚠️ DM listener skipped - no user.name');
+      return;
+    }
 
+    console.log('✅ DM listener starting - looking for user:', user.name);
     const dmsRef = collection(db, 'chat_dms');
     const unsubscribe = onSnapshot(dmsRef, (snapshot) => {
+      console.log(`📋 DM snapshot received - ${snapshot.size} total DM documents`);
       const dmUnread: Record<string, number> = {};
       
       snapshot.forEach(doc => {
         const data = doc.data();
+        console.log(`  📄 Checking DM ${doc.id}:`, { 
+          participants: data.participants,
+          hasUnread: !!data.unread,
+          unreadForUser: data.unread?.[user.name],
+          userInParticipants: data.participants?.includes(user.name)
+        });
         
         // Check if current user is participant
         if (!data.participants || !data.participants.includes(user.name)) {
+          console.log(`    ⏭️ Skipped - user.name not in participants`);
           return;
         }
 
         // Get unread count for this user
         const unreadCount = (data.unread && data.unread[user.name]) || 0;
+        console.log(`    ✅ Found user in participants - unreadCount: ${unreadCount}`);
         
         // Use other participant's name as key
         const otherParticipant = data.participants.find((p: string) => p !== user.name);
@@ -336,6 +351,7 @@ export default function Chat() {
           
           // Always update localStorage (even if 0!) - so navbar knows it's been cleared
           localStorage.setItem(`chat_unread_dm_${otherParticipant}`, unreadCount.toString());
+          console.log(`    💾 Updated localStorage: chat_unread_dm_${otherParticipant} = ${unreadCount}`);
         }
       });
       
