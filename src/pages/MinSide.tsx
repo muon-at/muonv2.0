@@ -198,7 +198,13 @@ export default function MinSide() {
       }
     }
     loadEmployeeData();
-    loadCachedBadges();
+    
+    // Load badges with 500ms delay to avoid race conditions
+    const badgeTimer = setTimeout(() => {
+      loadCachedBadges();
+    }, 500);
+    
+    return () => clearTimeout(badgeTimer);
   }, [isPreviewMode, previewUserId, user?.id, activeTab]);  // Trigger on user.id OR preview mode change
 
   // Sync goals to sessionStorage whenever they change
