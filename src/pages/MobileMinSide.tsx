@@ -71,16 +71,18 @@ export default function MobileMinSide() {
   const besteÅr = data?.besteÅr || 0;
   const totaltEarnings = data?.totalEarnings || 0;
 
-  // Progress: Count goals completed (not percentage)
-  const weeklyGoal = data?.weeklyGoal || 10000;
-  const monthlyGoal = data?.monthlyGoal || 40000;
-  const dagGoal = weeklyGoal / 5;
+  // Progress: Sales vs Goals (synced from PC)
+  const weeklyGoal = data?.weeklyGoal || 1;
+  const monthlyGoal = data?.monthlyGoal || 1;
+  const dagGoal = data?.dailyGoal || (weeklyGoal / 5);
 
-  const goalsCompleted = {
-    dag: (data?.status || 0) >= dagGoal ? 1 : 0,
-    uke: (data?.weeklyStatus || 0) >= weeklyGoal ? 1 : 0,
-    måned: (data?.monthlyStatus || 0) >= monthlyGoal ? 1 : 0
-  };
+  const dagSalg = Math.round(data?.status || 0);
+  const ukeSalg = Math.round(data?.weeklyStatus || 0);
+  const månedSalg = Math.round(data?.monthlyStatus || 0);
+
+  const dagProgress = (dagSalg / dagGoal) * 100;
+  const ukeProgress = (ukeSalg / weeklyGoal) * 100;
+  const månedProgress = (månedSalg / monthlyGoal) * 100;
 
   // Runrate (same as desktop - NO kr)
   const ukeRunrate = data?.weekRunrate || 0;
@@ -121,30 +123,30 @@ export default function MobileMinSide() {
           </div>
         </div>
 
-        {/* PROGRESS BARS - Goals Completed */}
+        {/* PROGRESS BARS - Sales vs Goals (synced from PC) */}
         <div className="progress-section">
           <div className="progress-item">
             <label>DAG</label>
             <div className="progress-bar-container">
-              <div className="progress-bar" style={{ width: `${(goalsCompleted.dag / 1) * 100}%` }} />
+              <div className="progress-bar" style={{ width: `${Math.min(100, dagProgress)}%` }} />
             </div>
-            <div className="progress-text">{goalsCompleted.dag} of 1 goal</div>
+            <div className="progress-text">{dagSalg} of {Math.round(dagGoal)}</div>
           </div>
 
           <div className="progress-item">
             <label>UKE</label>
             <div className="progress-bar-container">
-              <div className="progress-bar" style={{ width: `${(goalsCompleted.uke / 1) * 100}%` }} />
+              <div className="progress-bar" style={{ width: `${Math.min(100, ukeProgress)}%` }} />
             </div>
-            <div className="progress-text">{goalsCompleted.uke} of 1 goal</div>
+            <div className="progress-text">{ukeSalg} of {Math.round(weeklyGoal)}</div>
           </div>
 
           <div className="progress-item">
             <label>MÅNED</label>
             <div className="progress-bar-container">
-              <div className="progress-bar" style={{ width: `${(goalsCompleted.måned / 1) * 100}%` }} />
+              <div className="progress-bar" style={{ width: `${Math.min(100, månedProgress)}%` }} />
             </div>
-            <div className="progress-text">{goalsCompleted.måned} of 1 goal</div>
+            <div className="progress-text">{månedSalg} of {Math.round(monthlyGoal)}</div>
           </div>
         </div>
 
