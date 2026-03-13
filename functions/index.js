@@ -230,6 +230,80 @@ exports.sendDMNotification = onDocumentCreated(
   });
 
 /**
+ * Cloud Function: Auto-detect emoji counts from Allente chat messages
+ * Listens for new messages in chat_channels/allente-chat/messages
+ * Counts 🔔, 💎, 🎁 emojis and updates emoji_counts_daily
+ * Triggered by: New message in Allente chat (both mobile and PC)
+ */
+exports.countEmojiFromChat = onDocumentCreated(
+  'chat_channels/allente-chat/messages/{messageId}',
+  async (event) => {
+    try {
+      const snap = event.data;
+      const message = snap.data();
+      
+      const senderName = message.sender || '';
+      const messageContent = message.content || '';
+      
+      console.log(`🔔 New Allente message from ${senderName}`);
+      
+      // Count emojis in message
+      const bellCount = (messageContent.match(/🔔/g) || []).length;
+      const gemCount = (messageContent.match(/💎/g) || []).length;
+      const giftCount = (messageContent.match(/🎁/g) || []).length;
+      
+      if (bellCount === 0 && gemCount === 0 && giftCount === 0) {
+        console.log('⏭️ No emojis in message, skipping');
+        return;
+      }
+      
+      console.log(`📊 Found emojis: 🔔=${bellCount}, 💎=${gemCount}, 🎁=${giftCount}`);
+      
+      // Get today's date (local time, not UTC)
+      const now = new Date();
+      const dateKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+      
+      console.log(`📅 Updating emoji_counts_daily for date: ${dateKey}`);
+      
+      // Update emoji_counts_daily/{dateKey}
+      const emojiRef = admin.firestore().collection('emoji_counts_daily').doc(dateKey);
+      const emojiDoc = await emojiRef.get();
+      
+      let updatedCounts = {};
+      
+      if (emojiDoc.exists()) {
+        // Document exists - update counts
+        const data = emojiDoc.data();
+        updatedCounts = data.counts || {};
+        
+        if (!updatedCounts[senderName]) {
+          updatedCounts[senderName] = { '🔔': 0, '💎': 0, '🎁': 0 };
+        }
+        
+        updatedCounts[senderName]['🔔'] = (updatedCounts[senderName]['🔔'] || 0) + bellCount;
+        updatedCounts[senderName]['💎'] = (updatedCounts[senderName]['💎'] || 0) + gemCount;
+        updatedCounts[senderName]['🎁'] = (updatedCounts[senderName]['🎁'] || 0) + giftCount;
+      } else {
+        // Document doesn't exist - create it
+        updatedCounts[senderName] = {
+          '🔔': bellCount,
+          '💎': gemCount,
+          '🎁': giftCount
+        };
+      }
+      
+      // Write to Firestore
+      await emojiRef.set({ counts: updatedCounts }, { merge: true });
+      
+      console.log(`✅ Updated emoji_counts_daily/${dateKey}:`, updatedCounts[senderName]);
+      
+    } catch (error) {
+      console.error('❌ Error in countEmojiFromChat:', error);
+      throw error;
+    }
+  });
+
+/**
  * HTTP Function: Get VAPID public key (for frontend)
  */
 exports.getVapidKey = onRequest((req, res) => {
