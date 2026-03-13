@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../lib/firebase';
 import '../styles/MobileChat.css';
 
 interface Channel {
@@ -20,25 +22,51 @@ export default function MobileChat() {
   const [dms, setDMs] = useState<DM[]>([]);
   const [activeTab, setActiveTab] = useState<'dms' | 'channels'>('dms');
 
-  // Load channels
+  // Load channels from Firestore
   useEffect(() => {
-    const channelList: Channel[] = [
-      { id: 'global', name: 'Global', emoji: '🌍', unreadCount: 0 },
-      { id: 'project-allente', name: 'Allente Chat', emoji: '🏢', unreadCount: 0 },
-      { id: 'dept-krs', name: 'KRS', emoji: '🏢', unreadCount: 0 },
-      { id: 'dept-osl', name: 'OSL', emoji: '🏢', unreadCount: 0 },
-      { id: 'dept-skien', name: 'Skien', emoji: '🏢', unreadCount: 0 },
-    ];
+    const loadChannels = async () => {
+      try {
+        console.log('📡 Loading channels from Firestore...');
+        const channelsRef = collection(db, 'chat_channels');
+        const snapshot = await getDocs(channelsRef);
+        
+        const channelList: Channel[] = [];
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          console.log('📦 Found channel:', { id: doc.id, name: data.name });
+          channelList.push({
+            id: doc.id,
+            name: data.name || doc.id,
+            emoji: data.emoji || '💬',
+            unreadCount: 0
+          });
+        });
 
-    // Update unread counts from localStorage
-    channelList.forEach(ch => {
-      const stored = localStorage.getItem(`chat_unread_${ch.id}`);
-      if (stored) {
-        ch.unreadCount = parseInt(stored, 10);
+        // Update unread counts from localStorage
+        channelList.forEach(ch => {
+          const stored = localStorage.getItem(`chat_unread_${ch.id}`);
+          if (stored) {
+            ch.unreadCount = parseInt(stored, 10);
+          }
+        });
+
+        console.log('✅ Channels loaded:', channelList.length);
+        setChannels(channelList);
+      } catch (error) {
+        console.error('❌ Error loading channels:', error);
+        // Fallback to hardcoded list
+        const defaultChannels: Channel[] = [
+          { id: 'global', name: 'Global', emoji: '🌍', unreadCount: 0 },
+          { id: 'project-allente', name: 'Allente Chat', emoji: '🏢', unreadCount: 0 },
+          { id: 'dept-krs', name: 'KRS', emoji: '🏢', unreadCount: 0 },
+          { id: 'dept-osl', name: 'OSL', emoji: '🏢', unreadCount: 0 },
+          { id: 'dept-skien', name: 'Skien', emoji: '🏢', unreadCount: 0 },
+        ];
+        setChannels(defaultChannels);
       }
-    });
+    };
 
-    setChannels(channelList);
+    loadChannels();
   }, []);
 
   // Load DMs
