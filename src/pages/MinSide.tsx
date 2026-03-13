@@ -326,13 +326,19 @@ export default function MinSide() {
     return () => clearInterval(timer);
   }, [progressData]);
 
+  // Normalize externalName for Firestore document ID (replace / with _)
+  const normalizeForDocId = (name: string): string => {
+    return name.replace(/\//g, '_').trim();
+  };
+
   const loadCachedBadges = async () => {
     try {
       const externalName = user?.externalName || '';
       if (!externalName) return;
       
       // Load badges from user_earned_badges collection (cached from last calculation)
-      const badgeDocRef = doc(db, 'user_earned_badges', externalName);
+      const normalizedDocId = normalizeForDocId(externalName);
+      const badgeDocRef = doc(db, 'user_earned_badges', normalizedDocId);
       const badgeSnapshot = await getDoc(badgeDocRef);
       
       if (badgeSnapshot.exists()) {
@@ -355,7 +361,8 @@ export default function MinSide() {
       
       // Save earned badges to user_earned_badges collection
       const earnedBadges = Object.keys(badgeMap).filter(emoji => badgeMap[emoji]);
-      const badgesRef = doc(db, 'user_earned_badges', externalName);
+      const normalizedDocId = normalizeForDocId(externalName);
+      const badgesRef = doc(db, 'user_earned_badges', normalizedDocId);
       await setDoc(badgesRef, { 
         badges: earnedBadges, 
         badgeMap: badgeMap,
