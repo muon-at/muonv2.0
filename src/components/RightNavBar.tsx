@@ -69,6 +69,12 @@ export const RightNavBar: React.FC = () => {
       const total = channelTotal + dmTotal;
       setTotalUnread(total);
       console.log('✅ Navbar badge updated:', { channels: channelTotal, dms: dmTotal, total });
+      
+      // Update PWA app badge
+      if (navigator.setAppBadge) {
+        navigator.setAppBadge(total);
+        console.log('📱 PWA app badge updated:', total);
+      }
     };
     
     window.addEventListener('chatUnreadUpdated', handleChatUnreadUpdate);
@@ -76,6 +82,19 @@ export const RightNavBar: React.FC = () => {
     
     return () => window.removeEventListener('chatUnreadUpdated', handleChatUnreadUpdate);
   }, [channelUnreadCounts]);
+  
+  // Update PWA app badge when totalUnread changes
+  useEffect(() => {
+    if (navigator.setAppBadge) {
+      if (totalUnread > 0) {
+        navigator.setAppBadge(totalUnread);
+        console.log('📱 PWA app badge set to:', totalUnread);
+      } else {
+        navigator.clearAppBadge?.();
+        console.log('📱 PWA app badge cleared');
+      }
+    }
+  }, [totalUnread]);
 
   const handleChatToggle = () => {
     console.log('🔵 Chat button clicked!', 'Current state:', isChatSidebarOpen);

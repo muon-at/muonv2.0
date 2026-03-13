@@ -113,18 +113,35 @@ exports.sendChatNotification = onDocumentCreated(
  */
 async function getUserIdByName(name) {
   try {
-    const employeesSnap = await admin.firestore().collection('employees').where('externalName', '==', name).limit(1).get();
+    console.log(`🔍 Looking up user.id for name: "${name}"`);
     
-    if (employeesSnap.empty) {
-      console.log(`⚠️ Employee not found for name: ${name}`);
-      return null;
+    // Try exact match on externalName first
+    let employeesSnap = await admin.firestore().collection('employees').where('externalName', '==', name).limit(1).get();
+    
+    if (!employeesSnap.empty) {
+      const employeeDoc = employeesSnap.docs[0];
+      console.log(`✅ Found user.id via externalName: ${employeeDoc.id}`);
+      return employeeDoc.id;
     }
-
-    const employeeDoc = employeesSnap.docs[0];
-    const employeeData = employeeDoc.data();
     
-    console.log(`✅ Found user.id for ${name}: ${employeeDoc.id}`);
-    return employeeDoc.id; // This is the Firebase user.id
+    // If not found, try matching on 'name' field
+    employeesSnap = await admin.firestore().collection('employees').where('name', '==', name).limit(1).get();
+    
+    if (!employeesSnap.empty) {
+      const employeeDoc = employeesSnap.docs[0];
+      console.log(`✅ Found user.id via name field: ${employeeDoc.id}`);
+      return employeeDoc.id;
+    }
+    
+    // If still not found, log all employee names for debugging
+    const allEmployees = await admin.firestore().collection('employees').get();
+    const allNames = allEmployees.docs.map(doc => {
+      const data = doc.data();
+      return `${data.externalName} (${doc.id})`;
+    }).join(', ');
+    console.log(`⚠️ Employee "${name}" not found. Available: [${allNames}]`);
+    
+    return null;
   } catch (error) {
     console.error(`❌ Error looking up user.id for ${name}:`, error);
     return null;
