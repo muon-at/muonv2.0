@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../lib/authContext';
-import { collection, query, orderBy, onSnapshot, addDoc, serverTimestamp, doc, updateDoc, getDocs } from 'firebase/firestore';
+import { collection, query, orderBy, onSnapshot, addDoc, serverTimestamp, doc, updateDoc, setDoc, getDocs } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import '../styles/MobileChatConversation.css';
 
@@ -35,42 +35,38 @@ export default function MobileChatConversation() {
 
     if (isDM) {
       setChatTitle(chatName);
-      // Load DM
-      const dmsRef = collection(db, 'chat_dms');
-      const unsubscribe = onSnapshot(dmsRef, (snapshot) => {
-        console.log('📦 DMs snapshot:', snapshot.size, 'docs');
-        snapshot.forEach(docSnap => {
-          const data = docSnap.data();
-          console.log('📄 DM doc:', { participants: data.participants, docId: docSnap.id });
-          if (data.participants?.includes(user.name) && data.participants?.includes(chatName)) {
-            console.log('✅ Found matching DM!');
-            // Load messages for this DM
-            const messagesRef = collection(db, 'chat_dms', docSnap.id, 'messages');
-            const messagesQ = query(messagesRef, orderBy('timestamp', 'asc'));
-            onSnapshot(messagesQ, (msgSnapshot) => {
-              console.log('💬 Messages snapshot:', msgSnapshot.size, 'msgs');
-              const msgs: Message[] = [];
-              msgSnapshot.forEach(msgDoc => {
-                const msgData = msgDoc.data();
-                msgs.push({
-                  id: msgDoc.id,
-                  sender: msgData.sender,
-                  senderId: msgData.senderId,
-                  content: msgData.content,
-                  timestamp: msgData.timestamp,
-                  type: msgData.type || 'text'
-                });
-              });
-              setMessages(msgs);
-              setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
-            }, (error) => {
-              console.error('❌ Message listener error:', error);
-            });
-          }
+      
+      // Create stable DM ID from sorted participant names
+      const participants = [user.name, chatName].sort();
+      const dmId = participants.join('_').toLowerCase().replace(/[^a-z0-9_]/g, '_');
+      console.log('🔑 Using DM ID:', dmId, 'Participants:', participants);
+
+      // Load messages for this DM
+      const messagesRef = collection(db, 'chat_dms', dmId, 'messages');
+      const messagesQ = query(messagesRef, orderBy('timestamp', 'asc'));
+      
+      const unsubscribe = onSnapshot(messagesQ, (msgSnapshot) => {
+        console.log('💬 Messages snapshot:', msgSnapshot.size, 'msgs');
+        const msgs: Message[] = [];
+        msgSnapshot.forEach(msgDoc => {
+          const msgData = msgDoc.data();
+          msgs.push({
+            id: msgDoc.id,
+            sender: msgData.sender,
+            senderId: msgData.senderId,
+            content: msgData.content,
+            timestamp: msgData.timestamp,
+            type: msgData.type || 'text'
+          });
         });
+        setMessages(msgs);
+        setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
       }, (error) => {
-        console.error('❌ DM listener error:', error);
+        console.error('❌ Message listener error:', error);
+        // Fallback: show empty state
+        setMessages([]);
       });
+      
       return unsubscribe;
     } else {
       // Load channel
@@ -116,30 +112,36 @@ export default function MobileChatConversation() {
 
     try {
       if (isDM) {
-        // Find DM and send
-        const dmsRef = collection(db, 'chat_dms');
-        const dmsSnapshot = await getDocs(dmsRef);
-        
-        for (const docSnap of dmsSnapshot.docs) {
-          const data = docSnap.data();
-          if (data.participants?.includes(user.name) && data.participants?.includes(chatName)) {
-            // Add message
-            await addDoc(collection(db, 'chat_dms', docSnap.id, 'messages'), {
-              sender: user.name,
-              senderId: user.id,
-              content: messageText,
-              timestamp: serverTimestamp(),
-              type: 'text'
-            });
+        // Create stable DM ID from sorted participant names
+        const participants = [user.name, chatName].sort();
+        const dmId = participants.join('_').toLowerCase().replace(/[^a-z0-9_]/g, '_');
+        console.log('📤 Sending to DM:', dmId);
 
-            // Update unread
-            await updateDoc(doc(db, 'chat_dms', docSnap.id), {
-              [`unread.${chatName}`]: 0,
-              lastMessageTime: serverTimestamp()
-            });
-            break;
-          }
-        }
+        // Create DM if it doesn't exist
+        console.log('✏️ Creating/ensuring DM:', dmId);
+        await setDoc(doc(db, 'chat_dms', dmId), {
+          participants: participants,
+          unread: {
+            [user.name]: 0,
+            [chatName]: 1
+          },
+          lastMessageTime: serverTimestamp()
+        }, { merge: true });
+
+        // Add message
+        await addDoc(collection(db, 'chat_dms', dmId, 'messages'), {
+          sender: user.name,
+          senderId: user.id,
+          content: messageText,
+          timestamp: serverTimestamp(),
+          type: 'text'
+        });
+
+        // Update unread
+        await updateDoc(doc(db, 'chat_dms', dmId), {
+          [`unread.${chatName}`]: 0,
+          lastMessageTime: serverTimestamp()
+        });
       } else {
         // Add message to channel
         await addDoc(collection(db, 'chat_channels', chatName, 'messages'), {
