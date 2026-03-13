@@ -31,18 +31,24 @@ export default function MobileChatConversation() {
   useEffect(() => {
     if (!chatName || !user?.id) return;
 
+    console.log('🔍 Loading conversation:', { isDM, chatName, userId: user?.id, userName: user?.name });
+
     if (isDM) {
       setChatTitle(chatName);
       // Load DM
       const dmsRef = collection(db, 'chat_dms');
       const unsubscribe = onSnapshot(dmsRef, (snapshot) => {
+        console.log('📦 DMs snapshot:', snapshot.size, 'docs');
         snapshot.forEach(docSnap => {
           const data = docSnap.data();
+          console.log('📄 DM doc:', { participants: data.participants, docId: docSnap.id });
           if (data.participants?.includes(user.name) && data.participants?.includes(chatName)) {
+            console.log('✅ Found matching DM!');
             // Load messages for this DM
             const messagesRef = collection(db, 'chat_dms', docSnap.id, 'messages');
             const messagesQ = query(messagesRef, orderBy('timestamp', 'asc'));
             onSnapshot(messagesQ, (msgSnapshot) => {
+              console.log('💬 Messages snapshot:', msgSnapshot.size, 'msgs');
               const msgs: Message[] = [];
               msgSnapshot.forEach(msgDoc => {
                 const msgData = msgDoc.data();
@@ -57,9 +63,13 @@ export default function MobileChatConversation() {
               });
               setMessages(msgs);
               setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
+            }, (error) => {
+              console.error('❌ Message listener error:', error);
             });
           }
         });
+      }, (error) => {
+        console.error('❌ DM listener error:', error);
       });
       return unsubscribe;
     } else {
@@ -72,11 +82,14 @@ export default function MobileChatConversation() {
         'dept-osl': 'OSL',
         'dept-skien': 'Skien'
       };
-      setChatTitle(channelNames[chatName] || chatName);
+      const title = channelNames[chatName] || chatName;
+      setChatTitle(title);
+      console.log('📺 Loading channel:', { chatName, title });
 
       const messagesRef = collection(db, 'chat_channels', chatName, 'messages');
       const messagesQ = query(messagesRef, orderBy('timestamp', 'asc'));
       const unsubscribe = onSnapshot(messagesQ, (snapshot) => {
+        console.log('💬 Channel messages:', snapshot.size);
         const msgs: Message[] = [];
         snapshot.forEach(doc => {
           const data = doc.data();
@@ -91,6 +104,8 @@ export default function MobileChatConversation() {
         });
         setMessages(msgs);
         setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
+      }, (error) => {
+        console.error('❌ Channel listener error:', error);
       });
       return unsubscribe;
     }
@@ -162,11 +177,16 @@ export default function MobileChatConversation() {
         <button className="back-button" onClick={() => navigate('/home/chat')}>
           ← {isDM ? 'DM' : 'Channels'}
         </button>
-        <h1>{chatTitle}</h1>
+        <h1>{chatTitle || 'Laster...'}</h1>
         <div style={{ width: '40px' }} />
       </div>
 
       <div className="messages-container">
+        {messages.length === 0 ? (
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#999' }}>
+            Ingen meldinger ennå
+          </div>
+        ) : null}
         {messages.map(msg => (
           <div
             key={msg.id}
