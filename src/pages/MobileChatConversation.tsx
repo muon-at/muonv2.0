@@ -85,10 +85,11 @@ export default function MobileChatConversation() {
       const messagesRef = collection(db, 'chat_channels', chatName, 'messages');
       const messagesQ = query(messagesRef, orderBy('timestamp', 'asc'));
       const unsubscribe = onSnapshot(messagesQ, (snapshot) => {
-        console.log('💬 Channel messages:', snapshot.size);
+        console.log('💬 Channel messages:', snapshot.size, 'docs');
         const msgs: Message[] = [];
         snapshot.forEach(doc => {
           const data = doc.data();
+          console.log('📄 Message:', { sender: data.sender, content: data.content?.substring(0, 30) });
           msgs.push({
             id: doc.id,
             sender: data.sender,
@@ -99,9 +100,13 @@ export default function MobileChatConversation() {
           });
         });
         setMessages(msgs);
-        setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
+        if (msgs.length > 0) {
+          setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
+        }
       }, (error) => {
         console.error('❌ Channel listener error:', error);
+        // Fallback: show empty state
+        setMessages([]);
       });
       return unsubscribe;
     }
