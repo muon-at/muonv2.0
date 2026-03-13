@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { db } from '../lib/firebase';
 import '../styles/MobileChat.css';
 
 interface Channel {
@@ -24,25 +26,51 @@ export default function MobileChat() {
     return (saved as 'dms' | 'channels') || 'channels';
   });
 
-  // Load channels (hardcoded 5 main channels)
+  // Ensure all channels exist in Firestore
   useEffect(() => {
-    const channelList: Channel[] = [
-      { id: 'global', name: 'Global', emoji: '🌍', unreadCount: 0 },
-      { id: 'project-allente', name: 'Allente Chat', emoji: '🏢', unreadCount: 0 },
-      { id: 'dept-krs', name: 'KRS', emoji: '🏢', unreadCount: 0 },
-      { id: 'dept-osl', name: 'OSL', emoji: '🏢', unreadCount: 0 },
-      { id: 'dept-skien', name: 'Skien', emoji: '🏢', unreadCount: 0 },
-    ];
+    const ensureChannels = async () => {
+      const channelDefs = [
+        { id: 'global', name: 'Global', emoji: '🌍' },
+        { id: 'project-allente', name: 'Allente Chat', emoji: '🏢' },
+        { id: 'dept-krs', name: 'KRS', emoji: '🏢' },
+        { id: 'dept-osl', name: 'OSL', emoji: '🏢' },
+        { id: 'dept-skien', name: 'Skien', emoji: '🏢' },
+      ];
 
-    // Update unread counts from localStorage
-    channelList.forEach(ch => {
-      const stored = localStorage.getItem(`chat_unread_${ch.id}`);
-      if (stored) {
-        ch.unreadCount = parseInt(stored, 10);
+      // Create all channel documents if they don't exist
+      for (const ch of channelDefs) {
+        try {
+          await setDoc(doc(db, 'chat_channels', ch.id), {
+            id: ch.id,
+            name: ch.name,
+            emoji: ch.emoji,
+            unread: 0,
+            createdAt: serverTimestamp()
+          }, { merge: true });
+          console.log('✅ Channel ensured:', ch.id);
+        } catch (error) {
+          console.error('❌ Error ensuring channel:', ch.id, error);
+        }
       }
-    });
 
-    setChannels(channelList);
+      // Now load them
+      const channelList: Channel[] = channelDefs.map(ch => ({
+        ...ch,
+        unreadCount: 0
+      }));
+
+      // Update unread counts from localStorage
+      channelList.forEach(ch => {
+        const stored = localStorage.getItem(`chat_unread_${ch.id}`);
+        if (stored) {
+          ch.unreadCount = parseInt(stored, 10);
+        }
+      });
+
+      setChannels(channelList);
+    };
+
+    ensureChannels();
   }, []);
 
   // Load DMs
