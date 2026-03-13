@@ -97,7 +97,7 @@ export default function MobileChatConversation() {
   }, [chatName, isDM, user]);
 
   const handleSendMessage = async () => {
-    if (!messageText.trim() || !user) return;
+    if (!messageText.trim() || !user || !chatName) return;
 
     try {
       if (isDM) {
