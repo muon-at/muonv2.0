@@ -46,12 +46,25 @@ export const RightNavBar: React.FC = () => {
   useEffect(() => {
     const handleChatUnreadUpdate = () => {
       console.log('💌 Custom event detected - recalculating unread...');
-      calculateUnread();
+      
+      // Recalculate directly here (not via stale function)
+      const channelTotal = Object.values(channelUnreadCounts).reduce((sum, count) => sum + count, 0);
+      let dmTotal = 0;
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('chat_unread_dm_')) {
+          dmTotal += parseInt(localStorage.getItem(key) || '0', 10);
+        }
+      });
+      const total = channelTotal + dmTotal;
+      setTotalUnread(total);
+      console.log('✅ Navbar badge updated:', { channels: channelTotal, dms: dmTotal, total });
     };
     
     window.addEventListener('chatUnreadUpdated', handleChatUnreadUpdate);
+    console.log('✅ Event listener attached for chatUnreadUpdated');
+    
     return () => window.removeEventListener('chatUnreadUpdated', handleChatUnreadUpdate);
-  }, []);
+  }, [channelUnreadCounts]);
 
   const handleChatToggle = () => {
     console.log('🔵 Chat button clicked!', 'Current state:', isChatSidebarOpen);

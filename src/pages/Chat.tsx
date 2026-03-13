@@ -299,6 +299,7 @@ export default function Chat() {
       setChannelUnreadCounts(updates);
       
       // Trigger custom event so navbar can update INSTANTLY
+      console.log('📡 Dispatching chatUnreadUpdated event for channels:', updates);
       window.dispatchEvent(new CustomEvent('chatUnreadUpdated', { detail: { updates } }));
       
       console.log('🔔 Channel unread counts updated (real-time):', updates);
@@ -342,6 +343,7 @@ export default function Chat() {
       setDmUnreadCounts(dmUnread);
       
       // Trigger custom event so navbar can update INSTANTLY
+      console.log('📡 Dispatching chatUnreadUpdated event for DMs:', dmUnread);
       window.dispatchEvent(new CustomEvent('chatUnreadUpdated', { detail: { dmUnread } }));
       
       console.log('💬 DM unread counts updated (real-time):', dmUnread);
