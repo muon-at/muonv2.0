@@ -209,6 +209,8 @@
   z-index: 999;
   padding: 1rem;
   padding-top: max(1rem, calc(env(safe-area-inset-top) + 0.5rem));
+  /* Hide on all mobile */
+  display: none;
 }
 
 .mobile-hamburger {
