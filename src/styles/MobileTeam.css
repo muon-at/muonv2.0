@@ -3,7 +3,7 @@
   flex-direction: column;
   height: 100vh;
   width: 100%;
-  background: #f5f5f5;
+  background: #1a1a1a;
 }
 
 .mobile-team .mobile-header {
@@ -12,16 +12,16 @@
   justify-content: space-between;
   padding: 1rem;
   padding-top: max(1rem, env(safe-area-inset-top));
-  background: white;
-  border-bottom: 1px solid #e0e0e0;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  background: #2a2a2a;
+  border-bottom: 1px solid #333;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .mobile-team .mobile-header h1 {
   font-size: 1.2rem;
   font-weight: 600;
   margin: 0;
-  color: #1f2937;
+  color: #ffffff;
   flex: 1;
   text-align: center;
 }
@@ -48,16 +48,16 @@
 
 /* TEAM PERIODS */
 .team-period {
-  background: white;
+  background: #2a2a2a;
   padding: 1rem;
   border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 .period-title {
   font-size: 0.85rem;
   font-weight: 700;
-  color: #1f2937;
+  color: #ffffff;
   margin: 0 0 1rem 0;
   text-transform: uppercase;
 }
@@ -101,22 +101,22 @@
 .stat-label {
   font-size: 0.65rem;
   font-weight: 700;
-  color: #666;
+  color: #aaa;
   text-transform: uppercase;
 }
 
 .stat-value {
   font-size: 1.3rem;
   font-weight: 700;
-  color: #1f2937;
+  color: #ffffff;
 }
 
 /* RUNRATE SECTION */
 .runrate-section {
-  background: white;
+  background: #2a2a2a;
   padding: 1rem;
   border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 .runrate-metrics {
@@ -131,14 +131,14 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem;
-  background: #f9fafb;
+  background: #333;
   border-radius: 6px;
 }
 
 .runrate-label {
   font-size: 0.7rem;
   font-weight: 700;
-  color: #999;
+  color: #aaa;
   text-transform: uppercase;
 }
 
@@ -150,7 +150,7 @@
 
 .runrate-unit {
   font-size: 0.65rem;
-  color: #999;
+  color: #aaa;
 }
 
 /* Desktop: Hide on desktop */
