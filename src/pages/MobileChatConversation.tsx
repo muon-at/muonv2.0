@@ -81,7 +81,9 @@ export default function MobileChatConversation() {
         'allente-chat': 'Allente Chat',
         'dept-krs': 'KRS',
         'dept-osl': 'OSL',
-        'dept-skien': 'Skien'
+        'dept-skien': 'Skien',
+        'admin-channel': 'Admin',
+        'teamleder-channel': 'Teamleder'
       };
       const title = channelNames[chatName] || chatName;
       setChatTitle(title);
@@ -120,7 +122,8 @@ export default function MobileChatConversation() {
           console.log('💬 Messages snapshot #' + snapshotCount + ':', { 
             count: snapshot.size, 
             channelId: chatName,
-            empty: snapshot.empty
+            empty: snapshot.empty,
+            isDeptChannel: chatName.startsWith('dept-')
           });
           const msgs: Message[] = [];
           snapshot.forEach(doc => {
@@ -141,8 +144,14 @@ export default function MobileChatConversation() {
           }
         }, (error) => {
           console.error('❌ Listener error:', error);
-          console.log('⏱️ Setting empty state due to error');
+          console.error('❌ Error code:', (error as any)?.code);
+          console.log('⏱️ Setting empty state due to error for channel:', chatName);
           setMessages([]);
+          
+          // If it's a dept- channel, log details
+          if (chatName.startsWith('dept-')) {
+            console.warn('⚠️ DEPT CHANNEL ERROR - might need special handling:', chatName);
+          }
         });
       }).catch((error) => {
         console.error('❌ Channel init error:', error);

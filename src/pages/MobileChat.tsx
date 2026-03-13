@@ -35,6 +35,8 @@ export default function MobileChat() {
         { id: 'dept-krs', name: 'KRS', emoji: '🏢' },
         { id: 'dept-osl', name: 'OSL', emoji: '🏢' },
         { id: 'dept-skien', name: 'Skien', emoji: '🏢' },
+        { id: 'admin-channel', name: 'Admin', emoji: '⚙️' },
+        { id: 'teamleder-channel', name: 'Teamleder', emoji: '👥' },
       ];
 
       // Create all channel documents with EXACT same structure as Global
