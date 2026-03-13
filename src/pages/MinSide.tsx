@@ -2,10 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../lib/authContext';
 import { collection, getDocs, doc, setDoc, getDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
-import { subscribeToWebPush, requestNotificationPermission } from '../lib/push-notification-handler';
 import '../styles/MinSide.css';
-import AvdelingDashboard from './AvdelingDashboard';
-import ProsjektDashboard from './ProsjektDashboard';
 
 interface SalesRecord {
   dato?: string;
@@ -62,19 +59,11 @@ const parseDate = (dateStr: string): Date => {
 export default function MinSide() {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
-  const [previewEmployee, setPreviewEmployee] = useState<any>(null);
   const [stats, setStats] = useState<any[]>([]);
   const [earnedBadges, setEarnedBadges] = useState<string[]>([]);
   const [badgeStatus, setBadgeStatus] = useState<{ [key: string]: boolean }>({});
-  // Try to restore from sessionStorage on mount
-  const [weeklyGoal, setWeeklyGoal] = useState<number>(() => {
-    const stored = sessionStorage.getItem('maal_weekly');
-    return stored ? parseInt(stored) : 0;
-  });
-  const [monthlyGoal, setMonthlyGoal] = useState<number>(() => {
-    const stored = sessionStorage.getItem('maal_monthly');
-    return stored ? parseInt(stored) : 0;
-  });
+  const [weeklyGoal, setWeeklyGoal] = useState<number>(0);
+  const [monthlyGoal, setMonthlyGoal] = useState<number>(0);
   const [showGoalEdit, setShowGoalEdit] = useState(false);
   const [activeTab, setActiveTab] = useState('stats');
   const [progressData, setProgressData] = useState({
@@ -99,165 +88,43 @@ export default function MinSide() {
     dailyTo16: 0,
     dailyTo21: 0,
     weekly: 0,
-    weeklyRunrate: 0,
     monthly: 0,
-    monthlyRunrate: 0,
   });
-
-  // Check for preview mode (?user=<userId>) - AFTER all useState hooks!
-  const urlParams = new URLSearchParams(window.location.search);
-  const previewUserId = urlParams.get('user');
-  const isPreviewMode = !!previewUserId;
-  
-  // Debug logging
-  console.log('🎯 MinSide.tsx rendered. URL params:', window.location.search, 'previewUserId:', previewUserId, 'isPreviewMode:', isPreviewMode);
 
   // Load saved goals from Firestore
   const loadSavedGoals = async () => {
-    console.log('🎯 loadSavedGoals() called! User:', user);
-    
     try {
-      // ✅ USE USER ID as document ID (always unique and consistent)
-      const goalKey = user?.id || '';
-      console.log('🔑 Goal key (user.id):', goalKey);
+      const externalName = user?.externalName || user?.name || '';
+      if (!externalName) return;
       
-      if (!goalKey) {
-        console.warn('⚠️ No user ID found for goals');
-        // Try localStorage as fallback
-        const stored = localStorage.getItem(`goals_${user?.name}`);
-        console.log('💾 Trying localStorage for:', user?.name, '→', stored);
-        if (stored) {
-          const parsed = JSON.parse(stored);
-          setWeeklyGoal(parsed.weeklyGoal || 0);
-          setMonthlyGoal(parsed.monthlyGoal || 0);
-          console.log('✅ Goals loaded from localStorage:', parsed);
-        }
-        return;
-      }
-      
-      console.log('🔍 Loading goals for user ID:', goalKey);
-      
-      const goalsRef = doc(db, 'employee_goals', goalKey);
+      const goalsRef = doc(db, 'employee_goals', externalName);
       const goalsDoc = await getDoc(goalsRef);
       
       if (goalsDoc.exists()) {
         const data = goalsDoc.data();
-        setWeeklyGoal(data.weeklyGoal || 0);
-        setMonthlyGoal(data.monthlyGoal || 0);
-        // Also cache in localStorage as backup
-        localStorage.setItem(`goals_${user?.name}`, JSON.stringify(data));
-        console.log('✅ Goals loaded from Firestore:', { goalKey, data });
-      } else {
-        console.log('ℹ️ No goals found in Firestore for:', goalKey);
-        // Try localStorage as fallback
-        const stored = localStorage.getItem(`goals_${user?.name}`);
-        if (stored) {
-          const parsed = JSON.parse(stored);
-          setWeeklyGoal(parsed.weeklyGoal || 0);
-          setMonthlyGoal(parsed.monthlyGoal || 0);
-          console.log('💾 Goals loaded from localStorage backup:', parsed);
-        }
+        if (data.weeklyGoal) setWeeklyGoal(data.weeklyGoal);
+        if (data.monthlyGoal) setMonthlyGoal(data.monthlyGoal);
+        console.log('✅ Goals loaded from Firestore:', data);
       }
     } catch (err) {
-      console.error('❌ Error loading goals:', err);
+      console.error('Error loading goals:', err);
     }
   };
 
-  // Load preview employee data if in preview mode
   useEffect(() => {
-    if (isPreviewMode && previewUserId) {
-      console.log('🔄 Loading preview employee:', previewUserId);
-      const loadPreviewEmployee = async () => {
-        try {
-          const employeeRef = doc(db, 'employees', previewUserId);
-          const employeeSnap = await getDoc(employeeRef);
-          if (employeeSnap.exists()) {
-            const empData = employeeSnap.data();
-            console.log('✅ Preview employee loaded:', empData);
-            console.log('📋 Preview employee fields:', Object.keys(empData));
-            setPreviewEmployee(empData);
-          } else {
-            console.warn('⚠️ Preview employee not found:', previewUserId);
-          }
-        } catch (err) {
-          console.error('❌ Error loading preview employee:', err);
-        }
-      };
-      loadPreviewEmployee();
-    }
-  }, [isPreviewMode, previewUserId]);
-
-  // Load data on mount and when user ID changes
-  useEffect(() => {
-    // In preview mode, use preview user's ID instead
-    const activeUserId = isPreviewMode ? previewUserId : user?.id;
-    
-    if (activeUserId) {
-      console.log('👤 Loading for user:', activeUserId, 'Preview:', isPreviewMode);
-      if (!isPreviewMode && user?.id) {
-        loadSavedGoals();  // Load goals only for authenticated users
-      }
-    }
     loadEmployeeData();
-    
-    // Load badges with 500ms delay to avoid race conditions
-    const badgeTimer = setTimeout(() => {
-      loadCachedBadges();
-    }, 500);
-    
-    return () => clearTimeout(badgeTimer);
-  }, [isPreviewMode, previewUserId, user?.id, activeTab]);  // Trigger on user.id OR preview mode change
-
-  // Subscribe to Web Push when user is on Min Side (handles both fresh login AND localStorage recovery)
-  useEffect(() => {
-    if (!isPreviewMode && user?.id) {
-      console.log('🔔 MinSide mounted - subscribing to Web Push for user:', user.id);
-      
-      requestNotificationPermission().then((granted) => {
-        if (granted) {
-          console.log('✅ Notification permission granted!');
-          subscribeToWebPush(user.id).then((subscription) => {
-            if (subscription) {
-              console.log('✅ Web Push subscribed - will notify even when app closed!');
-            } else {
-              console.warn('⚠️ Web Push subscription failed!');
-            }
-          }).catch((error) => {
-            console.error('❌ Error in subscribeToWebPush:', error);
-          });
-        } else {
-          console.warn('⚠️ Notification permission not granted!');
-        }
-      }).catch((error) => {
-        console.error('❌ Error requesting notification permission:', error);
-      });
-    }
-  }, [user?.id, isPreviewMode]);
-
-  // Sync goals to sessionStorage whenever they change
-  useEffect(() => {
-    console.log('💾 Syncing goals to sessionStorage:', { weeklyGoal, monthlyGoal });
-    sessionStorage.setItem('maal_weekly', weeklyGoal.toString());
-    sessionStorage.setItem('maal_monthly', monthlyGoal.toString());
-  }, [weeklyGoal, monthlyGoal]);
-
-  // Also reload goals when activeTab changes to 'target' (Mål tab)
-  useEffect(() => {
-    if (activeTab === 'target') {
-      loadSavedGoals();  // ✅ Reload when switching to Mål tab
-      console.log('📊 Reloading goals when opening Mål tab');
-    }
-  }, [activeTab]);
+    loadSavedGoals();
+    // Load cached badges from Firestore
+    loadCachedBadges();
+  }, [user]);
 
   // Count working days this week (Monday to today)
   const countWorkingDaysThisWeek = (date: Date) => {
     const weekStart = new Date(date);
     weekStart.setDate(date.getDate() - date.getDay() + (date.getDay() === 0 ? -6 : 1));
-    const yesterday = new Date(date);
-    yesterday.setDate(date.getDate() - 1);
     
     let count = 0;
-    for (let d = new Date(weekStart); d <= yesterday; d.setDate(d.getDate() + 1)) {
+    for (let d = new Date(weekStart); d <= date; d.setDate(d.getDate() + 1)) {
       const day = d.getDay();
       if (day !== 0 && day !== 6) count++;
     }
@@ -279,14 +146,12 @@ export default function MinSide() {
     return count;
   };
 
-  // Count working days from start of month to yesterday (excluding today since it's not finished)
+  // Count working days from start of month to today
   const countWorkingDaysThisMonth = (date: Date) => {
     const monthStart = new Date(date.getFullYear(), date.getMonth(), 1);
-    const yesterday = new Date(date);
-    yesterday.setDate(date.getDate() - 1);
     
     let count = 0;
-    for (let d = new Date(monthStart); d <= yesterday; d.setDate(d.getDate() + 1)) {
+    for (let d = new Date(monthStart); d <= date; d.setDate(d.getDate() + 1)) {
       const day = d.getDay();
       if (day !== 0 && day !== 6) count++;
     }
@@ -359,19 +224,13 @@ export default function MinSide() {
     return () => clearInterval(timer);
   }, [progressData]);
 
-  // Normalize externalName for Firestore document ID (replace / with _)
-  const normalizeForDocId = (name: string): string => {
-    return name.replace(/\//g, '_').trim();
-  };
-
   const loadCachedBadges = async () => {
     try {
       const externalName = user?.externalName || '';
       if (!externalName) return;
       
       // Load badges from user_earned_badges collection (cached from last calculation)
-      const normalizedDocId = normalizeForDocId(externalName);
-      const badgeDocRef = doc(db, 'user_earned_badges', normalizedDocId);
+      const badgeDocRef = doc(db, 'user_earned_badges', externalName);
       const badgeSnapshot = await getDoc(badgeDocRef);
       
       if (badgeSnapshot.exists()) {
@@ -394,8 +253,7 @@ export default function MinSide() {
       
       // Save earned badges to user_earned_badges collection
       const earnedBadges = Object.keys(badgeMap).filter(emoji => badgeMap[emoji]);
-      const normalizedDocId = normalizeForDocId(externalName);
-      const badgesRef = doc(db, 'user_earned_badges', normalizedDocId);
+      const badgesRef = doc(db, 'user_earned_badges', externalName);
       await setDoc(badgesRef, { 
         badges: earnedBadges, 
         badgeMap: badgeMap,
@@ -415,28 +273,18 @@ export default function MinSide() {
       const emojiCountsRef = doc(db, 'emoji_counts_daily', dateKey);
       const emojiDoc = await getDoc(emojiCountsRef);
       
-      console.log(`🔍 Loading emoji counts for date: ${dateKey}`);
-      console.log(`User name: ${user?.name}`);
-      
       if (emojiDoc.exists()) {
         const data = emojiDoc.data();
         const counts = data.counts || {};
         
-        console.log('📋 All emoji counts in Firestore:', counts);
-        
-        // Get current user's name
+        // Get current user's name (try both externalName and full name)
         const userName = user?.name || '';
         const userEmojis = counts[userName] || { '🔔': 0, '💎': 0 };
         
         console.log('📊 Emoji counts for', userName, ':', userEmojis);
         
-        const total = (userEmojis['🔔'] || 0) + (userEmojis['💎'] || 0);
-        console.log('✅ Total emoji count for today:', total);
-        
         // Return sum of 🔔 (1 pt) + 💎 (1 pt)
-        return total;
-      } else {
-        console.log('❌ No emoji document for today');
+        return (userEmojis['🔔'] || 0) + (userEmojis['💎'] || 0);
       }
       return 0;
     } catch (err) {
@@ -456,99 +304,32 @@ export default function MinSide() {
         contracts.push({ id: doc.id, ...data });
       });
 
-      // Normalize function - remove diakritikks (Å→A, ø→o, é→e, etc)
-      const normalize = (str: string): string => {
-        return str
-          .normalize('NFD')
-          .replace(/[\u0300-\u036f]/g, '')  // Remove diakritikks
-          .trim();
-      };
-
-      // Filter for this employee - normalize both seller and external name
-      // In preview mode, use preview employee's externalName; otherwise use current user's
-      const activeEmployee = isPreviewMode ? previewEmployee : user;
-      const normalizedExternalName = normalize(activeEmployee?.externalName || '');
+      // Filter for this employee
       const employeeContracts = contracts.filter(c => {
-        const selger = normalize(c.selger || '');
-        return selger === normalizedExternalName || selger.startsWith(normalizedExternalName + ' /');
+        const selger = c.selger || '';
+        const externalName = user?.externalName || '';
+        return selger === externalName || selger.startsWith(externalName + ' /');
       });
-      
-      console.log('🔍 Loading data for:', activeEmployee?.name, 'externalName:', activeEmployee?.externalName, 'Found contracts:', employeeContracts.length);
 
       const now = new Date();
       const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      
-      // Calculate Monday of this week (correctly!)
-      const daysToMonday = today.getDay() === 0 ? 6 : today.getDay() - 1;
       const weekStart = new Date(today);
-      weekStart.setDate(today.getDate() - daysToMonday);
-      
+      weekStart.setDate(today.getDate() - today.getDay());
       const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
       const yearStart = new Date(now.getFullYear(), 0, 1); // Jan 1 of current year
-      
-      console.log('📅 DATE DEBUG:', {
-        today: today.toISOString().split('T')[0],
-        weekStart: weekStart.toISOString().split('T')[0],
-        monthStart: monthStart.toISOString().split('T')[0],
-        dayOfWeek: today.getDay() === 0 ? 'Sunday' : ['Mon','Tue','Wed','Thu','Fri','Sat'][today.getDay() - 1]
-      });
 
       // Load emoji counts for today (🔔 + 💎)
       const emojiCountToday = await loadEmojiCountsForToday();
 
-      // Count contracts this week
-      const weekContracts = employeeContracts.filter(c => {
+      const salesThisWeek = employeeContracts.filter(c => {
         const date = parseDate(c.dato || '');
         return date && date >= weekStart && date <= today;
-      });
-      const contractsThisWeek = weekContracts.length;
-      
-      // Add emojis from today to weekly progress
-      const salesThisWeek = contractsThisWeek + emojiCountToday;
-      console.log('📊 Weekly Progress:', { contractsThisWeek, emojiCountToday, total: salesThisWeek });
-      console.log(`  🔎 Week range: ${weekStart.toISOString().split('T')[0]} to ${today.toISOString().split('T')[0]}`);
-      console.log(`  📋 Week contracts (${contractsThisWeek}):`, weekContracts.map((c: any) => `${c.dato}: ${c.produkt}`));
+      }).length;
 
-      // Count contracts this month
-      const monthContracts = employeeContracts.filter(c => {
+      const salesThisMonth = employeeContracts.filter(c => {
         const date = parseDate(c.dato || '');
         return date && date >= monthStart && date <= today;
-      });
-      const contractsThisMonth = monthContracts.length;
-      
-      // Add emojis from today to monthly progress
-      const salesThisMonth = contractsThisMonth + emojiCountToday;
-      console.log('📈 Monthly Progress:', { contractsThisMonth, emojiCountToday, total: salesThisMonth });
-      console.log(`  🔎 Month range: ${monthStart.toISOString().split('T')[0]} to ${today.toISOString().split('T')[0]}`);
-      console.log(`  📋 Month contracts (${contractsThisMonth}):`, monthContracts.map((c: any) => `${c.dato}: ${c.produkt}`).slice(0, 10));
-
-      // Calculate BEST WEEK HISTORICALLY (any Monday-Sunday period)
-      const weekMap: { [key: string]: number } = {};
-      employeeContracts.forEach(c => {
-        const date = parseDate(c.dato || '');
-        if (date) {
-          // Find Monday of this week
-          const dayOfWeek = date.getDay();
-          const mondayDate = new Date(date);
-          mondayDate.setDate(date.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
-          const weekKey = mondayDate.toISOString().split('T')[0];
-          weekMap[weekKey] = (weekMap[weekKey] || 0) + 1;
-        }
-      });
-      const bestWeek = Math.max(0, ...Object.values(weekMap));
-      console.log('📊 Best week for', user?.name, ':', bestWeek, 'contracts');
-
-      // Calculate BEST MONTH HISTORICALLY (any calendar month)
-      const monthMap: { [key: string]: number } = {};
-      employeeContracts.forEach(c => {
-        const date = parseDate(c.dato || '');
-        if (date) {
-          const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-          monthMap[monthKey] = (monthMap[monthKey] || 0) + 1;
-        }
-      });
-      const bestMonth = Math.max(0, ...Object.values(monthMap));
-      console.log('📈 Best month for', user?.name, ':', bestMonth, 'contracts');
+      }).length;
 
       const salesThisYear = employeeContracts.filter(c => {
         const date = parseDate(c.dato || '');
@@ -568,170 +349,67 @@ export default function MinSide() {
       const bestDay = Math.max(0, ...Object.values(dayMap));
       console.log('📅 Best day for', user?.name, ':', bestDay, 'contracts');
 
-      // HARDCODED products - bypass Firestore issues! (without outer quotes)
-      let produktProvisjon: { [key: string]: number } = {
-        // FLEX PRODUCTS (English + Norwegian variants)
-        'Flex 2 with ads - 50,- rabatt i 6 mneder (6)': 600,
-        'Flex 2 with ads - 50% discount 6 months (6)': 600,
-        'Flex 2 without ads - 50,- rabatt i 6 mneder (6)': 600,
-        'Flex 2 without ads - 50% discount 6 months (6)': 600,
-        'Flex Basic - 50,- rabatt i 6 mneder (6)': 500,
-        'Flex Basic - 150 nok discount 6 months (6)': 500,
-        
-        // BASIC PRODUCTS
-        'Basic - 4 frimmneder (12)': 500,
-        'Basic - 1 frimåned (12)': 500,
-        'Basic - 50% rabatt i 6 mäneder (12)': 500,
-        'Basic - 50% discount 6 months (12)': 500,
-        
-        // STANDARD PRODUCTS (Multiple variants)
-        'Standard - 50% rabatt i 6 mneder (12)': 800,
-        'Standard - 50% rabatt i 6 mäneder (12)': 800,
-        'Standard - 50% discount 6 months (12)': 800,
-        'Standard - 1 frimned (12)': 800,
-        'Standard - 1 frimåned (12)': 800,
-        'Standard - 2 frimmneder (12)': 800,
-        'Standard - 2 frimåneder (12)': 800,
-        'Standard - 4 frimmneder (12)': 800,
-        'Standard - 4 frimåneder (12)': 800,
-        
-        // LARGE PRODUCTS
-        'Large - 100% Discount 1 month + 200 nok discount 11 months (12)': 1000,
-        'Large - 100% discount 1 month then 290,- discount 11 months (12)': 1000
-      };
-      console.log('💼 Products hardcoded:', Object.keys(produktProvisjon).length, 'produkter');
-
-      // Get emoji counts for today with breakdown
-      let bellCountToday = 0, gemCountToday = 0, giftCountTodayEarnings = 0;
+      // Load products with provisjon
+      let produktProvisjon: { [key: string]: number } = {};
       try {
-        // Use PROPER local date string, not UTC ISO!
-        const today_str = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+        const produktRef = collection(db, 'allente_products');
+        const produktSnapshot = await getDocs(produktRef);
+        produktSnapshot.forEach((doc) => {
+          const data = doc.data();
+          const provisjon = parseFloat(data.provisjon || 0);
+          produktProvisjon[doc.id] = provisjon;
+        });
+        console.log('💼 Products loaded:', produktProvisjon);
+      } catch (err) {
+        console.error('Error loading products:', err);
+      }
+
+      // Load gift count (🎁) for today
+      let giftCountToday = 0;
+      try {
+        const today_str = today.toISOString().split('T')[0];
         const emojiCountsRef = doc(db, 'emoji_counts_daily', today_str);
         const emojiDoc = await getDoc(emojiCountsRef);
-        console.log(`🔍 Earnings emoji load - date: ${today_str}, doc exists: ${emojiDoc.exists()}`);
-        
         if (emojiDoc.exists()) {
           const data = emojiDoc.data();
           const counts = data.counts || {};
           const userName = user?.name || '';
-          
-          console.log(`📋 All counts in Firestore:`, counts);
-          console.log(`🔎 Looking for user: "${userName}"`);
-          
-          const userEmojis = counts[userName] || { '🔔': 0, '💎': 0, '🎁': 0 };
+          const userEmojis = counts[userName] || { '🎁': 0 };
+          giftCountToday = userEmojis['🎁'] || 0;
+        }
+      } catch (err) {
+        console.error('Error loading gift count:', err);
+      }
+
+      // Get emoji counts for today with breakdown
+      let bellCountToday = 0, gemCountToday = 0;
+      try {
+        const today_str = today.toISOString().split('T')[0];
+        const emojiCountsRef = doc(db, 'emoji_counts_daily', today_str);
+        const emojiDoc = await getDoc(emojiCountsRef);
+        if (emojiDoc.exists()) {
+          const data = emojiDoc.data();
+          const counts = data.counts || {};
+          const userName = user?.name || '';
+          const userEmojis = counts[userName] || { '🔔': 0, '💎': 0 };
           bellCountToday = userEmojis['🔔'] || 0;
           gemCountToday = userEmojis['💎'] || 0;
-          const giftCount = userEmojis['🎁'] || 0;
-          giftCountTodayEarnings = giftCount;
-          
-          console.log('🎊 Emoji counts for today:', { bellCountToday, gemCountToday, giftCount, userName });
-        } else {
-          console.log('❌ No emoji doc found for today');
         }
       } catch (err) {
         console.error('Error loading emoji counts:', err);
       }
 
       // Calculate earnings
-      // String similarity function - find closest match
-      const stringSimilarity = (str1: string, str2: string): number => {
-        const s1 = str1.toLowerCase();
-        const s2 = str2.toLowerCase();
-        const longer = s1.length > s2.length ? s1 : s2;
-        const shorter = s1.length > s2.length ? s2 : s1;
-        
-        if (longer.length === 0) return 1.0;
-        const editDistance = getEditDistance(longer, shorter);
-        return (longer.length - editDistance) / longer.length;
-      };
-
-      const getEditDistance = (s1: string, s2: string): number => {
-        const costs = [];
-        for (let i = 0; i <= s1.length; i++) {
-          let lastValue = i;
-          for (let j = 0; j <= s2.length; j++) {
-            if (i === 0) {
-              costs[j] = j;
-            } else if (j > 0) {
-              let newValue = costs[j - 1];
-              if (s1.charAt(i - 1) !== s2.charAt(j - 1)) {
-                newValue = Math.min(Math.min(newValue, lastValue), costs[j]) + 1;
-              }
-              costs[j - 1] = lastValue;
-              lastValue = newValue;
-            }
-          }
-          if (i > 0) costs[s2.length] = lastValue;
-        }
-        return costs[s2.length];
-      };
-
       // Get provisjon per product from contracts
-      console.log('🔍 EARNINGS MATCHING DEBUG - FULL BREAKDOWN');
-      console.log('Available admin products:', Object.keys(produktProvisjon));
-      console.log('Total contracts to process:', employeeContracts.length);
-      
-      const contractEarnings = employeeContracts.reduce((sum, c, idx) => {
-        let produktName = (c.produkt || '')
-          .replace(/\\/g, '')  // Remove backslashes
-          .trim();
-        
-        console.log(`\n[${idx}] Contract product RAW: "${c.produkt}"`);
-        console.log(`    Cleaned: "${produktName}"`);
-        
-        // 1. Try exact match
-        let provisjon = produktProvisjon[produktName] || 0;
-        if (provisjon > 0) {
-          console.log(`    ✅ EXACT MATCH: ${provisjon} kr`);
-          return sum + provisjon;
-        }
-        console.log(`    ❌ No exact match`);
-        
-        // 2. If no match, try base name match (before " - ")
-        const productBase = produktName.split(' - ')[0].trim();
-        console.log(`    Base name: "${productBase}"`);
-        
-        for (const key in produktProvisjon) {
-          const adminBase = key.split(' - ')[0].trim();
-          if (adminBase === productBase) {
-            provisjon = produktProvisjon[key];
-            console.log(`    ✅ BASE MATCH with "${key}": ${provisjon} kr`);
-            return sum + provisjon;
-          }
-        }
-        console.log(`    ❌ No base match found`);
-        
-        // 3. If still no match, find closest match by similarity
-        let bestMatch = '';
-        let bestScore = 0.7; // 70% similarity threshold
-        
-        for (const key in produktProvisjon) {
-          const adminBase = key.split(' - ')[0].trim();
-          const score = stringSimilarity(productBase, adminBase);
-          
-          if (score > bestScore) {
-            bestScore = score;
-            bestMatch = key;
-          }
-        }
-        
-        if (bestMatch) {
-          provisjon = produktProvisjon[bestMatch];
-          console.log(`    ✅ FUZZY MATCH (${(bestScore * 100).toFixed(0)}%): "${bestMatch}" → ${provisjon} kr`);
-        } else {
-          console.log(`    ❌ NO FUZZY MATCH (best was ${(bestScore * 100).toFixed(0)}%)`);
-        }
-        
+      const contractEarnings = employeeContracts.reduce((sum, c) => {
+        const produktName = c.produkt || '';
+        const provisjon = produktProvisjon[produktName] || 0;
         return sum + provisjon;
       }, 0);
-      
-      console.log(`\n✅ TOTAL CONTRACT EARNINGS: ${contractEarnings} kr`);
-      console.log('💼 Contract earnings:', { contractEarnings, contractCount: employeeContracts.length });
 
       // Emoji values: 🔔=800, 💎=1000, 🎁=-200
-      const emojiEarningsToday = (bellCountToday * 800) + (gemCountToday * 1000) - (giftCountTodayEarnings * 200);
+      const emojiEarningsToday = (bellCountToday * 800) + (gemCountToday * 1000) - (giftCountToday * 200);
       const totalEarnings = contractEarnings + emojiEarningsToday;
-      console.log('💰 Daily earnings breakdown:', { bellCountToday, gemCountToday, giftCountTodayEarnings, emojiEarningsToday, totalEarnings });
 
       // Week earnings
       const contractsWeek = employeeContracts.filter(c => {
@@ -739,25 +417,10 @@ export default function MinSide() {
         return date && date >= weekStart && date <= today;
       });
       const weekEarnings = contractsWeek.reduce((sum, c) => {
-        let produktName = (c.produkt || '')
-          .replace(/\\/g, '')
-          .trim();
-        
-        let provisjon = produktProvisjon[produktName] || 0;
-        
-        if (provisjon === 0) {
-          const productBase = produktName.split(' - ')[0];
-          for (const key in produktProvisjon) {
-            if (key.split(' - ')[0] === productBase) {
-              provisjon = produktProvisjon[key];
-              break;
-            }
-          }
-        }
-        
+        const produktName = c.produkt || '';
+        const provisjon = produktProvisjon[produktName] || 0;
         return sum + provisjon;
       }, 0) + emojiEarningsToday; // Add today's emoji earnings
-      console.log('📊 Weekly earnings:', { contractsWeek: contractsWeek.length, weekEarnings, emojiEarningsToday });
 
       // Month earnings
       const contractsMonth = employeeContracts.filter(c => {
@@ -765,25 +428,10 @@ export default function MinSide() {
         return date && date >= monthStart && date <= today;
       });
       const monthEarnings = contractsMonth.reduce((sum, c) => {
-        let produktName = (c.produkt || '')
-          .replace(/\\/g, '')
-          .trim();
-        
-        let provisjon = produktProvisjon[produktName] || 0;
-        
-        if (provisjon === 0) {
-          const productBase = produktName.split(' - ')[0];
-          for (const key in produktProvisjon) {
-            if (key.split(' - ')[0] === productBase) {
-              provisjon = produktProvisjon[key];
-              break;
-            }
-          }
-        }
-        
+        const produktName = c.produkt || '';
+        const provisjon = produktProvisjon[produktName] || 0;
         return sum + provisjon;
       }, 0) + emojiEarningsToday; // Add today's emoji earnings
-      console.log('📈 Monthly earnings:', { contractsMonth: contractsMonth.length, monthEarnings, emojiEarningsToday });
 
       // Calculate hours worked today
       const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 9, 0);
@@ -802,27 +450,14 @@ export default function MinSide() {
       const totalWorkingDaysInMonth = countWorkingDaysInMonth(now);
       const monthlyEarningsRunrate = workingDaysMonth > 0 ? (monthEarnings / workingDaysMonth) * totalWorkingDaysInMonth : 0;
 
-      const earningsObj = {
+      setEarnings({
         total: Math.round(totalEarnings),
         daily: Math.round(emojiEarningsToday),
         dailyTo16: Math.round(dailyEarningsTo16 * 100) / 100,
         dailyTo21: Math.round(dailyEarningsTo21 * 100) / 100,
-        weekly: Math.round(weekEarnings),
-        weeklyRunrate: Math.round(weeklyEarningsRunrate),
-        monthly: Math.round(monthEarnings),
-        monthlyRunrate: Math.round(monthlyEarningsRunrate),
-      };
-      
-      console.log('✅ FINAL EARNINGS OBJECT:', earningsObj);
-      console.log('📊 Runrate calculation:', {
-        weeklyEarningsRunrate,
-        monthlyEarningsRunrate,
-        workingDaysWeek,
-        workingDaysMonth,
-        totalWorkingDaysInMonth,
+        weekly: Math.round(weeklyEarningsRunrate),
+        monthly: Math.round(monthlyEarningsRunrate),
       });
-      
-      setEarnings(earningsObj);
 
       console.log('💰 Earnings calculated:', {
         contractEarnings,
@@ -846,8 +481,8 @@ export default function MinSide() {
 
       setStats([
         { value: bestDay, label: 'Dag', color: '#E8956E', icon: '📊' },
-        { value: bestWeek, label: 'Uke', color: '#E8956E', icon: '📈' },
-        { value: bestMonth, label: 'Måned', color: '#E8956E', icon: '🎯' },
+        { value: salesThisWeek, label: 'Uke', color: '#E8956E', icon: '📈' },
+        { value: salesThisMonth, label: 'Måned', color: '#E8956E', icon: '🎯' },
         { value: salesThisYear, label: 'År', color: '#5B7FFF', icon: '📅' },
         { value: total, label: 'Allente', color: '#A855C9', icon: '⭐' },
       ]);
@@ -980,9 +615,6 @@ export default function MinSide() {
     }
   };
 
-  // Preview mode: show STATIC snapshot of Min Side (read-only, no tabs) - CHECK THIS FIRST!
-  // Show immediately if in preview mode, even while data is loading
-  // After preview check, check if still loading
   if (loading) return <div className="minside-container"><div style={{ padding: '2rem', textAlign: 'center' }}>Laster...</div></div>;
 
   console.log('🏅 Rendering MinSide with earnedBadges:', earnedBadges);
@@ -994,7 +626,7 @@ export default function MinSide() {
         <div className="header-left">
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', flexWrap: 'wrap' }}>
-              <h1>{user?.name} {isPreviewMode && <span style={{ fontSize: '0.7em', color: '#667eea', marginLeft: '0.5rem' }}>📸 Preview</span>}</h1>
+              <h1>{user?.name}</h1>
               {/* All Badges in Header - Earned and Unearned */}
               {earnedBadges.length > 0 && (
                 <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
@@ -1162,10 +794,9 @@ export default function MinSide() {
               <div className="earnings-header">
                 <span className="earnings-icon">💰</span>
                 <div>
-                  <h3>Min Lønn</h3>
+                  <h3>Lønn</h3>
                   <p className="earnings-subtitle">Utvikling</p>
                 </div>
-                <span className="earnings-icon">💰</span>
               </div>
 
               {/* Three Column Layout: DAG | UKE | MÅNED */}
@@ -1196,10 +827,6 @@ export default function MinSide() {
                     <span className="earnings-period-value">{earnings.weekly.toLocaleString('no-NO')}</span>
                     <span className="earnings-period-unit">kr</span>
                   </div>
-                  <div className="earnings-period-runrate">
-                    <div className="earnings-period-runrate-label">Runrate</div>
-                    <span className="earnings-period-runrate-value">{earnings.weeklyRunrate.toLocaleString('no-NO')} kr</span>
-                  </div>
                 </div>
 
                 {/* MÅNED */}
@@ -1208,10 +835,6 @@ export default function MinSide() {
                   <div className="earnings-period-stat">
                     <span className="earnings-period-value">{earnings.monthly.toLocaleString('no-NO')}</span>
                     <span className="earnings-period-unit">kr</span>
-                  </div>
-                  <div className="earnings-period-runrate">
-                    <div className="earnings-period-runrate-label">Runrate</div>
-                    <span className="earnings-period-runrate-value">{earnings.monthlyRunrate.toLocaleString('no-NO')} kr</span>
                   </div>
                 </div>
               </div>
@@ -1222,11 +845,23 @@ export default function MinSide() {
       )}
 
       {activeTab === 'avd' && (
-        <AvdelingDashboard userDepartment={user?.department || 'KRS'} />
+      <div className="tab-content">
+        <div className="content-title">
+          <h3>Avdeling: {user?.department}</h3>
+          <p className="content-subtitle">Se alle kontrakter fra {user?.department}</p>
+        </div>
+        <p>Innhold for avdeling kommer snart...</p>
+      </div>
       )}
 
       {activeTab === 'project' && (
-        <ProsjektDashboard userProject={user?.project || 'Allente'} />
+      <div className="tab-content">
+        <div className="content-title">
+          <h3>Prosjekt: {user?.project}</h3>
+          <p className="content-subtitle">Se alle kontrakter fra prosjektet ditt</p>
+        </div>
+        <p>Innhold for prosjekt kommer snart...</p>
+      </div>
       )}
 
       {activeTab === 'target' && (
@@ -1258,38 +893,18 @@ export default function MinSide() {
             if (showGoalEdit) {
               // Save mode: save and close
               try {
-                // ✅ USE USER ID as document ID (always unique and consistent)
-                const goalKey = user?.id || '';
-                console.log('💾 Saving goals - user ID:', goalKey, 'Weekly:', weeklyGoal, 'Monthly:', monthlyGoal);
-                
-                if (!goalKey) {
-                  alert('❌ Kunne ikke lagre: Bruker ikke identifisert');
-                  console.error('❌ No user ID found!');
-                  return;
+                const externalName = user?.externalName || user?.name || '';
+                if (externalName) {
+                  const goalsRef = doc(db, 'employee_goals', externalName);
+                  await setDoc(goalsRef, {
+                    weeklyGoal,
+                    monthlyGoal,
+                    updatedAt: new Date(),
+                  }, { merge: true });
+                  console.log('✅ Goals saved:', { weeklyGoal, monthlyGoal });
                 }
-                
-                const goalsRef = doc(db, 'employee_goals', goalKey);
-                const saveData = {
-                  weeklyGoal: weeklyGoal || 0,
-                  monthlyGoal: monthlyGoal || 0,
-                  updatedAt: new Date().toISOString(),
-                  userId: user?.id || 'unknown',
-                };
-                
-                // ✅ IMMEDIATELY save to sessionStorage (instant backup)
-                sessionStorage.setItem('maal_weekly', (weeklyGoal || 0).toString());
-                sessionStorage.setItem('maal_monthly', (monthlyGoal || 0).toString());
-                
-                await setDoc(goalsRef, saveData, { merge: true });
-                
-                // Also backup to localStorage
-                localStorage.setItem(`goals_${user?.name}`, JSON.stringify(saveData));
-                
-                console.log('✅ Goals saved to sessionStorage + Firestore + localStorage:', { goalKey, ...saveData });
-                alert('✅ Mål lagret!');
               } catch (err) {
                 console.error('❌ Error saving goals:', err);
-                alert('❌ Feil ved lagring av mål: ' + (err as any).message);
               }
               setShowGoalEdit(false);
             } else {
