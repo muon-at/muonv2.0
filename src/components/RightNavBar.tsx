@@ -52,8 +52,8 @@ export const RightNavBar: React.FC = () => {
       
       // Use event detail data if available (fresh from Sidebar)
       let dmTotal = 0;
-      if (detail.dmUnread) {
-        dmTotal = Object.values(detail.dmUnread).reduce((sum: number, count: number) => sum + count, 0);
+      if (detail.dmUnread && typeof detail.dmUnread === 'object') {
+        dmTotal = Object.values(detail.dmUnread as Record<string, number>).reduce((sum: number, count: number) => sum + count, 0);
         console.log('📦 Using dmUnread from event detail:', detail.dmUnread, '→ total:', dmTotal);
       } else {
         // Fallback to localStorage if no event detail
