@@ -85,7 +85,11 @@ export default function MobileChatConversation() {
       let unsubscribe: (() => void) | undefined;
 
       // Initialize channel async
-      console.log('🚀 Initializing channel:', { chatName, title });
+      console.log('🚀 Initializing channel:', { chatName, title, isDM, type });
+      
+      if (chatName === 'project-allente') {
+        console.log('⚠️ ALLENTE CHAT DETECTED - debugging this one');
+      }
       
       setDoc(doc(db, 'chat_channels', chatName), {
         id: chatName,
@@ -99,10 +103,20 @@ export default function MobileChatConversation() {
         const messagesRef = collection(db, 'chat_channels', chatName, 'messages');
         const messagesQ = query(messagesRef, orderBy('timestamp', 'asc'));
         
-        console.log('🔍 Setting up listener for:', { messagesRef: `chat_channels/${chatName}/messages` });
+        console.log('🔍 Setting up listener for:', { 
+          path: `chat_channels/${chatName}/messages`,
+          chatName,
+          title
+        });
         
+        let snapshotCount = 0;
         unsubscribe = onSnapshot(messagesQ, (snapshot) => {
-          console.log('💬 Messages snapshot:', { count: snapshot.size, channelId: chatName });
+          snapshotCount++;
+          console.log('💬 Messages snapshot #' + snapshotCount + ':', { 
+            count: snapshot.size, 
+            channelId: chatName,
+            empty: snapshot.empty
+          });
           const msgs: Message[] = [];
           snapshot.forEach(doc => {
             const data = doc.data();
@@ -127,6 +141,7 @@ export default function MobileChatConversation() {
         });
       }).catch((error) => {
         console.error('❌ Channel init error:', error);
+        console.error('❌ Stack:', error instanceof Error ? error.stack : 'no stack');
         setMessages([]);
       });
 
