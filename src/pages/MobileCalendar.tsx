@@ -257,15 +257,9 @@ export default function MobileCalendar() {
 
       {monthHolidays.length > 0 && (
         <div className="month-holidays">
-          <h3>Helligdager denne måneden</h3>
-          <div className="holidays-list">
-            {monthHolidays.map((holiday) => (
-              <div key={holiday.date} className="holiday-item">
-                <span className="holiday-date">{holiday.day}.</span>
-                <span className="holiday-name">{holiday.name}</span>
-              </div>
-            ))}
-          </div>
+          <span className="holidays-text">
+            Helligdager: {monthHolidays.map((h) => `${h.day}. ${h.name}`).join(', ')}
+          </span>
         </div>
       )}
     </div>
