@@ -123,11 +123,23 @@ export default function Login() {
             id: foundEmployee.id,
             role: foundEmployee.role,
           });
-          login(foundEmployee.name, foundEmployee.id, foundEmployee.role, foundEmployee);
+          
+          try {
+            login(foundEmployee.name, foundEmployee.id, foundEmployee.role, foundEmployee);
+            console.log('✅ Auth context updated');
+          } catch (loginErr) {
+            console.error('❌ Auth context error:', loginErr);
+          }
           
           // On mobile: show home screen. On desktop: go to min-side
-          const isMobile = window.innerWidth < 769;
-          navigate(isMobile ? '/home' : '/min-side');
+          try {
+            const isMobile = window.innerWidth < 769;
+            console.log('🚀 Navigating to:', isMobile ? '/home' : '/min-side');
+            navigate(isMobile ? '/home' : '/min-side');
+          } catch (navErr) {
+            console.error('❌ Navigation error:', navErr);
+            window.location.href = '/home';
+          }
         }
       } else {
         setError('Feil e-post eller passord');
