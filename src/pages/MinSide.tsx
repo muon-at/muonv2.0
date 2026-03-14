@@ -752,44 +752,84 @@ export default function MinSide() {
           </div>
         </div>
 
-        {/* RUN RATE BOXES */}
-        <div className="runrate-section">
-          {/* Box 1: Daily Run Rates */}
-          <div className="runrate-box">
-            <div className="runrate-label">Dagens Runrate</div>
-            <div className="runrate-metrics">
-              <div className="runrate-metric">
-                <span className="runrate-time">→ 16:00</span>
-                <span className="runrate-value">{runRates.dailyTo16.toFixed(1)}</span>
-                <span className="runrate-unit">salg/dag</span>
+        {/* SALES & EARNINGS BOXES - 3 COMPACT BOXES (DAG, UKE, MÅNED) */}
+        <div className="sales-earnings-section">
+          {/* BOX 1: I DAG */}
+          <div className="sales-box">
+            <div className="sales-box-header">I DAG</div>
+            <div className="sales-box-content">
+              <div className="sales-row">
+                <span className="sales-label">Salg:</span>
+                <span className="sales-value">{progressData.dailyProgress}</span>
               </div>
-              <div className="runrate-divider">|</div>
-              <div className="runrate-metric">
-                <span className="runrate-time">→ 21:00</span>
-                <span className="runrate-value">{runRates.dailyTo21.toFixed(1)}</span>
-                <span className="runrate-unit">salg/dag</span>
+              <div className="sales-row">
+                <span className="sales-label">Lønn:</span>
+                <span className="sales-value">{earnings.daily.toLocaleString('no-NO')} kr</span>
+              </div>
+              <div className="sales-divider"></div>
+              <div className="sales-row small">
+                <span className="sales-label">Runrate salg → 16:00:</span>
+                <span className="sales-value">{runRates.dailyTo16.toFixed(1)}</span>
+              </div>
+              <div className="sales-row small">
+                <span className="sales-label">Runrate salg → 21:00:</span>
+                <span className="sales-value">{runRates.dailyTo21.toFixed(1)}</span>
+              </div>
+              <div className="sales-row small">
+                <span className="sales-label">Runrate lønn → 16:00:</span>
+                <span className="sales-value">{earnings.dailyTo16.toLocaleString('no-NO')} kr</span>
+              </div>
+              <div className="sales-row small">
+                <span className="sales-label">Runrate lønn → 21:00:</span>
+                <span className="sales-value">{earnings.dailyTo21.toLocaleString('no-NO')} kr</span>
               </div>
             </div>
           </div>
 
-          {/* Box 2: Weekly Run Rate */}
-          <div className="runrate-box">
-            <div className="runrate-label">Ukes Runrate</div>
-            <div className="runrate-metrics">
-              <div className="runrate-metric">
-                <span className="runrate-value">{runRates.weekly.toFixed(1)}</span>
-                <span className="runrate-unit">salg/uke</span>
+          {/* BOX 2: UKEN */}
+          <div className="sales-box">
+            <div className="sales-box-header">UKEN</div>
+            <div className="sales-box-content">
+              <div className="sales-row">
+                <span className="sales-label">Salg til nå:</span>
+                <span className="sales-value">{progressData.weeklyProgress}</span>
+              </div>
+              <div className="sales-row">
+                <span className="sales-label">Lønn til nå:</span>
+                <span className="sales-value">{earnings.weekly.toLocaleString('no-NO')} kr</span>
+              </div>
+              <div className="sales-divider"></div>
+              <div className="sales-row small">
+                <span className="sales-label">Runrate salg:</span>
+                <span className="sales-value">{runRates.weekly.toFixed(1)}</span>
+              </div>
+              <div className="sales-row small">
+                <span className="sales-label">Runrate lønn:</span>
+                <span className="sales-value">{(earnings.weekly).toLocaleString('no-NO')} kr</span>
               </div>
             </div>
           </div>
 
-          {/* Box 3: Monthly Run Rate */}
-          <div className="runrate-box">
-            <div className="runrate-label">Månedens Runrate</div>
-            <div className="runrate-metrics">
-              <div className="runrate-metric">
-                <span className="runrate-value">{runRates.monthly.toFixed(1)}</span>
-                <span className="runrate-unit">salg/måned</span>
+          {/* BOX 3: MÅNEDEN */}
+          <div className="sales-box">
+            <div className="sales-box-header">MÅNEDEN</div>
+            <div className="sales-box-content">
+              <div className="sales-row">
+                <span className="sales-label">Salg til nå:</span>
+                <span className="sales-value">{progressData.monthlyProgress}</span>
+              </div>
+              <div className="sales-row">
+                <span className="sales-label">Lønn til nå:</span>
+                <span className="sales-value">{earnings.monthly.toLocaleString('no-NO')} kr</span>
+              </div>
+              <div className="sales-divider"></div>
+              <div className="sales-row small">
+                <span className="sales-label">Runrate salg:</span>
+                <span className="sales-value">{runRates.monthly.toFixed(1)}</span>
+              </div>
+              <div className="sales-row small">
+                <span className="sales-label">Runrate lønn:</span>
+                <span className="sales-value">{(earnings.monthly).toLocaleString('no-NO')} kr</span>
               </div>
             </div>
           </div>
