@@ -754,34 +754,42 @@ export default function MinSide() {
 
         {/* SALES & EARNINGS BOXES - 3 COMPACT BOXES (DAG, UKE, MÅNED) */}
         <div className="sales-earnings-section">
-          {/* BOX 1: I DAG */}
+          {/* BOX 1: I DAG - 2 COLUMNS */}
           <div className="sales-box">
             <div className="sales-box-header">I DAG</div>
-            <div className="sales-box-content">
-              <div className="sales-row">
-                <span className="sales-label">Salg:</span>
-                <span className="sales-value">{progressData.dailyProgress}</span>
+            <div className="sales-box-content-2col">
+              {/* SALG COLUMN */}
+              <div className="sales-column">
+                <div className="sales-column-title">Salg</div>
+                <div className="sales-row">
+                  <span className="sales-label">Total:</span>
+                  <span className="sales-value">{progressData.dailyProgress}</span>
+                </div>
+                <div className="sales-row small">
+                  <span className="sales-label">→ 16:00:</span>
+                  <span className="sales-value">{runRates.dailyTo16.toFixed(1)}</span>
+                </div>
+                <div className="sales-row small">
+                  <span className="sales-label">→ 21:00:</span>
+                  <span className="sales-value">{runRates.dailyTo21.toFixed(1)}</span>
+                </div>
               </div>
-              <div className="sales-row">
-                <span className="sales-label">Lønn:</span>
-                <span className="sales-value">{earnings.daily.toLocaleString('no-NO')} kr</span>
-              </div>
-              <div className="sales-divider"></div>
-              <div className="sales-row small">
-                <span className="sales-label">Runrate salg → 16:00:</span>
-                <span className="sales-value">{runRates.dailyTo16.toFixed(1)}</span>
-              </div>
-              <div className="sales-row small">
-                <span className="sales-label">Runrate salg → 21:00:</span>
-                <span className="sales-value">{runRates.dailyTo21.toFixed(1)}</span>
-              </div>
-              <div className="sales-row small">
-                <span className="sales-label">Runrate lønn → 16:00:</span>
-                <span className="sales-value">{earnings.dailyTo16.toLocaleString('no-NO')} kr</span>
-              </div>
-              <div className="sales-row small">
-                <span className="sales-label">Runrate lønn → 21:00:</span>
-                <span className="sales-value">{earnings.dailyTo21.toLocaleString('no-NO')} kr</span>
+
+              {/* LØNN COLUMN */}
+              <div className="sales-column">
+                <div className="sales-column-title">Lønn</div>
+                <div className="sales-row">
+                  <span className="sales-label">Total:</span>
+                  <span className="sales-value">{earnings.daily.toLocaleString('no-NO')} kr</span>
+                </div>
+                <div className="sales-row small">
+                  <span className="sales-label">→ 16:00:</span>
+                  <span className="sales-value">{earnings.dailyTo16.toLocaleString('no-NO')} kr</span>
+                </div>
+                <div className="sales-row small">
+                  <span className="sales-label">→ 21:00:</span>
+                  <span className="sales-value">{earnings.dailyTo21.toLocaleString('no-NO')} kr</span>
+                </div>
               </div>
             </div>
           </div>
