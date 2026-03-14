@@ -780,6 +780,15 @@ export default function Chat() {
   };
 
   const checkChannelAccess = (type: string, avdeling?: string, allowedUsers?: string[], project?: string): boolean => {
+    // Debug: Log user role on first load
+    if (type === 'admin' || type === 'team') {
+      console.log('🔐 Checking access for type:', type, {
+        userRole: user?.role,
+        userName: user?.name,
+        hasRole: !!user?.role,
+      });
+    }
+    
     // If allowedUsers is set, check if user is in the list
     if (allowedUsers && allowedUsers.length > 0) {
       return allowedUsers.includes(user?.name || '') || user?.role === 'owner';
