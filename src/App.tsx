@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './lib/authContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { useServiceWorkerUpdate } from './lib/useServiceWorkerUpdate';
 import Login from './pages/Login';
 import ResetPassword from './pages/ResetPassword';
 import MinSide from './pages/MinSide';
@@ -17,11 +18,12 @@ import MobileTeam from './pages/MobileTeam';
 import MobileCalendar from './pages/MobileCalendar';
 import './App.css';
 
-function App() {
+function AppContent() {
+  // Initialize service worker updates
+  useServiceWorkerUpdate();
+
   return (
-    <AuthProvider>
-      <Router>
-        <Routes>
+    <Routes>
           <Route path="/" element={<Login />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/change-password-first-login" element={<ResetPassword />} />
@@ -131,7 +133,15 @@ function App() {
               </ProtectedRoute>
             } 
           />
-        </Routes>
+    </Routes>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <Router>
+        <AppContent />
       </Router>
     </AuthProvider>
   );
