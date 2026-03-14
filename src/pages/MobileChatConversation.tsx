@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../lib/authContext';
-import { collection, query, orderBy, onSnapshot, addDoc, serverTimestamp, doc, updateDoc, setDoc } from 'firebase/firestore';
+import { collection, query, orderBy, onSnapshot, addDoc, serverTimestamp, doc, updateDoc, setDoc, getDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import '../styles/MobileChatConversation.css';
 
@@ -104,7 +104,9 @@ export default function MobileChatConversation() {
         console.log('⚠️ ALLENTE CHAT DETECTED - debugging this one');
       }
       
-      setDoc(doc(db, 'chat_channels', chatName), {
+      // Load current document to see structure
+      const channelDocRef = doc(db, 'chat_channels', chatName);
+      setDoc(channelDocRef, {
         id: chatName,
         name: title,
         type: 'channel',
@@ -112,8 +114,26 @@ export default function MobileChatConversation() {
         createdAt: serverTimestamp(),
         lastMessage: '',
         lastMessageTime: serverTimestamp()
-      }, { merge: true }).then(() => {
+      }, { merge: true }).then(async () => {
         console.log('✅ Channel doc ready:', chatName);
+        
+        // Log current document structure for debugging
+        try {
+          const docSnap = await getDoc(channelDocRef);
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+            console.log('📄 Channel document structure:', {
+              fields: Object.keys(data),
+              hasMessages: 'messages' in data,
+              type: data.type,
+              name: data.name
+            });
+          } else {
+            console.log('⚠️ Channel doc not found:', chatName);
+          }
+        } catch (e) {
+          console.log('⚠️ Could not read channel doc:', (e as any).message);
+        }
         
         // Load messages
         const messagesRef = collection(db, 'chat_channels', chatName, 'messages');
