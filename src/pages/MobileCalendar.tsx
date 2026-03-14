@@ -6,8 +6,18 @@ import { db } from '../lib/firebase';
 import '../styles/MobileCalendar.css';
 
 const HOLIDAYS = [
-  '2026-01-01', '2026-04-10', '2026-04-13', '2026-05-01', '2026-05-17',
-  '2026-05-21', '2026-05-31', '2026-12-25', '2026-12-26'
+  '2026-01-01', // Nyttårsdag
+  '2026-04-02', // Skjærtorsdag
+  '2026-04-03', // Langfredag
+  '2026-04-05', // 1. påskedag
+  '2026-04-06', // 2. påskedag
+  '2026-05-01', // Arbeidsdagen
+  '2026-05-17', // Grunnlovsdag
+  '2026-05-14', // Ascension Day (39 days after Easter Sunday)
+  '2026-05-24', // Whit Sunday (49 days after Easter Sunday)
+  '2026-05-25', // Whit Monday (50 days after Easter Sunday)
+  '2026-12-25', // Julaften (observance)
+  '2026-12-26'  // 2. juledag
 ];
 
 const normalize = (str: string): string => {
@@ -73,7 +83,9 @@ export default function MobileCalendar() {
   };
 
   const getFirstDayOfMonth = (date: Date) => {
-    return new Date(date.getFullYear(), date.getMonth(), 1).getDay();
+    // Returns 0-6 where 0 = Monday, 6 = Sunday (Norwegian week format)
+    const dayOfWeek = new Date(date.getFullYear(), date.getMonth(), 1).getDay();
+    return dayOfWeek === 0 ? 6 : dayOfWeek - 1;
   };
 
   const isHoliday = (dateStr: string) => HOLIDAYS.includes(dateStr);
