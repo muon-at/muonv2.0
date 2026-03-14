@@ -125,18 +125,6 @@ export default function Login() {
           });
           login(foundEmployee.name, foundEmployee.id, foundEmployee.role, foundEmployee);
           
-          // Subscribe to Web Push in BACKGROUND (don't wait for it)
-          console.log('🔔 Starting Web Push subscription in background...');
-          requestNotificationPermission().then((granted) => {
-            if (granted) {
-              subscribeToWebPush(foundEmployee.id).catch((err) => {
-                console.warn('⚠️ Web Push subscription failed:', err);
-              });
-            }
-          }).catch(() => {
-            // Silent fail - don't block login
-          });
-          
           // On mobile: show home screen. On desktop: go to min-side
           const isMobile = window.innerWidth < 769;
           navigate(isMobile ? '/home' : '/min-side');
