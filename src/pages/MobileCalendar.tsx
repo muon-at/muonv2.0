@@ -40,7 +40,6 @@ const getStatusLabel = (status: string): string => {
 };
 
 export default function MobileCalendar() {
-  const navigate = useNavigate();
   const { user } = useAuth();
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [statuses, setStatuses] = useState<Record<string, string>>({});
@@ -81,11 +80,6 @@ export default function MobileCalendar() {
     const month = String(currentMonth.getMonth() + 1).padStart(2, '0');
     const dayStr = String(day).padStart(2, '0');
     return `${year}-${month}-${dayStr}`;
-  };
-
-  const isWeekend = (day: number) => {
-    const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
-    return date.getDay() === 0 || date.getDay() === 6;
   };
 
   const handleDayClick = (day: number) => {
