@@ -308,6 +308,7 @@ export default function MinSide() {
     }
   };
 
+  // @ts-ignore - MOCK MODE: disabled for preview
   const loadEmployeeData = async () => {
     try {
       const salesRef = collection(db, 'allente_kontraktsarkiv');
