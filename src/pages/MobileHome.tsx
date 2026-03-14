@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../lib/authContext';
 import { useChannelUnread } from '../lib/ChannelUnreadContext';
+import NotificationPrompt from '../components/NotificationPrompt';
 import '../styles/MobileHome.css';
 
 export default function MobileHome() {
@@ -110,6 +111,8 @@ export default function MobileHome() {
       <div className="mobile-home-footer">
         <p className="user-greeting">Hei {user?.name}! 👋</p>
       </div>
+
+      <NotificationPrompt />
     </div>
   );
 }
