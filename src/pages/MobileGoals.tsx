@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../lib/authContext';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import '../styles/MobileGoals.css';
 
@@ -40,6 +40,7 @@ export default function MobileGoals() {
   const [badgeStatus, setBadgeStatus] = useState<{ [key: string]: boolean }>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [selectedBadge, setSelectedBadge] = useState<BadgeDefinition | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -48,7 +49,7 @@ export default function MobileGoals() {
       try {
         const normalizedId = normalize(user.externalName || user.id || '');
         
-        // Load goals
+        // Load goals (one-time)
         const goalsRef = doc(db, 'employee_goals', normalizedId);
         const goalsDoc = await getDoc(goalsRef);
         if (goalsDoc.exists()) {
@@ -57,15 +58,20 @@ export default function MobileGoals() {
           setMonthlyGoal(data?.monthlyGoal || '');
         }
 
-        // Load badge status
+        // Real-time badge listener (updates live)
         const badgesRef = doc(db, 'employee_badges', normalizedId);
-        const badgesDoc = await getDoc(badgesRef);
-        if (badgesDoc.exists()) {
-          const data = badgesDoc.data();
-          setBadgeStatus(data?.badges || {});
-        }
+        const unsubscribe = onSnapshot(badgesRef, (doc) => {
+          if (doc.exists()) {
+            const data = doc.data();
+            setBadgeStatus(data?.badges || {});
+            console.log('✅ Badges updated (real-time):', data?.badges);
+          }
+        });
 
         setLoading(false);
+        
+        // Cleanup listener on unmount
+        return () => unsubscribe();
       } catch (error) {
         console.error('Error loading data:', error);
         setLoading(false);
@@ -175,17 +181,33 @@ export default function MobileGoals() {
             {badgeDefinitions.map((badge) => {
               const isEarned = badgeStatus[badge.emoji] !== false;
               return (
-                <div
+                <button
                   key={badge.emoji}
-                  className={`badge-item-goal ${isEarned ? 'earned' : 'locked'}`}
-                  title={`${badge.navn}: ${badge.beskrivelse}`}
+                  className={`badge-emoji ${isEarned ? 'earned' : 'locked'}`}
+                  onClick={() => setSelectedBadge(badge)}
+                  type="button"
                 >
                   {badge.emoji}
-                </div>
+                </button>
               );
             })}
           </div>
         </div>
+
+        {/* BADGE DETAIL MODAL */}
+        {selectedBadge && (
+          <div className="badge-modal-overlay" onClick={() => setSelectedBadge(null)}>
+            <div className="badge-modal" onClick={(e) => e.stopPropagation()}>
+              <button className="modal-close" onClick={() => setSelectedBadge(null)}>
+                ✕
+              </button>
+              <div className="modal-badge-emoji">{selectedBadge.emoji}</div>
+              <h2>{selectedBadge.navn}</h2>
+              <p className="modal-description">{selectedBadge.beskrivelse}</p>
+              <p className="modal-requirement">Kreves: {selectedBadge.verdi}</p>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
