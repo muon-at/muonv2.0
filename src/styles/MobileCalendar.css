@@ -46,7 +46,6 @@
   grid-template-columns: repeat(7, 1fr);
   gap: 0.4rem;
   margin-bottom: 0.4rem;
-  text-align: center;
 }
 
 .calendar-weekdays div {
@@ -55,6 +54,10 @@
   font-size: 0.7rem;
   padding: 0.25rem 0;
   line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
 
 .calendar-grid {
@@ -63,6 +66,8 @@
   gap: 0.4rem;
   margin-bottom: 1.25rem;
   flex-shrink: 0;
+  justify-items: center;
+  align-items: center;
 }
 
 .calendar-day {
