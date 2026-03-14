@@ -107,8 +107,11 @@ export default function MobileChatConversation() {
       setDoc(doc(db, 'chat_channels', chatName), {
         id: chatName,
         name: title,
+        type: 'channel',
         unread: 0,
-        createdAt: serverTimestamp()
+        createdAt: serverTimestamp(),
+        lastMessage: '',
+        lastMessageTime: serverTimestamp()
       }, { merge: true }).then(() => {
         console.log('✅ Channel doc ready:', chatName);
         
@@ -150,15 +153,18 @@ export default function MobileChatConversation() {
             setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
           }
         }, (error) => {
-          console.error('❌ Listener error:', error);
+          console.error('❌ Listener error for channel:', chatName, error);
           console.error('❌ Error code:', (error as any)?.code);
+          console.error('❌ Error message:', (error as any)?.message);
           console.log('⏱️ Setting empty state due to error for channel:', chatName);
           setMessages([]);
           
-          // If it's a dept- channel, log details
-          if (chatName.startsWith('dept-')) {
-            console.warn('⚠️ DEPT CHANNEL ERROR - might need special handling:', chatName);
-          }
+          // Log channel structure info for debugging
+          console.warn('⚠️ CHANNEL LOAD FAILED:', {
+            channelId: chatName,
+            path: `chat_channels/${chatName}/messages`,
+            suggestion: 'Channel doc may not exist or messages subcollection missing'
+          });
         });
       }).catch((error) => {
         console.error('❌ Channel init error:', error);
@@ -365,8 +371,8 @@ export default function MobileChatConversation() {
 
       <div className="messages-container">
         {messages.length === 0 ? (
-          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#999' }}>
-            Ingen meldinger ennå
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#666', fontSize: '1rem' }}>
+            Ingen meldinger ennå 💬
           </div>
         ) : null}
         {messages.map(msg => (
