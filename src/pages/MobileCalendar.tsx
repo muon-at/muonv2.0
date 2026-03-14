@@ -25,6 +25,7 @@ const getStatusColor = (status: string): string => {
     case '09-21': return '#3b82f6'; // blue
     case 'fri': return '#eab308'; // yellow
     case 'helligdag': return '#ef4444'; // red
+    case '16-21': return '#ec4899'; // pink
     default: return '#e5e7eb'; // gray (empty)
   }
 };
@@ -35,6 +36,7 @@ const getStatusLabel = (status: string): string => {
     case '09-21': return '09-21';
     case 'fri': return 'Fri';
     case 'helligdag': return 'Helligdag';
+    case '16-21': return '16-21';
     default: return '';
   }
 };
@@ -88,11 +90,12 @@ export default function MobileCalendar() {
     const dateStr = formatDate(day);
     const currentStatus = statuses[dateStr] || '';
     
-    // Cycle: empty -> 09-16 -> 09-21 -> fri -> (helligdag auto, skip) -> empty
+    // Cycle: empty -> 09-16 -> 09-21 -> 16-21 -> fri -> (helligdag auto, skip) -> empty
     let newStatus = '';
     if (!currentStatus) newStatus = '09-16';
     else if (currentStatus === '09-16') newStatus = '09-21';
-    else if (currentStatus === '09-21') newStatus = 'fri';
+    else if (currentStatus === '09-21') newStatus = '16-21';
+    else if (currentStatus === '16-21') newStatus = 'fri';
     else if (currentStatus === 'fri') newStatus = '';
     
     setStatuses({
@@ -211,6 +214,7 @@ export default function MobileCalendar() {
       <div className="calendar-legend">
         <div><span style={{ backgroundColor: '#22c55e' }}></span> 09-16</div>
         <div><span style={{ backgroundColor: '#3b82f6' }}></span> 09-21</div>
+        <div><span style={{ backgroundColor: '#ec4899' }}></span> 16-21</div>
         <div><span style={{ backgroundColor: '#eab308' }}></span> Fri</div>
         <div><span style={{ backgroundColor: '#ef4444' }}></span> Helligdag</div>
       </div>

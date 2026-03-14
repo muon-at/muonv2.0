@@ -1,0 +1,266 @@
+.teamleder-kalender {
+  padding: 2rem;
+  background: #1a1a1a;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+}
+
+.teamleder-kalender h2 {
+  margin-top: 0;
+  color: #ffffff;
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+/* CONTROLS */
+.kalender-controls {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-end;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.control-group label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #aaa;
+  text-transform: uppercase;
+}
+
+.dropdown {
+  padding: 0.75rem 1rem;
+  background: #2a2a2a;
+  border: 2px solid #444;
+  color: #ffffff;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  min-width: 200px;
+}
+
+.dropdown:hover,
+.dropdown:focus {
+  outline: none;
+  border-color: #ff6b35;
+}
+
+.month-nav {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: #2a2a2a;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  border: 2px solid #444;
+}
+
+.month-nav button {
+  background: none;
+  border: none;
+  color: #ff6b35;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  font-weight: 700;
+}
+
+.month-nav button:hover {
+  color: #ff8c5a;
+}
+
+.month-nav span {
+  color: #ffffff;
+  font-weight: 600;
+  min-width: 150px;
+  text-align: center;
+  text-transform: capitalize;
+}
+
+.total-hours {
+  background: #2a2a2a;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  border: 2px solid #ff6b35;
+  color: #ff6b35;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+/* CALENDAR */
+.kalender-container {
+  background: #2a2a2a;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.weekdays div {
+  color: #aaa;
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: 0.5rem;
+  text-transform: uppercase;
+}
+
+.days-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.75rem;
+}
+
+.day {
+  aspect-ratio: 1 / 1.2;
+  background: #e5e7eb;
+  border-radius: 6px;
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 80px;
+  position: relative;
+}
+
+.day.empty {
+  background: transparent;
+}
+
+.day-number {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #1a1a1a;
+}
+
+.day-hours {
+  font-size: 0.75rem;
+  color: #1a1a1a;
+  font-weight: 700;
+  margin-top: 0.3rem;
+}
+
+/* LEGEND */
+.kalender-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  padding: 1rem;
+  background: #2a2a2a;
+  border-radius: 6px;
+}
+
+.kalender-legend div {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #aaa;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.kalender-legend span {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+/* RESPONSIVE */
+@media (max-width: 1024px) {
+  .teamleder-kalender {
+    padding: 1.5rem;
+  }
+
+  .kalender-controls {
+    gap: 1rem;
+  }
+
+  .control-group {
+    flex: 1;
+    min-width: 200px;
+  }
+
+  .dropdown,
+  .month-nav {
+    min-width: 100%;
+  }
+
+  .total-hours {
+    flex: 1;
+    min-width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .teamleder-kalender {
+    padding: 1rem;
+  }
+
+  .teamleder-kalender h2 {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+  }
+
+  .kalender-controls {
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .control-group {
+    width: 100%;
+  }
+
+  .dropdown,
+  .month-nav,
+  .total-hours {
+    width: 100%;
+  }
+
+  .month-nav span {
+    min-width: auto;
+  }
+
+  .kalender-container {
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .day {
+    min-height: 60px;
+    font-size: 0.9rem;
+  }
+
+  .day-number {
+    font-size: 0.95rem;
+  }
+
+  .day-hours {
+    font-size: 0.65rem;
+  }
+
+  .kalender-legend {
+    gap: 1rem;
+    font-size: 0.8rem;
+  }
+
+  .kalender-legend span {
+    width: 16px;
+    height: 16px;
+  }
+}

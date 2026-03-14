@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { db } from '../lib/firebase';
 import { collection, getDocs, setDoc, doc, getDoc } from 'firebase/firestore';
+import TeamlederKalender from './TeamlederKalender';
 import '../styles/Teamleder.css';
 
 export default function Teamleder() {
@@ -395,6 +396,20 @@ export default function Teamleder() {
         >
           🎯 MÅL
         </button>
+        <button
+          onClick={() => setActiveTab('kalender')}
+          style={{
+            padding: '0.75rem 1.5rem',
+            background: activeTab === 'kalender' ? '#667eea' : '#f0f0f0',
+            color: activeTab === 'kalender' ? '#fff' : '#333',
+            border: 'none',
+            borderRadius: '6px',
+            fontWeight: '600',
+            cursor: 'pointer',
+          }}
+        >
+          📅 KALENDER
+        </button>
       </div>
 
       {/* Content */}
@@ -591,6 +606,13 @@ export default function Teamleder() {
             💾 Lagre Mål
           </button>
         </div>
+      </div>
+      )}
+
+      {/* KALENDER TAB */}
+      {activeTab === 'kalender' && (
+      <div className="page-content">
+        <TeamlederKalender />
       </div>
       )}
     </div>
