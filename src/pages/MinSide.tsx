@@ -64,13 +64,7 @@ const parseDate = (dateStr: string): Date => {
 export default function MinSide() {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState<any[]>([
-    { value: 8, label: 'Dag', color: '#E8956E', icon: '📊' },
-    { value: 34, label: 'Uke', color: '#E8956E', icon: '📈' },
-    { value: 142, label: 'Måned', color: '#E8956E', icon: '🎯' },
-    { value: 523, label: 'År', color: '#5B7FFF', icon: '📅' },
-    { value: 1204, label: 'Allente', color: '#A855C9', icon: '⭐' },
-  ]);
+  const [stats, setStats] = useState<any[]>([]);
   const [earnedBadges, setEarnedBadges] = useState<string[]>([]);
   const [badgeStatus, setBadgeStatus] = useState<{ [key: string]: boolean }>({});
   const [weeklyGoal, setWeeklyGoal] = useState<number>(0);
@@ -78,28 +72,28 @@ export default function MinSide() {
   const [showGoalEdit, setShowGoalEdit] = useState(false);
   const [activeTab, setActiveTab] = useState('stats');
   const [progressData, setProgressData] = useState({
-    dailyProgress: 3,
-    dailyGoal: 5,
-    weeklyProgress: 18,
-    weeklyGoalValue: 25,
-    monthlyProgress: 45,
-    monthlyGoalValue: 100,
+    dailyProgress: 0,
+    dailyGoal: 0,
+    weeklyProgress: 0,
+    weeklyGoalValue: 0,
+    monthlyProgress: 0,
+    monthlyGoalValue: 0,
   });
 
   const [runRates, setRunRates] = useState({
-    dailyTo16: 2.5,
-    dailyTo21: 3.8,
-    weekly: 18.6,
-    monthly: 78.5,
+    dailyTo16: 0,
+    dailyTo21: 0,
+    weekly: 0,
+    monthly: 0,
   });
 
   const [earnings, setEarnings] = useState({
-    total: 125000,
-    daily: 4500,
-    dailyTo16: 2100,
-    dailyTo21: 2400,
-    weekly: 28500,
-    monthly: 110000,
+    total: 0,
+    daily: 0,
+    dailyTo16: 0,
+    dailyTo21: 0,
+    weekly: 0,
+    monthly: 0,
   });
 
   // Load saved goals from Firestore
@@ -124,8 +118,7 @@ export default function MinSide() {
   };
 
   useEffect(() => {
-    // MOCK MODE - use mock data, skip loading
-    setLoading(false); // Disable loading state for mock mode
+    loadEmployeeData();
     loadSavedGoals();
     // Load cached badges from Firestore
     loadCachedBadges();
@@ -308,7 +301,6 @@ export default function MinSide() {
     }
   };
 
-  // @ts-ignore - MOCK MODE: disabled for preview
   const loadEmployeeData = async () => {
     try {
       const salesRef = collection(db, 'allente_kontraktsarkiv');
