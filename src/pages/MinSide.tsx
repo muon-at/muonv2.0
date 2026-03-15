@@ -1082,7 +1082,7 @@ export default function MinSide() {
                 {departmentStats.dayTopThree.map((emp, idx) => (
                   <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', padding: '0.4rem 0', borderBottom: '1px solid #eee' }}>
                     <span>#{idx + 1} {emp.name.split(' ')[0]}</span>
-                    <span style={{ color: '#666' }}>{emp.count} + {emp.contracts}</span>
+                    <span style={{ color: '#666' }}>{emp.count + emp.contracts}</span>
                   </div>
                 ))}
               </div>
@@ -1101,7 +1101,7 @@ export default function MinSide() {
                 {departmentStats.weekTopThree.map((emp, idx) => (
                   <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', padding: '0.4rem 0', borderBottom: '1px solid #eee' }}>
                     <span>#{idx + 1} {emp.name.split(' ')[0]}</span>
-                    <span style={{ color: '#666' }}>{emp.count} + {emp.contracts}</span>
+                    <span style={{ color: '#666' }}>{emp.count + emp.contracts}</span>
                   </div>
                 ))}
               </div>
@@ -1120,7 +1120,7 @@ export default function MinSide() {
                 {departmentStats.monthTopThree.map((emp, idx) => (
                   <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', padding: '0.4rem 0', borderBottom: '1px solid #eee' }}>
                     <span>#{idx + 1} {emp.name.split(' ')[0]}</span>
-                    <span style={{ color: '#666' }}>{emp.count} + {emp.contracts}</span>
+                    <span style={{ color: '#666' }}>{emp.count + emp.contracts}</span>
                   </div>
                 ))}
               </div>
