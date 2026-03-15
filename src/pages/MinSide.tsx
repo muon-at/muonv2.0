@@ -118,12 +118,6 @@ export default function MinSide() {
     monthTopThree: [] as Array<{ name: string; count: number; contracts: number }>,
   });
 
-  const [departmentRecords, setDepartmentRecords] = useState({
-    dayRecord: { name: '', count: 0 },
-    weekRecord: { name: '', count: 0 },
-    monthRecord: { name: '', count: 0 },
-  });
-
   const [projectStats, setProjectStats] = useState({
     dayTotal: 0,
     dayContracts: 0,
@@ -134,12 +128,6 @@ export default function MinSide() {
     monthTotal: 0,
     monthContracts: 0,
     monthTopThree: [] as Array<{ name: string; count: number; contracts: number }>,
-  });
-
-  const [projectRecords, setProjectRecords] = useState({
-    dayRecord: { name: '', count: 0 },
-    weekRecord: { name: '', count: 0 },
-    monthRecord: { name: '', count: 0 },
   });
 
   const [projectDeptStats, setProjectDeptStats] = useState({
@@ -476,7 +464,6 @@ export default function MinSide() {
       const newBrokenRecords: BrokenRecord[] = [];
 
       const dayTop = dayTop3.length > 0 ? dayTop3[0] : null;
-      const dayRecordCount = dayTop ? dayTop.contracts : 0;
       const dayRecordWithEmojis = dayTop ? (dayTop.count + dayTop.contracts) : 0;
       if (dayTop) {
         const broken = checkRecordBreak(dayTop.name, 'day', dayTop.contracts, dayRecordWithEmojis, recordsCache);
@@ -489,7 +476,6 @@ export default function MinSide() {
       }
 
       const weekTop = weekTop3.length > 0 ? weekTop3[0] : null;
-      const weekRecordCount = weekTop ? weekTop.contracts : 0;
       const weekRecordWithEmojis = weekTop ? (weekTop.count + weekTop.contracts) : 0;
       if (weekTop) {
         const broken = checkRecordBreak(weekTop.name, 'week', weekTop.contracts, weekRecordWithEmojis, recordsCache);
@@ -501,7 +487,6 @@ export default function MinSide() {
       }
 
       const monthTop = monthTop3.length > 0 ? monthTop3[0] : null;
-      const monthRecordCount = monthTop ? monthTop.contracts : 0;
       const monthRecordWithEmojis = monthTop ? (monthTop.count + monthTop.contracts) : 0;
       if (monthTop) {
         const broken = checkRecordBreak(monthTop.name, 'month', monthTop.contracts, monthRecordWithEmojis, recordsCache);
@@ -512,11 +497,7 @@ export default function MinSide() {
         }
       }
 
-      setDepartmentRecords({
-        dayRecord: dayTop ? { name: dayTop.name, count: newBrokenRecords.some(r => r.employee === dayTop.name && r.period === 'day') ? dayRecordWithEmojis : dayRecordCount } : { name: '', count: 0 },
-        weekRecord: weekTop ? { name: weekTop.name, count: newBrokenRecords.some(r => r.employee === weekTop.name && r.period === 'week') ? weekRecordWithEmojis : weekRecordCount } : { name: '', count: 0 },
-        monthRecord: monthTop ? { name: monthTop.name, count: newBrokenRecords.some(r => r.employee === monthTop.name && r.period === 'month') ? monthRecordWithEmojis : monthRecordCount } : { name: '', count: 0 },
-      });
+
     } catch (err) {
       console.error('Error loading department stats:', err);
     }
@@ -672,7 +653,6 @@ export default function MinSide() {
       const projectBrokenRecords: BrokenRecord[] = [];
 
       const dayEmp = dayEmpTop3.length > 0 ? dayEmpTop3[0] : null;
-      const dayEmpCount = dayEmp ? dayEmp.contracts : 0;
       const dayEmpWithEmojis = dayEmp ? (dayEmp.count + dayEmp.contracts) : 0;
       if (dayEmp) {
         const broken = checkRecordBreak(dayEmp.name, 'day', dayEmp.contracts, dayEmpWithEmojis, recordsCache);
@@ -684,7 +664,6 @@ export default function MinSide() {
       }
 
       const weekEmp = weekEmpTop3.length > 0 ? weekEmpTop3[0] : null;
-      const weekEmpCount = weekEmp ? weekEmp.contracts : 0;
       const weekEmpWithEmojis = weekEmp ? (weekEmp.count + weekEmp.contracts) : 0;
       if (weekEmp) {
         const broken = checkRecordBreak(weekEmp.name, 'week', weekEmp.contracts, weekEmpWithEmojis, recordsCache);
@@ -696,7 +675,6 @@ export default function MinSide() {
       }
 
       const monthEmp = monthEmpTop3.length > 0 ? monthEmpTop3[0] : null;
-      const monthEmpCount = monthEmp ? monthEmp.contracts : 0;
       const monthEmpWithEmojis = monthEmp ? (monthEmp.count + monthEmp.contracts) : 0;
       if (monthEmp) {
         const broken = checkRecordBreak(monthEmp.name, 'month', monthEmp.contracts, monthEmpWithEmojis, recordsCache);
@@ -707,11 +685,7 @@ export default function MinSide() {
         }
       }
 
-      setProjectRecords({
-        dayRecord: dayEmp ? { name: dayEmp.name, count: projectBrokenRecords.some(r => r.employee === dayEmp.name && r.period === 'day') ? dayEmpWithEmojis : dayEmpCount } : { name: '', count: 0 },
-        weekRecord: weekEmp ? { name: weekEmp.name, count: projectBrokenRecords.some(r => r.employee === weekEmp.name && r.period === 'week') ? weekEmpWithEmojis : weekEmpCount } : { name: '', count: 0 },
-        monthRecord: monthEmp ? { name: monthEmp.name, count: projectBrokenRecords.some(r => r.employee === monthEmp.name && r.period === 'month') ? monthEmpWithEmojis : monthEmpCount } : { name: '', count: 0 },
-      });
+
 
       setProjectDeptStats({
         dayTopThree: getTop3Depts('day'),
@@ -1156,6 +1130,12 @@ export default function MinSide() {
         >
           💼 Prosjekt
         </button>
+        <button 
+          className={`main-tab ${activeTab === 'fame' ? 'active' : ''}`}
+          onClick={() => setActiveTab('fame')}
+        >
+          🏆 Wall of Fame
+        </button>
       </div>
 
 
@@ -1400,13 +1380,7 @@ export default function MinSide() {
                 })}
               </div>
             )}
-            {departmentRecords.dayRecord.name && (
-              <div style={{ marginTop: '0.75rem', padding: '0.75rem', borderTop: '2px solid #ff6b35', textAlign: 'center' }}>
-                <div style={{ fontSize: '0.7rem', color: '#999', marginBottom: '0.3rem', textTransform: 'uppercase', fontWeight: '600' }}>Rekord</div>
-                <div style={{ fontSize: '1.1rem', fontWeight: '700', color: '#333' }}>👑 {departmentRecords.dayRecord.name.split(' ')[0]}</div>
-                <div style={{ fontSize: '1.5rem', fontWeight: '900', color: '#ff6b35' }}>{departmentRecords.dayRecord.count}</div>
-              </div>
-            )}
+
           </div>
 
           {/* WEEK */}
@@ -1430,13 +1404,7 @@ export default function MinSide() {
                 })}
               </div>
             )}
-            {departmentRecords.weekRecord.name && (
-              <div style={{ marginTop: '0.75rem', padding: '0.75rem', borderTop: '2px solid #ff6b35', textAlign: 'center' }}>
-                <div style={{ fontSize: '0.7rem', color: '#999', marginBottom: '0.3rem', textTransform: 'uppercase', fontWeight: '600' }}>Rekord</div>
-                <div style={{ fontSize: '1.1rem', fontWeight: '700', color: '#333' }}>👑 {departmentRecords.weekRecord.name.split(' ')[0]}</div>
-                <div style={{ fontSize: '1.5rem', fontWeight: '900', color: '#ff6b35' }}>{departmentRecords.weekRecord.count}</div>
-              </div>
-            )}
+
           </div>
 
           {/* MONTH */}
@@ -1460,13 +1428,7 @@ export default function MinSide() {
                 })}
               </div>
             )}
-            {departmentRecords.monthRecord.name && (
-              <div style={{ marginTop: '0.75rem', padding: '0.75rem', borderTop: '2px solid #ff6b35', textAlign: 'center' }}>
-                <div style={{ fontSize: '0.7rem', color: '#999', marginBottom: '0.3rem', textTransform: 'uppercase', fontWeight: '600' }}>Rekord</div>
-                <div style={{ fontSize: '1.1rem', fontWeight: '700', color: '#333' }}>👑 {departmentRecords.monthRecord.name.split(' ')[0]}</div>
-                <div style={{ fontSize: '1.5rem', fontWeight: '900', color: '#ff6b35' }}>{departmentRecords.monthRecord.count}</div>
-              </div>
-            )}
+
           </div>
         </div>
       </div>
@@ -1513,13 +1475,7 @@ export default function MinSide() {
                 })}
               </div>
             )}
-            {projectRecords.dayRecord.name && (
-              <div style={{ marginTop: '0.5rem', padding: '0.5rem', borderTop: '2px solid #ff6b35', textAlign: 'center' }}>
-                <div style={{ fontSize: '0.6rem', color: '#999', marginBottom: '0.2rem', textTransform: 'uppercase', fontWeight: '600' }}>Rekord</div>
-                <div style={{ fontSize: '0.9rem', fontWeight: '700', color: '#333' }}>👑 {projectRecords.dayRecord.name.split(' ')[0]}</div>
-                <div style={{ fontSize: '1.2rem', fontWeight: '900', color: '#ff6b35' }}>{projectRecords.dayRecord.count}</div>
-              </div>
-            )}
+
           </div>
 
           {/* WEEK */}
@@ -1555,13 +1511,7 @@ export default function MinSide() {
                 })}
               </div>
             )}
-            {projectRecords.weekRecord.name && (
-              <div style={{ marginTop: '0.5rem', padding: '0.5rem', borderTop: '2px solid #ff6b35', textAlign: 'center' }}>
-                <div style={{ fontSize: '0.6rem', color: '#999', marginBottom: '0.2rem', textTransform: 'uppercase', fontWeight: '600' }}>Rekord</div>
-                <div style={{ fontSize: '0.9rem', fontWeight: '700', color: '#333' }}>👑 {projectRecords.weekRecord.name.split(' ')[0]}</div>
-                <div style={{ fontSize: '1.2rem', fontWeight: '900', color: '#ff6b35' }}>{projectRecords.weekRecord.count}</div>
-              </div>
-            )}
+
           </div>
 
           {/* MONTH */}
@@ -1597,13 +1547,118 @@ export default function MinSide() {
                 })}
               </div>
             )}
-            {projectRecords.monthRecord.name && (
-              <div style={{ marginTop: '0.5rem', padding: '0.5rem', borderTop: '2px solid #ff6b35', textAlign: 'center' }}>
-                <div style={{ fontSize: '0.6rem', color: '#999', marginBottom: '0.2rem', textTransform: 'uppercase', fontWeight: '600' }}>Rekord</div>
-                <div style={{ fontSize: '0.9rem', fontWeight: '700', color: '#333' }}>👑 {projectRecords.monthRecord.name.split(' ')[0]}</div>
-                <div style={{ fontSize: '1.2rem', fontWeight: '900', color: '#ff6b35' }}>{projectRecords.monthRecord.count}</div>
-              </div>
-            )}
+
+          </div>
+        </div>
+      </div>
+      )}
+
+      {activeTab === 'fame' && (
+      <div className="tab-content">
+        <div className="content-title">
+          <h3>🏆 Wall of Fame</h3>
+          <p>All-time records - Employees & Departments</p>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1rem' }}>
+          {/* EMPLOYEES SIDE */}
+          <div>
+            <h4 style={{ textAlign: 'center', marginBottom: '1rem', color: '#333', fontSize: '1.1rem' }}>👤 Employees</h4>
+            
+            {/* DAY */}
+            <div style={{ marginBottom: '1rem', padding: '0.75rem', borderRadius: '8px', background: '#f9f9f9' }}>
+              <div style={{ fontSize: '0.85rem', fontWeight: '600', color: '#666', marginBottom: '0.5rem' }}>📅 Best Day</div>
+              {recordsCache.employees && Object.entries(recordsCache.employees).length > 0 ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.9rem', fontWeight: '600', padding: '0.5rem', background: '#fff', borderRadius: '4px' }}>
+                    <span>🏆 KRS</span>
+                    <span style={{ color: '#ff6b35', fontWeight: '900' }}>{Math.max(...Object.values(recordsCache.employees).map(e => e.dayBest))}</span>
+                  </div>
+                </div>
+              ) : (
+                <div style={{ fontSize: '0.9rem', color: '#999' }}>Loading records...</div>
+              )}
+            </div>
+
+            {/* WEEK */}
+            <div style={{ marginBottom: '1rem', padding: '0.75rem', borderRadius: '8px', background: '#f9f9f9' }}>
+              <div style={{ fontSize: '0.85rem', fontWeight: '600', color: '#666', marginBottom: '0.5rem' }}>📈 Best Week</div>
+              {recordsCache.employees && Object.entries(recordsCache.employees).length > 0 ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.9rem', fontWeight: '600', padding: '0.5rem', background: '#fff', borderRadius: '4px' }}>
+                    <span>🏆 KRS</span>
+                    <span style={{ color: '#ff6b35', fontWeight: '900' }}>{Math.max(...Object.values(recordsCache.employees).map(e => e.weekBest))}</span>
+                  </div>
+                </div>
+              ) : (
+                <div style={{ fontSize: '0.9rem', color: '#999' }}>Loading records...</div>
+              )}
+            </div>
+
+            {/* MONTH */}
+            <div style={{ marginBottom: '1rem', padding: '0.75rem', borderRadius: '8px', background: '#f9f9f9' }}>
+              <div style={{ fontSize: '0.85rem', fontWeight: '600', color: '#666', marginBottom: '0.5rem' }}>📊 Best Month</div>
+              {recordsCache.employees && Object.entries(recordsCache.employees).length > 0 ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.9rem', fontWeight: '600', padding: '0.5rem', background: '#fff', borderRadius: '4px' }}>
+                    <span>🏆 KRS</span>
+                    <span style={{ color: '#ff6b35', fontWeight: '900' }}>{Math.max(...Object.values(recordsCache.employees).map(e => e.monthBest))}</span>
+                  </div>
+                </div>
+              ) : (
+                <div style={{ fontSize: '0.9rem', color: '#999' }}>Loading records...</div>
+              )}
+            </div>
+          </div>
+
+          {/* DEPARTMENTS SIDE */}
+          <div>
+            <h4 style={{ textAlign: 'center', marginBottom: '1rem', color: '#333', fontSize: '1.1rem' }}>🏢 Departments</h4>
+            
+            {/* DAY */}
+            <div style={{ marginBottom: '1rem', padding: '0.75rem', borderRadius: '8px', background: '#f9f9f9' }}>
+              <div style={{ fontSize: '0.85rem', fontWeight: '600', color: '#666', marginBottom: '0.5rem' }}>📅 Best Day</div>
+              {recordsCache.departments && Object.entries(recordsCache.departments).length > 0 ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.9rem', fontWeight: '600', padding: '0.5rem', background: '#fff', borderRadius: '4px' }}>
+                    <span>🏆 Allente</span>
+                    <span style={{ color: '#ff6b35', fontWeight: '900' }}>{Math.max(...Object.values(recordsCache.departments).map(d => d.dayBest))}</span>
+                  </div>
+                </div>
+              ) : (
+                <div style={{ fontSize: '0.9rem', color: '#999' }}>Loading records...</div>
+              )}
+            </div>
+
+            {/* WEEK */}
+            <div style={{ marginBottom: '1rem', padding: '0.75rem', borderRadius: '8px', background: '#f9f9f9' }}>
+              <div style={{ fontSize: '0.85rem', fontWeight: '600', color: '#666', marginBottom: '0.5rem' }}>📈 Best Week</div>
+              {recordsCache.departments && Object.entries(recordsCache.departments).length > 0 ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.9rem', fontWeight: '600', padding: '0.5rem', background: '#fff', borderRadius: '4px' }}>
+                    <span>🏆 Allente</span>
+                    <span style={{ color: '#ff6b35', fontWeight: '900' }}>{Math.max(...Object.values(recordsCache.departments).map(d => d.weekBest))}</span>
+                  </div>
+                </div>
+              ) : (
+                <div style={{ fontSize: '0.9rem', color: '#999' }}>Loading records...</div>
+              )}
+            </div>
+
+            {/* MONTH */}
+            <div style={{ marginBottom: '1rem', padding: '0.75rem', borderRadius: '8px', background: '#f9f9f9' }}>
+              <div style={{ fontSize: '0.85rem', fontWeight: '600', color: '#666', marginBottom: '0.5rem' }}>📊 Best Month</div>
+              {recordsCache.departments && Object.entries(recordsCache.departments).length > 0 ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.9rem', fontWeight: '600', padding: '0.5rem', background: '#fff', borderRadius: '4px' }}>
+                    <span>🏆 Allente</span>
+                    <span style={{ color: '#ff6b35', fontWeight: '900' }}>{Math.max(...Object.values(recordsCache.departments).map(d => d.monthBest))}</span>
+                  </div>
+                </div>
+              ) : (
+                <div style={{ fontSize: '0.9rem', color: '#999' }}>Loading records...</div>
+              )}
+            </div>
           </div>
         </div>
       </div>
