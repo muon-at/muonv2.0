@@ -99,15 +99,15 @@ export const WallOfFame: React.FC<WallOfFameProps> = ({ recordsCache }) => {
               <div className="plaquet-records">
                 <div className="plaquet-record">
                   <span className="plaquet-record-label">Day:</span>
-                  <span className="plaquet-record-value">{dept.record.dayBest}</span>
+                  <span className="plaquet-record-value">{dept.record?.dayBest || 0}</span>
                 </div>
                 <div className="plaquet-record">
                   <span className="plaquet-record-label">Week:</span>
-                  <span className="plaquet-record-value">{dept.record.weekBest}</span>
+                  <span className="plaquet-record-value">{dept.record?.weekBest || 0}</span>
                 </div>
                 <div className="plaquet-record">
                   <span className="plaquet-record-label">Month:</span>
-                  <span className="plaquet-record-value">{dept.record.monthBest}</span>
+                  <span className="plaquet-record-value">{dept.record?.monthBest || 0}</span>
                 </div>
               </div>
             </div>
