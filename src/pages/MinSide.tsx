@@ -100,6 +100,18 @@ export default function MinSide() {
     monthly: 0,
   });
 
+  const [departmentStats, setDepartmentStats] = useState({
+    dayTotal: 0,
+    dayContracts: 0,
+    dayTopThree: [] as Array<{ name: string; count: number; contracts: number }>,
+    weekTotal: 0,
+    weekContracts: 0,
+    weekTopThree: [] as Array<{ name: string; count: number; contracts: number }>,
+    monthTotal: 0,
+    monthContracts: 0,
+    monthTopThree: [] as Array<{ name: string; count: number; contracts: number }>,
+  });
+
   // Load saved goals from Firestore
   const loadSavedGoals = async () => {
     try {
@@ -124,6 +136,7 @@ export default function MinSide() {
   useEffect(() => {
     loadEmployeeData();
     loadSavedGoals();
+    loadDepartmentStats();
     // Load cached badges from Firestore
     loadCachedBadges();
   }, [user]);
@@ -279,6 +292,129 @@ export default function MinSide() {
       });
     } catch (err) {
       console.error('Error saving badges:', err);
+    }
+  };
+
+  // Load department stats (all employees in same department)
+  const loadDepartmentStats = async () => {
+    try {
+      if (!user?.department) return;
+
+      const department = user.department;
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const weekStart = new Date(today);
+      weekStart.setDate(today.getDate() - today.getDay() + (today.getDay() === 0 ? -6 : 1));
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+      // Load all contracts
+      const salesRef = collection(db, 'allente_kontraktsarkiv');
+      const snapshot = await getDocs(salesRef);
+      const contracts: SalesRecord[] = [];
+      snapshot.forEach((doc) => {
+        contracts.push({ id: doc.id, ...doc.data() });
+      });
+
+      // Get all employees in this department from Firestore
+      const employeesRef = collection(db, 'employees');
+      const empSnapshot = await getDocs(employeesRef);
+      const deptEmployees = new Set<string>();
+      
+      empSnapshot.forEach((doc) => {
+        const data = doc.data();
+        if (data.department === department && data.externalName) {
+          deptEmployees.add(data.externalName);
+        }
+      });
+
+      // Build employee stats
+      const employeeStats: { [key: string]: { dayCount: number; weekCount: number; monthCount: number; dayContracts: number; weekContracts: number; monthContracts: number } } = {};
+
+      for (const empName of deptEmployees) {
+        employeeStats[empName] = {
+          dayCount: 0,
+          weekCount: 0,
+          monthCount: 0,
+          dayContracts: 0,
+          weekContracts: 0,
+          monthContracts: 0,
+        };
+
+        // Load emoji counts for this employee
+        for (let d = new Date(monthStart); d <= today; d.setDate(d.getDate() + 1)) {
+          const dateStr = `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')}`;
+          try {
+            const emojiDocRef = doc(db, 'emoji_counts_daily', dateStr);
+            const emojiSnapshot = await getDoc(emojiDocRef);
+            if (emojiSnapshot.exists()) {
+              const data = emojiSnapshot.data();
+              const counts = data.counts?.[empName.toLowerCase()] || {};
+              const total = (counts['🔔'] || 0) + (counts['💎'] || 0);
+              
+              if (total > 0) {
+                employeeStats[empName].monthCount += total;
+                if (d >= weekStart) {
+                  employeeStats[empName].weekCount += total;
+                }
+                if (d.getTime() === today.getTime()) {
+                  employeeStats[empName].dayCount += total;
+                }
+              }
+            }
+          } catch (err) {
+            // Silently skip missing dates
+          }
+        }
+
+        // Count contracts
+        const empContracts = contracts.filter(c => (c.selger || '').startsWith(empName));
+        employeeStats[empName].dayContracts = empContracts.filter(c => {
+          const cDate = parseDate(c.dato || '');
+          return cDate.getTime() === today.getTime();
+        }).length;
+        employeeStats[empName].weekContracts = empContracts.filter(c => {
+          const cDate = parseDate(c.dato || '');
+          return cDate >= weekStart && cDate <= today;
+        }).length;
+        employeeStats[empName].monthContracts = empContracts.filter(c => {
+          const cDate = parseDate(c.dato || '');
+          return cDate >= monthStart && cDate <= today;
+        }).length;
+      }
+
+      // Calculate totals
+      const dayTotal = Array.from(deptEmployees).reduce((sum, emp) => sum + employeeStats[emp].dayCount, 0);
+      const dayContracts = Array.from(deptEmployees).reduce((sum, emp) => sum + employeeStats[emp].dayContracts, 0);
+      const weekTotal = Array.from(deptEmployees).reduce((sum, emp) => sum + employeeStats[emp].weekCount, 0);
+      const weekContracts = Array.from(deptEmployees).reduce((sum, emp) => sum + employeeStats[emp].weekContracts, 0);
+      const monthTotal = Array.from(deptEmployees).reduce((sum, emp) => sum + employeeStats[emp].monthCount, 0);
+      const monthContracts = Array.from(deptEmployees).reduce((sum, emp) => sum + employeeStats[emp].monthContracts, 0);
+
+      // Build top 3 lists
+      const getTop3 = (key: 'dayCount' | 'weekCount' | 'monthCount', contractKey: 'dayContracts' | 'weekContracts' | 'monthContracts') => {
+        return Array.from(deptEmployees)
+          .map(emp => ({
+            name: emp,
+            count: employeeStats[emp][key],
+            contracts: employeeStats[emp][contractKey],
+          }))
+          .sort((a, b) => b.count - a.count)
+          .slice(0, 3);
+      };
+
+      setDepartmentStats({
+        dayTotal,
+        dayContracts,
+        dayTopThree: getTop3('dayCount', 'dayContracts'),
+        weekTotal,
+        weekContracts,
+        weekTopThree: getTop3('weekCount', 'weekContracts'),
+        monthTotal,
+        monthContracts,
+        monthTopThree: getTop3('monthCount', 'monthContracts'),
+      });
+    } catch (err) {
+      console.error('Error loading department stats:', err);
     }
   };
 
@@ -928,10 +1064,78 @@ export default function MinSide() {
       {activeTab === 'avd' && (
       <div className="tab-content">
         <div className="content-title">
-          <h3>Avdeling: {user?.department}</h3>
-          <p className="content-subtitle">Se alle kontrakter fra {user?.department}</p>
+          <h3>🏢 Avdeling: {user?.department}</h3>
+          <p className="content-subtitle">Samlet resultat for alle i {user?.department}</p>
         </div>
-        <p>Innhold for avdeling kommer snart...</p>
+
+        {/* DAY */}
+        <div style={{ marginBottom: '2rem' }}>
+          <h4 style={{ marginBottom: '1rem', color: '#666' }}>📅 DAY</h4>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
+            <div style={{ background: '#f0f0f0', padding: '1.5rem', borderRadius: '8px', textAlign: 'center' }}>
+              <div style={{ fontSize: '0.9rem', color: '#666', marginBottom: '0.5rem' }}>Total (Emojis + Kontrakter)</div>
+              <div style={{ fontSize: '2.5rem', fontWeight: '700', color: '#333' }}>{departmentStats.dayTotal + departmentStats.dayContracts}</div>
+              <div style={{ fontSize: '0.85rem', color: '#999', marginTop: '0.5rem' }}>{departmentStats.dayTotal} + {departmentStats.dayContracts}</div>
+            </div>
+          </div>
+          {departmentStats.dayTopThree.length > 0 && (
+            <div>
+              <div style={{ fontSize: '0.9rem', fontWeight: '600', color: '#666', marginBottom: '0.75rem' }}>Top 3</div>
+              {departmentStats.dayTopThree.map((emp, idx) => (
+                <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem', background: '#f9f9f9', borderRadius: '6px', marginBottom: '0.5rem' }}>
+                  <span style={{ fontWeight: '500' }}>#{idx + 1} {emp.name}</span>
+                  <span style={{ color: '#666' }}>{emp.count} + {emp.contracts}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* WEEK */}
+        <div style={{ marginBottom: '2rem' }}>
+          <h4 style={{ marginBottom: '1rem', color: '#666' }}>📊 WEEK</h4>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
+            <div style={{ background: '#e8f4f8', padding: '1.5rem', borderRadius: '8px', textAlign: 'center' }}>
+              <div style={{ fontSize: '0.9rem', color: '#666', marginBottom: '0.5rem' }}>Total (Emojis + Kontrakter)</div>
+              <div style={{ fontSize: '2.5rem', fontWeight: '700', color: '#333' }}>{departmentStats.weekTotal + departmentStats.weekContracts}</div>
+              <div style={{ fontSize: '0.85rem', color: '#999', marginTop: '0.5rem' }}>{departmentStats.weekTotal} + {departmentStats.weekContracts}</div>
+            </div>
+          </div>
+          {departmentStats.weekTopThree.length > 0 && (
+            <div>
+              <div style={{ fontSize: '0.9rem', fontWeight: '600', color: '#666', marginBottom: '0.75rem' }}>Top 3</div>
+              {departmentStats.weekTopThree.map((emp, idx) => (
+                <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem', background: '#f9f9f9', borderRadius: '6px', marginBottom: '0.5rem' }}>
+                  <span style={{ fontWeight: '500' }}>#{idx + 1} {emp.name}</span>
+                  <span style={{ color: '#666' }}>{emp.count} + {emp.contracts}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* MONTH */}
+        <div>
+          <h4 style={{ marginBottom: '1rem', color: '#666' }}>📈 MONTH</h4>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
+            <div style={{ background: '#f0e8f8', padding: '1.5rem', borderRadius: '8px', textAlign: 'center' }}>
+              <div style={{ fontSize: '0.9rem', color: '#666', marginBottom: '0.5rem' }}>Total (Emojis + Kontrakter)</div>
+              <div style={{ fontSize: '2.5rem', fontWeight: '700', color: '#333' }}>{departmentStats.monthTotal + departmentStats.monthContracts}</div>
+              <div style={{ fontSize: '0.85rem', color: '#999', marginTop: '0.5rem' }}>{departmentStats.monthTotal} + {departmentStats.monthContracts}</div>
+            </div>
+          </div>
+          {departmentStats.monthTopThree.length > 0 && (
+            <div>
+              <div style={{ fontSize: '0.9rem', fontWeight: '600', color: '#666', marginBottom: '0.75rem' }}>Top 3</div>
+              {departmentStats.monthTopThree.map((emp, idx) => (
+                <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem', background: '#f9f9f9', borderRadius: '6px', marginBottom: '0.5rem' }}>
+                  <span style={{ fontWeight: '500' }}>#{idx + 1} {emp.name}</span>
+                  <span style={{ color: '#666' }}>{emp.count} + {emp.contracts}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
       )}
 
