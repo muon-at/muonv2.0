@@ -109,6 +109,7 @@ export default function MobileChatConversation() {
       // Load current document to see structure
       const channelDocRef = doc(db, 'chat_channels', chatName);
       
+      // Non-blocking: initialize channel metadata in background
       setDoc(channelDocRef, {
         id: chatName,
         name: title,
@@ -117,7 +118,12 @@ export default function MobileChatConversation() {
         createdAt: serverTimestamp(),
         lastMessage: '',
         lastMessageTime: serverTimestamp()
-      }, { merge: true }).then(async () => {
+      }, { merge: true }).catch((error) => {
+        console.warn('⚠️ Could not update channel metadata:', error);
+      });
+      
+      // Don't wait for setDoc - load messages immediately
+      (async () => {
         console.log('✅ Channel doc ready:', chatName);
         
         // Log current document structure for debugging
@@ -194,7 +200,7 @@ export default function MobileChatConversation() {
           });
           setMessages([]);
         });
-      }).catch((error) => {
+      })().catch((error) => {
         console.error('❌ Channel init error:', error);
         console.error('❌ Stack:', error instanceof Error ? error.stack : 'no stack');
         setMessages([]);
