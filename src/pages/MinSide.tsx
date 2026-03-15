@@ -67,8 +67,12 @@ export default function MinSide() {
   const [stats, setStats] = useState<any[]>([]);
   const [earnedBadges, setEarnedBadges] = useState<string[]>([]);
   const [badgeStatus, setBadgeStatus] = useState<{ [key: string]: boolean }>({});
-  const [weeklyGoal, setWeeklyGoal] = useState<number>(0);
-  const [monthlyGoal, setMonthlyGoal] = useState<number>(0);
+  const [weeklyGoal, setWeeklyGoal] = useState<number>(() => {
+    return parseInt(sessionStorage.getItem('maal_weekly') || '0') || 0;
+  });
+  const [monthlyGoal, setMonthlyGoal] = useState<number>(() => {
+    return parseInt(sessionStorage.getItem('maal_monthly') || '0') || 0;
+  });
   const [showGoalEdit, setShowGoalEdit] = useState(false);
   const [activeTab, setActiveTab] = useState('stats');
   const [progressData, setProgressData] = useState({
@@ -197,6 +201,12 @@ export default function MinSide() {
       monthly: Math.round(monthly * 100) / 100,
     };
   };
+
+  // Auto-sync goals to sessionStorage (instant persistence)
+  useEffect(() => {
+    sessionStorage.setItem('maal_weekly', weeklyGoal.toString());
+    sessionStorage.setItem('maal_monthly', monthlyGoal.toString());
+  }, [weeklyGoal, monthlyGoal]);
 
   // Update progress data when goals change
   useEffect(() => {
