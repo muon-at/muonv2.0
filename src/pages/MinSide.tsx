@@ -584,10 +584,9 @@ export default function MinSide() {
           .slice(0, 3);
       };
 
-      // Build top 3 departments (exclude MUON)
+      // Build top 3 departments (all departments in project)
       const getTop3Depts = (key: 'day' | 'week' | 'month') => {
         return Object.entries(deptTotals)
-          .filter(([name]) => name !== 'MUON')
           .map(([name, totals]) => ({
             name,
             count: totals[key],
