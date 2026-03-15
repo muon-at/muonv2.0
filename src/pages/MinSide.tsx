@@ -1077,18 +1077,22 @@ export default function MinSide() {
           {/* DAY */}
           <div>
             <h4 style={{ marginBottom: '0.75rem', color: '#666', fontSize: '0.95rem' }}>📅 DAY</h4>
-            <div style={{ textAlign: 'center', marginBottom: '0.75rem', padding: '0.75rem', borderRadius: '6px' }}>
-              <div style={{ fontSize: '0.8rem', color: '#999', marginBottom: '0.25rem' }}>Total</div>
-              <div style={{ fontSize: '2rem', fontWeight: '700', color: '#333' }}>{departmentStats.dayTotal + departmentStats.dayContracts}</div>
+            <div style={{ textAlign: 'center', marginBottom: '1rem', padding: '1rem', borderRadius: '6px' }}>
+              <div style={{ fontSize: '0.7rem', color: '#999', marginBottom: '0.5rem', textTransform: 'uppercase', fontWeight: '600' }}>Total</div>
+              <div style={{ fontSize: '3.5rem', fontWeight: '900', color: '#333', lineHeight: '1' }}>{departmentStats.dayTotal + departmentStats.dayContracts}</div>
             </div>
             {departmentStats.dayTopThree.length > 0 && (
               <div>
-                {departmentStats.dayTopThree.map((emp, idx) => (
-                  <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', padding: '0.4rem 0', borderBottom: '1px solid #eee' }}>
-                    <span>#{idx + 1} {emp.name.split(' ')[0]}</span>
-                    <span style={{ color: '#666' }}>{emp.count + emp.contracts}</span>
-                  </div>
-                ))}
+                {departmentStats.dayTopThree.map((emp, idx) => {
+                  const medals = ['🥇', '🥈', '🥉'];
+                  return (
+                    <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '1rem', fontWeight: '600', padding: '0.6rem 0', borderBottom: '1px solid #eee' }}>
+                      <span style={{ fontSize: '1.4rem', marginRight: '0.5rem' }}>{medals[idx]}</span>
+                      <span style={{ flex: 1 }}>{emp.name.split(' ')[0]}</span>
+                      <span style={{ color: '#333', fontWeight: '700', fontSize: '1.1rem' }}>{emp.count + emp.contracts}</span>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
@@ -1096,18 +1100,22 @@ export default function MinSide() {
           {/* WEEK */}
           <div>
             <h4 style={{ marginBottom: '0.75rem', color: '#666', fontSize: '0.95rem' }}>📊 WEEK</h4>
-            <div style={{ textAlign: 'center', marginBottom: '0.75rem', padding: '0.75rem', borderRadius: '6px' }}>
-              <div style={{ fontSize: '0.8rem', color: '#999', marginBottom: '0.25rem' }}>Total</div>
-              <div style={{ fontSize: '2rem', fontWeight: '700', color: '#333' }}>{departmentStats.weekTotal + departmentStats.weekContracts}</div>
+            <div style={{ textAlign: 'center', marginBottom: '1rem', padding: '1rem', borderRadius: '6px' }}>
+              <div style={{ fontSize: '0.7rem', color: '#999', marginBottom: '0.5rem', textTransform: 'uppercase', fontWeight: '600' }}>Total</div>
+              <div style={{ fontSize: '3.5rem', fontWeight: '900', color: '#333', lineHeight: '1' }}>{departmentStats.weekTotal + departmentStats.weekContracts}</div>
             </div>
             {departmentStats.weekTopThree.length > 0 && (
               <div>
-                {departmentStats.weekTopThree.map((emp, idx) => (
-                  <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', padding: '0.4rem 0', borderBottom: '1px solid #eee' }}>
-                    <span>#{idx + 1} {emp.name.split(' ')[0]}</span>
-                    <span style={{ color: '#666' }}>{emp.count + emp.contracts}</span>
-                  </div>
-                ))}
+                {departmentStats.weekTopThree.map((emp, idx) => {
+                  const medals = ['🥇', '🥈', '🥉'];
+                  return (
+                    <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '1rem', fontWeight: '600', padding: '0.6rem 0', borderBottom: '1px solid #eee' }}>
+                      <span style={{ fontSize: '1.4rem', marginRight: '0.5rem' }}>{medals[idx]}</span>
+                      <span style={{ flex: 1 }}>{emp.name.split(' ')[0]}</span>
+                      <span style={{ color: '#333', fontWeight: '700', fontSize: '1.1rem' }}>{emp.count + emp.contracts}</span>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
@@ -1115,18 +1123,22 @@ export default function MinSide() {
           {/* MONTH */}
           <div>
             <h4 style={{ marginBottom: '0.75rem', color: '#666', fontSize: '0.95rem' }}>📈 MONTH</h4>
-            <div style={{ textAlign: 'center', marginBottom: '0.75rem', padding: '0.75rem', borderRadius: '6px' }}>
-              <div style={{ fontSize: '0.8rem', color: '#999', marginBottom: '0.25rem' }}>Total</div>
-              <div style={{ fontSize: '2rem', fontWeight: '700', color: '#333' }}>{departmentStats.monthTotal + departmentStats.monthContracts}</div>
+            <div style={{ textAlign: 'center', marginBottom: '1rem', padding: '1rem', borderRadius: '6px' }}>
+              <div style={{ fontSize: '0.7rem', color: '#999', marginBottom: '0.5rem', textTransform: 'uppercase', fontWeight: '600' }}>Total</div>
+              <div style={{ fontSize: '3.5rem', fontWeight: '900', color: '#333', lineHeight: '1' }}>{departmentStats.monthTotal + departmentStats.monthContracts}</div>
             </div>
             {departmentStats.monthTopThree.length > 0 && (
               <div>
-                {departmentStats.monthTopThree.map((emp, idx) => (
-                  <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', padding: '0.4rem 0', borderBottom: '1px solid #eee' }}>
-                    <span>#{idx + 1} {emp.name.split(' ')[0]}</span>
-                    <span style={{ color: '#666' }}>{emp.count + emp.contracts}</span>
-                  </div>
-                ))}
+                {departmentStats.monthTopThree.map((emp, idx) => {
+                  const medals = ['🥇', '🥈', '🥉'];
+                  return (
+                    <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '1rem', fontWeight: '600', padding: '0.6rem 0', borderBottom: '1px solid #eee' }}>
+                      <span style={{ fontSize: '1.4rem', marginRight: '0.5rem' }}>{medals[idx]}</span>
+                      <span style={{ flex: 1 }}>{emp.name.split(' ')[0]}</span>
+                      <span style={{ color: '#333', fontWeight: '700', fontSize: '1.1rem' }}>{emp.count + emp.contracts}</span>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
