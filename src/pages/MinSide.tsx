@@ -1378,7 +1378,7 @@ export default function MinSide() {
         </div>
 
         {/* DAY / WEEK / MONTH - Compact 3 column layout */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1.5rem', marginBottom: '2rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1.5rem', marginBottom: '1rem' }}>
           {/* DAY */}
           <div>
             <h4 style={{ marginBottom: '0.75rem', color: '#666', fontSize: '0.95rem' }}>DAY</h4>
@@ -1386,10 +1386,10 @@ export default function MinSide() {
               <div style={{ fontSize: '0.7rem', color: '#999', marginBottom: '0.5rem', textTransform: 'uppercase', fontWeight: '600' }}>Total</div>
               <div style={{ fontSize: '3.5rem', fontWeight: '900', color: '#333', lineHeight: '1' }}>{projectStats.dayTotal + projectStats.dayContracts}</div>
             </div>
-            {projectStats.dayTopThree.length > 0 && (
+            {projectStats.dayTopThree.length > 1 && (
               <div>
-                {projectStats.dayTopThree.map((emp, idx) => {
-                  const medals = ['🥇', '🥈', '🥉'];
+                {projectStats.dayTopThree.slice(0, 2).map((emp, idx) => {
+                  const medals = ['🥇', '🥈'];
                   return (
                     <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '1rem', fontWeight: '600', padding: '0.6rem 0', borderBottom: '1px solid #eee' }}>
                       <span style={{ fontSize: '1.4rem', marginRight: '0.5rem' }}>{medals[idx]}</span>
@@ -1400,24 +1400,18 @@ export default function MinSide() {
                 })}
               </div>
             )}
+            {projectDeptStats.dayTopThree.length > 0 && (
+              <div style={{ marginTop: '0.75rem', padding: '0.75rem', borderTop: '2px solid #ddd', borderBottom: '2px solid #ddd', textAlign: 'center' }}>
+                <div style={{ fontSize: '1.4rem', marginBottom: '0.2rem' }}>🥇</div>
+                <div style={{ fontSize: '0.9rem', fontWeight: '600', color: '#333' }}>{projectDeptStats.dayTopThree[0].name}</div>
+                <div style={{ fontSize: '1.1rem', fontWeight: '700', color: '#666' }}>{projectDeptStats.dayTopThree[0].count}</div>
+              </div>
+            )}
             {projectRecords.dayRecord.name && (
               <div style={{ marginTop: '0.75rem', padding: '0.75rem', borderTop: '2px solid #ff6b35', textAlign: 'center' }}>
                 <div style={{ fontSize: '0.7rem', color: '#999', marginBottom: '0.3rem', textTransform: 'uppercase', fontWeight: '600' }}>Rekord</div>
                 <div style={{ fontSize: '1.1rem', fontWeight: '700', color: '#333' }}>👑 {projectRecords.dayRecord.name.split(' ')[0]}</div>
                 <div style={{ fontSize: '1.5rem', fontWeight: '900', color: '#ff6b35' }}>{projectRecords.dayRecord.count}</div>
-              </div>
-            )}
-            {projectDeptStats.dayTopThree.length > 0 && (
-              <div style={{ marginTop: '1.5rem', paddingTop: '1rem', borderTop: '2px solid #ddd' }}>
-                {projectDeptStats.dayTopThree.map((dept, idx) => {
-                  const medals = ['🥇', '🥈', '🥉'];
-                  return (
-                    <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', fontWeight: '600', padding: '0.4rem 0' }}>
-                      <span>{medals[idx]} {dept.name}</span>
-                      <span style={{ color: '#666' }}>{dept.count}</span>
-                    </div>
-                  );
-                })}
               </div>
             )}
           </div>
@@ -1429,10 +1423,10 @@ export default function MinSide() {
               <div style={{ fontSize: '0.7rem', color: '#999', marginBottom: '0.5rem', textTransform: 'uppercase', fontWeight: '600' }}>Total</div>
               <div style={{ fontSize: '3.5rem', fontWeight: '900', color: '#333', lineHeight: '1' }}>{projectStats.weekTotal + projectStats.weekContracts}</div>
             </div>
-            {projectStats.weekTopThree.length > 0 && (
+            {projectStats.weekTopThree.length > 1 && (
               <div>
-                {projectStats.weekTopThree.map((emp, idx) => {
-                  const medals = ['🥇', '🥈', '🥉'];
+                {projectStats.weekTopThree.slice(0, 2).map((emp, idx) => {
+                  const medals = ['🥇', '🥈'];
                   return (
                     <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '1rem', fontWeight: '600', padding: '0.6rem 0', borderBottom: '1px solid #eee' }}>
                       <span style={{ fontSize: '1.4rem', marginRight: '0.5rem' }}>{medals[idx]}</span>
@@ -1443,24 +1437,18 @@ export default function MinSide() {
                 })}
               </div>
             )}
+            {projectDeptStats.weekTopThree.length > 0 && (
+              <div style={{ marginTop: '0.75rem', padding: '0.75rem', borderTop: '2px solid #ddd', borderBottom: '2px solid #ddd', textAlign: 'center' }}>
+                <div style={{ fontSize: '1.4rem', marginBottom: '0.2rem' }}>🥇</div>
+                <div style={{ fontSize: '0.9rem', fontWeight: '600', color: '#333' }}>{projectDeptStats.weekTopThree[0].name}</div>
+                <div style={{ fontSize: '1.1rem', fontWeight: '700', color: '#666' }}>{projectDeptStats.weekTopThree[0].count}</div>
+              </div>
+            )}
             {projectRecords.weekRecord.name && (
               <div style={{ marginTop: '0.75rem', padding: '0.75rem', borderTop: '2px solid #ff6b35', textAlign: 'center' }}>
                 <div style={{ fontSize: '0.7rem', color: '#999', marginBottom: '0.3rem', textTransform: 'uppercase', fontWeight: '600' }}>Rekord</div>
                 <div style={{ fontSize: '1.1rem', fontWeight: '700', color: '#333' }}>👑 {projectRecords.weekRecord.name.split(' ')[0]}</div>
                 <div style={{ fontSize: '1.5rem', fontWeight: '900', color: '#ff6b35' }}>{projectRecords.weekRecord.count}</div>
-              </div>
-            )}
-            {projectDeptStats.weekTopThree.length > 0 && (
-              <div style={{ marginTop: '1.5rem', paddingTop: '1rem', borderTop: '2px solid #ddd' }}>
-                {projectDeptStats.weekTopThree.map((dept, idx) => {
-                  const medals = ['🥇', '🥈', '🥉'];
-                  return (
-                    <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', fontWeight: '600', padding: '0.4rem 0' }}>
-                      <span>{medals[idx]} {dept.name}</span>
-                      <span style={{ color: '#666' }}>{dept.count}</span>
-                    </div>
-                  );
-                })}
               </div>
             )}
           </div>
@@ -1472,10 +1460,10 @@ export default function MinSide() {
               <div style={{ fontSize: '0.7rem', color: '#999', marginBottom: '0.5rem', textTransform: 'uppercase', fontWeight: '600' }}>Total</div>
               <div style={{ fontSize: '3.5rem', fontWeight: '900', color: '#333', lineHeight: '1' }}>{projectStats.monthTotal + projectStats.monthContracts}</div>
             </div>
-            {projectStats.monthTopThree.length > 0 && (
+            {projectStats.monthTopThree.length > 1 && (
               <div>
-                {projectStats.monthTopThree.map((emp, idx) => {
-                  const medals = ['🥇', '🥈', '🥉'];
+                {projectStats.monthTopThree.slice(0, 2).map((emp, idx) => {
+                  const medals = ['🥇', '🥈'];
                   return (
                     <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '1rem', fontWeight: '600', padding: '0.6rem 0', borderBottom: '1px solid #eee' }}>
                       <span style={{ fontSize: '1.4rem', marginRight: '0.5rem' }}>{medals[idx]}</span>
@@ -1486,24 +1474,18 @@ export default function MinSide() {
                 })}
               </div>
             )}
+            {projectDeptStats.monthTopThree.length > 0 && (
+              <div style={{ marginTop: '0.75rem', padding: '0.75rem', borderTop: '2px solid #ddd', borderBottom: '2px solid #ddd', textAlign: 'center' }}>
+                <div style={{ fontSize: '1.4rem', marginBottom: '0.2rem' }}>🥇</div>
+                <div style={{ fontSize: '0.9rem', fontWeight: '600', color: '#333' }}>{projectDeptStats.monthTopThree[0].name}</div>
+                <div style={{ fontSize: '1.1rem', fontWeight: '700', color: '#666' }}>{projectDeptStats.monthTopThree[0].count}</div>
+              </div>
+            )}
             {projectRecords.monthRecord.name && (
               <div style={{ marginTop: '0.75rem', padding: '0.75rem', borderTop: '2px solid #ff6b35', textAlign: 'center' }}>
                 <div style={{ fontSize: '0.7rem', color: '#999', marginBottom: '0.3rem', textTransform: 'uppercase', fontWeight: '600' }}>Rekord</div>
                 <div style={{ fontSize: '1.1rem', fontWeight: '700', color: '#333' }}>👑 {projectRecords.monthRecord.name.split(' ')[0]}</div>
                 <div style={{ fontSize: '1.5rem', fontWeight: '900', color: '#ff6b35' }}>{projectRecords.monthRecord.count}</div>
-              </div>
-            )}
-            {projectDeptStats.monthTopThree.length > 0 && (
-              <div style={{ marginTop: '1.5rem', paddingTop: '1rem', borderTop: '2px solid #ddd' }}>
-                {projectDeptStats.monthTopThree.map((dept, idx) => {
-                  const medals = ['🥇', '🥈', '🥉'];
-                  return (
-                    <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', fontWeight: '600', padding: '0.4rem 0' }}>
-                      <span>{medals[idx]} {dept.name}</span>
-                      <span style={{ color: '#666' }}>{dept.count}</span>
-                    </div>
-                  );
-                })}
               </div>
             )}
           </div>
