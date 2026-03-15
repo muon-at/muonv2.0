@@ -1,0 +1,149 @@
+/* Plaquet Design - Trophy Plaques for Wall of Fame */
+
+.plaquet-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  padding: 1rem;
+}
+
+.plaquet {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  background: linear-gradient(135deg, #8B6F47 0%, #A0826D 50%, #8B6F47 100%);
+  border: 8px solid #5C4A3D;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 
+    inset 0 2px 5px rgba(255,255,255,0.3),
+    inset 0 -2px 5px rgba(0,0,0,0.4),
+    0 8px 16px rgba(0,0,0,0.3);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* Gold center background */
+.plaquet::before {
+  content: '';
+  position: absolute;
+  inset: 16px;
+  background: linear-gradient(135deg, #FFD700 0%, #FFC700 50%, #FFD700 100%);
+  border-radius: 8px;
+  z-index: 1;
+  box-shadow: 
+    inset 0 2px 8px rgba(255,255,255,0.6),
+    inset 0 -2px 8px rgba(0,0,0,0.2);
+}
+
+.plaquet-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.plaquet-trophy {
+  font-size: 2.5rem;
+  margin-bottom: 0.25rem;
+  filter: drop-shadow(2px 2px 3px rgba(0,0,0,0.2));
+}
+
+.plaquet-title {
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: #333;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 0.5rem;
+  text-shadow: 1px 1px 2px rgba(255,255,255,0.5);
+}
+
+.plaquet-subtitle {
+  font-size: 0.75rem;
+  color: #666;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.5rem;
+}
+
+.plaquet-records {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  width: 100%;
+}
+
+.plaquet-record {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #333;
+  padding: 0.3rem 0.5rem;
+  background: rgba(255,255,255,0.4);
+  border-radius: 4px;
+}
+
+.plaquet-record-label {
+  font-size: 0.75rem;
+  color: #666;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.plaquet-record-value {
+  color: #ff6b35;
+  font-weight: 900;
+  font-size: 0.95rem;
+}
+
+.plaquet-record-name {
+  flex: 1;
+  text-align: left;
+  padding-left: 0.5rem;
+  font-size: 0.8rem;
+}
+
+/* Laurel wreath effect with borders */
+.plaquet::after {
+  content: '';
+  position: absolute;
+  inset: 12px;
+  border: 2px dashed rgba(184, 134, 11, 0.3);
+  border-radius: 10px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Responsive for smaller screens */
+@media (max-width: 768px) {
+  .plaquet-container {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding: 0.75rem;
+  }
+
+  .plaquet {
+    aspect-ratio: auto;
+    min-height: 280px;
+  }
+
+  .plaquet-title {
+    font-size: 1rem;
+  }
+
+  .plaquet-record {
+    font-size: 0.8rem;
+  }
+}
