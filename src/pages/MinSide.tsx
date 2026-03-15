@@ -1560,107 +1560,121 @@ export default function MinSide() {
           <p>All-time records - Employees & Departments</p>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1rem' }}>
-          {/* EMPLOYEES SIDE */}
-          <div>
-            <h4 style={{ textAlign: 'center', marginBottom: '1rem', color: '#333', fontSize: '1.1rem' }}>👤 Employees</h4>
-            
-            {/* DAY */}
-            <div style={{ marginBottom: '1rem', padding: '0.75rem', borderRadius: '8px', background: '#f9f9f9' }}>
-              <div style={{ fontSize: '0.85rem', fontWeight: '600', color: '#666', marginBottom: '0.5rem' }}>📅 Best Day</div>
-              {recordsCache.employees && Object.entries(recordsCache.employees).length > 0 ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.9rem', fontWeight: '600', padding: '0.5rem', background: '#fff', borderRadius: '4px' }}>
-                    <span>🏆 KRS</span>
-                    <span style={{ color: '#ff6b35', fontWeight: '900' }}>{Math.max(...Object.values(recordsCache.employees).map(e => e.dayBest))}</span>
-                  </div>
-                </div>
-              ) : (
-                <div style={{ fontSize: '0.9rem', color: '#999' }}>Loading records...</div>
-              )}
-            </div>
-
-            {/* WEEK */}
-            <div style={{ marginBottom: '1rem', padding: '0.75rem', borderRadius: '8px', background: '#f9f9f9' }}>
-              <div style={{ fontSize: '0.85rem', fontWeight: '600', color: '#666', marginBottom: '0.5rem' }}>📈 Best Week</div>
-              {recordsCache.employees && Object.entries(recordsCache.employees).length > 0 ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.9rem', fontWeight: '600', padding: '0.5rem', background: '#fff', borderRadius: '4px' }}>
-                    <span>🏆 KRS</span>
-                    <span style={{ color: '#ff6b35', fontWeight: '900' }}>{Math.max(...Object.values(recordsCache.employees).map(e => e.weekBest))}</span>
-                  </div>
-                </div>
-              ) : (
-                <div style={{ fontSize: '0.9rem', color: '#999' }}>Loading records...</div>
-              )}
-            </div>
-
-            {/* MONTH */}
-            <div style={{ marginBottom: '1rem', padding: '0.75rem', borderRadius: '8px', background: '#f9f9f9' }}>
-              <div style={{ fontSize: '0.85rem', fontWeight: '600', color: '#666', marginBottom: '0.5rem' }}>📊 Best Month</div>
-              {recordsCache.employees && Object.entries(recordsCache.employees).length > 0 ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.9rem', fontWeight: '600', padding: '0.5rem', background: '#fff', borderRadius: '4px' }}>
-                    <span>🏆 KRS</span>
-                    <span style={{ color: '#ff6b35', fontWeight: '900' }}>{Math.max(...Object.values(recordsCache.employees).map(e => e.monthBest))}</span>
-                  </div>
-                </div>
-              ) : (
-                <div style={{ fontSize: '0.9rem', color: '#999' }}>Loading records...</div>
-              )}
-            </div>
-          </div>
-
-          {/* DEPARTMENTS SIDE */}
-          <div>
-            <h4 style={{ textAlign: 'center', marginBottom: '1rem', color: '#333', fontSize: '1.1rem' }}>🏢 Departments</h4>
-            
-            {/* DAY */}
-            <div style={{ marginBottom: '1rem', padding: '0.75rem', borderRadius: '8px', background: '#f9f9f9' }}>
-              <div style={{ fontSize: '0.85rem', fontWeight: '600', color: '#666', marginBottom: '0.5rem' }}>📅 Best Day</div>
-              {recordsCache.departments && Object.entries(recordsCache.departments).length > 0 ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.9rem', fontWeight: '600', padding: '0.5rem', background: '#fff', borderRadius: '4px' }}>
-                    <span>🏆 Allente</span>
-                    <span style={{ color: '#ff6b35', fontWeight: '900' }}>{Math.max(...Object.values(recordsCache.departments).map(d => d.dayBest))}</span>
-                  </div>
-                </div>
-              ) : (
-                <div style={{ fontSize: '0.9rem', color: '#999' }}>Loading records...</div>
-              )}
-            </div>
-
-            {/* WEEK */}
-            <div style={{ marginBottom: '1rem', padding: '0.75rem', borderRadius: '8px', background: '#f9f9f9' }}>
-              <div style={{ fontSize: '0.85rem', fontWeight: '600', color: '#666', marginBottom: '0.5rem' }}>📈 Best Week</div>
-              {recordsCache.departments && Object.entries(recordsCache.departments).length > 0 ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.9rem', fontWeight: '600', padding: '0.5rem', background: '#fff', borderRadius: '4px' }}>
-                    <span>🏆 Allente</span>
-                    <span style={{ color: '#ff6b35', fontWeight: '900' }}>{Math.max(...Object.values(recordsCache.departments).map(d => d.weekBest))}</span>
-                  </div>
-                </div>
-              ) : (
-                <div style={{ fontSize: '0.9rem', color: '#999' }}>Loading records...</div>
-              )}
-            </div>
-
-            {/* MONTH */}
-            <div style={{ marginBottom: '1rem', padding: '0.75rem', borderRadius: '8px', background: '#f9f9f9' }}>
-              <div style={{ fontSize: '0.85rem', fontWeight: '600', color: '#666', marginBottom: '0.5rem' }}>📊 Best Month</div>
-              {recordsCache.departments && Object.entries(recordsCache.departments).length > 0 ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.9rem', fontWeight: '600', padding: '0.5rem', background: '#fff', borderRadius: '4px' }}>
-                    <span>🏆 Allente</span>
-                    <span style={{ color: '#ff6b35', fontWeight: '900' }}>{Math.max(...Object.values(recordsCache.departments).map(d => d.monthBest))}</span>
-                  </div>
-                </div>
-              ) : (
-                <div style={{ fontSize: '0.9rem', color: '#999' }}>Loading records...</div>
-              )}
-            </div>
+        <div style={{ padding: '1rem', background: '#f0f0f0', borderRadius: '8px', marginBottom: '1rem' }}>
+          <div style={{ fontSize: '0.85rem', color: '#666' }}>
+            <div>📊 Employees: {Object.keys(recordsCache.employees || {}).length}</div>
+            <div>🏢 Departments: {Object.keys(recordsCache.departments || {}).length}</div>
           </div>
         </div>
+
+        {Object.keys(recordsCache.employees || {}).length === 0 ? (
+          <div style={{ padding: '2rem', textAlign: 'center', color: '#999' }}>
+            <div style={{ fontSize: '1.2rem', marginBottom: '1rem' }}>⏳ Loading records from Firestore...</div>
+            <div style={{ fontSize: '0.9rem' }}>This may take a moment on first load</div>
+          </div>
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1rem' }}>
+            {/* EMPLOYEES SIDE */}
+            <div>
+              <h4 style={{ textAlign: 'center', marginBottom: '1rem', color: '#333', fontSize: '1.1rem' }}>👤 Employees</h4>
+              
+              {/* DAY */}
+              <div style={{ marginBottom: '1rem', padding: '0.75rem', borderRadius: '8px', background: '#f9f9f9' }}>
+                <div style={{ fontSize: '0.85rem', fontWeight: '600', color: '#666', marginBottom: '0.5rem' }}>📅 Best Day</div>
+                {Object.keys(recordsCache.employees || {}).length > 0 && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    {Object.entries(recordsCache.employees || {}).slice(0, 3).map(([name, record]) => (
+                      <div key={name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.9rem', fontWeight: '600', padding: '0.5rem', background: '#fff', borderRadius: '4px' }}>
+                        <span>{name.split(' ')[0]}</span>
+                        <span style={{ color: '#ff6b35', fontWeight: '900' }}>{record.dayBest}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* WEEK */}
+              <div style={{ marginBottom: '1rem', padding: '0.75rem', borderRadius: '8px', background: '#f9f9f9' }}>
+                <div style={{ fontSize: '0.85rem', fontWeight: '600', color: '#666', marginBottom: '0.5rem' }}>📈 Best Week</div>
+                {Object.keys(recordsCache.employees || {}).length > 0 && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    {Object.entries(recordsCache.employees || {}).slice(0, 3).map(([name, record]) => (
+                      <div key={name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.9rem', fontWeight: '600', padding: '0.5rem', background: '#fff', borderRadius: '4px' }}>
+                        <span>{name.split(' ')[0]}</span>
+                        <span style={{ color: '#ff6b35', fontWeight: '900' }}>{record.weekBest}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* MONTH */}
+              <div style={{ marginBottom: '1rem', padding: '0.75rem', borderRadius: '8px', background: '#f9f9f9' }}>
+                <div style={{ fontSize: '0.85rem', fontWeight: '600', color: '#666', marginBottom: '0.5rem' }}>📊 Best Month</div>
+                {Object.keys(recordsCache.employees || {}).length > 0 && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    {Object.entries(recordsCache.employees || {}).slice(0, 3).map(([name, record]) => (
+                      <div key={name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.9rem', fontWeight: '600', padding: '0.5rem', background: '#fff', borderRadius: '4px' }}>
+                        <span>{name.split(' ')[0]}</span>
+                        <span style={{ color: '#ff6b35', fontWeight: '900' }}>{record.monthBest}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* DEPARTMENTS SIDE */}
+            <div>
+              <h4 style={{ textAlign: 'center', marginBottom: '1rem', color: '#333', fontSize: '1.1rem' }}>🏢 Departments</h4>
+              
+              {/* DAY */}
+              <div style={{ marginBottom: '1rem', padding: '0.75rem', borderRadius: '8px', background: '#f9f9f9' }}>
+                <div style={{ fontSize: '0.85rem', fontWeight: '600', color: '#666', marginBottom: '0.5rem' }}>📅 Best Day</div>
+                {Object.keys(recordsCache.departments || {}).length > 0 && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    {Object.entries(recordsCache.departments || {}).slice(0, 3).map(([name, record]) => (
+                      <div key={name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.9rem', fontWeight: '600', padding: '0.5rem', background: '#fff', borderRadius: '4px' }}>
+                        <span>{name}</span>
+                        <span style={{ color: '#ff6b35', fontWeight: '900' }}>{record.dayBest}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* WEEK */}
+              <div style={{ marginBottom: '1rem', padding: '0.75rem', borderRadius: '8px', background: '#f9f9f9' }}>
+                <div style={{ fontSize: '0.85rem', fontWeight: '600', color: '#666', marginBottom: '0.5rem' }}>📈 Best Week</div>
+                {Object.keys(recordsCache.departments || {}).length > 0 && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    {Object.entries(recordsCache.departments || {}).slice(0, 3).map(([name, record]) => (
+                      <div key={name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.9rem', fontWeight: '600', padding: '0.5rem', background: '#fff', borderRadius: '4px' }}>
+                        <span>{name}</span>
+                        <span style={{ color: '#ff6b35', fontWeight: '900' }}>{record.weekBest}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* MONTH */}
+              <div style={{ marginBottom: '1rem', padding: '0.75rem', borderRadius: '8px', background: '#f9f9f9' }}>
+                <div style={{ fontSize: '0.85rem', fontWeight: '600', color: '#666', marginBottom: '0.5rem' }}>📊 Best Month</div>
+                {Object.keys(recordsCache.departments || {}).length > 0 && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    {Object.entries(recordsCache.departments || {}).slice(0, 3).map(([name, record]) => (
+                      <div key={name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.9rem', fontWeight: '600', padding: '0.5rem', background: '#fff', borderRadius: '4px' }}>
+                        <span>{name}</span>
+                        <span style={{ color: '#ff6b35', fontWeight: '900' }}>{record.monthBest}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
       )}
 
