@@ -295,7 +295,7 @@ export default function MinSide() {
     }
   };
 
-  // Load department stats (all employees in same department)
+  // Load department stats (all employees in same department) - OPTIMIZED
   const loadDepartmentStats = async () => {
     try {
       if (!user?.department) return;
@@ -307,19 +307,17 @@ export default function MinSide() {
       weekStart.setDate(today.getDate() - today.getDay() + (today.getDay() === 0 ? -6 : 1));
       const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
 
-      // Load all contracts
-      const salesRef = collection(db, 'allente_kontraktsarkiv');
-      const snapshot = await getDocs(salesRef);
-      const contracts: SalesRecord[] = [];
-      snapshot.forEach((doc) => {
-        contracts.push({ id: doc.id, ...doc.data() });
-      });
+      // PARALLEL LOAD: contracts + employees
+      const [contractsSnapshot, empSnapshot] = await Promise.all([
+        getDocs(collection(db, 'allente_kontraktsarkiv')),
+        getDocs(collection(db, 'employees')),
+      ]);
 
-      // Get all employees in this department from Firestore
-      const employeesRef = collection(db, 'employees');
-      const empSnapshot = await getDocs(employeesRef);
+      // Extract data
+      const contracts: SalesRecord[] = [];
+      contractsSnapshot.forEach((doc) => contracts.push({ id: doc.id, ...doc.data() }));
+
       const deptEmployees = new Set<string>();
-      
       empSnapshot.forEach((doc) => {
         const data = doc.data();
         if (data.department === department && data.externalName) {
@@ -327,59 +325,66 @@ export default function MinSide() {
         }
       });
 
-      // Build employee stats
+      // Generate all dates we need to load
+      const datesToLoad: string[] = [];
+      for (let d = new Date(monthStart); d <= today; d.setDate(d.getDate() + 1)) {
+        datesToLoad.push(`${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')}`);
+      }
+
+      // PARALLEL LOAD: all emoji_counts_daily docs at once!
+      const emojiPromises = datesToLoad.map(dateStr => getDoc(doc(db, 'emoji_counts_daily', dateStr)));
+      const emojiSnapshots = await Promise.all(emojiPromises);
+
+      // Build emoji map for fast lookup
+      const emojiMap: { [dateStr: string]: { [empName: string]: number } } = {};
+      emojiSnapshots.forEach((snapshot, idx) => {
+        if (snapshot.exists()) {
+          const data = snapshot.data();
+          const dateStr = datesToLoad[idx];
+          emojiMap[dateStr] = {};
+          
+          if (data.counts) {
+            Object.entries(data.counts).forEach(([empName, counts]: [string, any]) => {
+              const total = (counts['🔔'] || 0) + (counts['💎'] || 0);
+              if (total > 0) {
+                emojiMap[dateStr][empName] = total;
+              }
+            });
+          }
+        }
+      });
+
+      // Build employee stats - single pass
       const employeeStats: { [key: string]: { dayCount: number; weekCount: number; monthCount: number; dayContracts: number; weekContracts: number; monthContracts: number } } = {};
 
       for (const empName of deptEmployees) {
-        employeeStats[empName] = {
-          dayCount: 0,
-          weekCount: 0,
-          monthCount: 0,
-          dayContracts: 0,
-          weekContracts: 0,
-          monthContracts: 0,
-        };
+        let dayCount = 0, weekCount = 0, monthCount = 0;
 
-        // Load emoji counts for this employee
-        for (let d = new Date(monthStart); d <= today; d.setDate(d.getDate() + 1)) {
-          const dateStr = `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')}`;
-          try {
-            const emojiDocRef = doc(db, 'emoji_counts_daily', dateStr);
-            const emojiSnapshot = await getDoc(emojiDocRef);
-            if (emojiSnapshot.exists()) {
-              const data = emojiSnapshot.data();
-              const counts = data.counts?.[empName.toLowerCase()] || {};
-              const total = (counts['🔔'] || 0) + (counts['💎'] || 0);
-              
-              if (total > 0) {
-                employeeStats[empName].monthCount += total;
-                if (d >= weekStart) {
-                  employeeStats[empName].weekCount += total;
-                }
-                if (d.getTime() === today.getTime()) {
-                  employeeStats[empName].dayCount += total;
-                }
-              }
-            }
-          } catch (err) {
-            // Silently skip missing dates
+        // Count emojis from map
+        datesToLoad.forEach((dateStr, idx) => {
+          if (emojiMap[dateStr]?.[empName.toLowerCase()]) {
+            const count = emojiMap[dateStr][empName.toLowerCase()];
+            monthCount += count;
+            
+            const d = new Date(datesToLoad[idx]);
+            if (d >= weekStart) weekCount += count;
+            if (d.getTime() === today.getTime()) dayCount += count;
           }
-        }
+        });
 
         // Count contracts
         const empContracts = contracts.filter(c => (c.selger || '').startsWith(empName));
-        employeeStats[empName].dayContracts = empContracts.filter(c => {
-          const cDate = parseDate(c.dato || '');
-          return cDate.getTime() === today.getTime();
-        }).length;
-        employeeStats[empName].weekContracts = empContracts.filter(c => {
+        const dayContracts = empContracts.filter(c => parseDate(c.dato || '').getTime() === today.getTime()).length;
+        const weekContracts = empContracts.filter(c => {
           const cDate = parseDate(c.dato || '');
           return cDate >= weekStart && cDate <= today;
         }).length;
-        employeeStats[empName].monthContracts = empContracts.filter(c => {
+        const monthContracts = empContracts.filter(c => {
           const cDate = parseDate(c.dato || '');
           return cDate >= monthStart && cDate <= today;
         }).length;
+
+        employeeStats[empName] = { dayCount, weekCount, monthCount, dayContracts, weekContracts, monthContracts };
       }
 
       // Calculate totals
