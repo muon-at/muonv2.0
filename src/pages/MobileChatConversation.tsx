@@ -101,49 +101,67 @@ export default function MobileChatConversation() {
 
       console.log('🚀 Loading channel:', { chatName, title });
       
+      // SPECIAL HANDLING FOR GLOBAL CHANNEL
+      if (chatName === 'global') {
+        console.warn('⚠️ GLOBAL CHANNEL - using special handling');
+        // For global, show empty state immediately then try to load
+        setMessages([]);
+        setTimeout(() => {
+          console.log('⏳ Global channel - attempting load after delay...');
+        }, 100);
+      }
+      
       // Load messages directly - skip metadata updates that might hang
       const messagesRef = collection(db, 'chat_channels', chatName, 'messages');
       const messagesQ = query(messagesRef, orderBy('timestamp', 'asc'));
       
-      console.log('🔍 Setting up listener:', { path: `chat_channels/${chatName}/messages` });
+      console.log('🔍 Setting up listener for', chatName);
       
       let snapshotCount = 0;
       let hasData = false;
+      const TIMEOUT = chatName === 'global' ? 5000 : 3000;
       timeoutId = setTimeout(() => {
         if (!hasData && snapshotCount === 0) {
-          console.warn('⚠️ Listener timeout - no data:', chatName);
-          setMessages([]);
+          console.warn(`⚠️ TIMEOUT after ${TIMEOUT}ms for ${chatName}`);
+          setMessages([]); // Show empty instead of hanging
         }
-      }, 3000);
+      }, TIMEOUT);
       
-      unsubscribe = onSnapshot(messagesQ, (snapshot) => {
-        hasData = true;
-        if (timeoutId) clearTimeout(timeoutId);
-        snapshotCount++;
-        console.log('💬 Snapshot #' + snapshotCount + ':', snapshot.size, 'msgs from', chatName);
-        const msgs: Message[] = [];
-        snapshot.forEach(doc => {
-          const data = doc.data();
-          msgs.push({
-            id: doc.id,
-            sender: data.sender || 'Unknown',
-            senderId: data.senderId || '',
-            content: data.content || '',
-            timestamp: data.timestamp,
-            type: data.type || 'text',
-            fileName: data.fileName
+      try {
+        unsubscribe = onSnapshot(messagesQ, (snapshot) => {
+          hasData = true;
+          if (timeoutId) clearTimeout(timeoutId);
+          snapshotCount++;
+          console.log(`💬 Snapshot #${snapshotCount}: ${snapshot.size} msgs from ${chatName}`);
+          
+          const msgs: Message[] = [];
+          snapshot.forEach(doc => {
+            const data = doc.data();
+            msgs.push({
+              id: doc.id,
+              sender: data.sender || 'Unknown',
+              senderId: data.senderId || '',
+              content: data.content || '',
+              timestamp: data.timestamp,
+              type: data.type || 'text',
+              fileName: data.fileName
+            });
           });
+          
+          console.log(`✅ Setting ${msgs.length} messages for ${chatName}`);
+          setMessages(msgs);
+          if (msgs.length > 0) {
+            setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
+          }
+        }, (error) => {
+          if (timeoutId) clearTimeout(timeoutId);
+          console.error(`❌ Listener error for ${chatName}:`, (error as any)?.message);
+          setMessages([]); // Show empty on error
         });
-        console.log('✅ Setting', msgs.length, 'messages for', chatName);
-        setMessages(msgs);
-        if (msgs.length > 0) {
-          setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
-        }
-      }, (error) => {
-        if (timeoutId) clearTimeout(timeoutId);
-        console.error('❌ Listener error for', chatName, ':', (error as any)?.message);
+      } catch (e) {
+        console.error(`❌ Exception setting up listener for ${chatName}:`, e);
         setMessages([]);
-      });
+      }
 
       return () => {
         if (timeoutId) clearTimeout(timeoutId);
