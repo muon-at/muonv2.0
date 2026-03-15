@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { useEffect } from 'react';
 import { AuthProvider } from './lib/authContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { useServiceWorkerUpdate } from './lib/useServiceWorkerUpdate';
@@ -21,6 +22,15 @@ import './App.css';
 function AppContent() {
   // Initialize service worker updates
   useServiceWorkerUpdate();
+
+  // Initialize theme from localStorage
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('app_theme') || 'original';
+    document.body.classList.remove('theme-christmas', 'theme-halloween', 'theme-newyear', 'theme-easter');
+    if (savedTheme !== 'original') {
+      document.body.classList.add(`theme-${savedTheme}`);
+    }
+  }, []);
 
   return (
     <Routes>
