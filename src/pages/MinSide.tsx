@@ -1371,19 +1371,6 @@ export default function MinSide() {
                 <div style={{ fontSize: '1.5rem', fontWeight: '900', color: '#ff6b35' }}>{departmentRecords.dayRecord.count}</div>
               </div>
             )}
-            {departmentDeptStats.dayTopThree.length > 0 && (
-              <div style={{ marginTop: '0.75rem', padding: '0.75rem', borderTop: '2px solid #ddd', textAlign: 'center' }}>
-                {departmentDeptStats.dayTopThree.map((dept, idx) => {
-                  const medals = ['🥇', '🥈', '🥉'];
-                  return (
-                    <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', fontWeight: '600', padding: '0.3rem 0' }}>
-                      <span>{medals[idx]} {dept.name}</span>
-                      <span style={{ color: '#666' }}>{dept.count}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
           </div>
 
           {/* WEEK */}
@@ -1414,19 +1401,6 @@ export default function MinSide() {
                 <div style={{ fontSize: '1.5rem', fontWeight: '900', color: '#ff6b35' }}>{departmentRecords.weekRecord.count}</div>
               </div>
             )}
-            {departmentDeptStats.weekTopThree.length > 0 && (
-              <div style={{ marginTop: '0.75rem', padding: '0.75rem', borderTop: '2px solid #ddd', textAlign: 'center' }}>
-                {departmentDeptStats.weekTopThree.map((dept, idx) => {
-                  const medals = ['🥇', '🥈', '🥉'];
-                  return (
-                    <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', fontWeight: '600', padding: '0.3rem 0' }}>
-                      <span>{medals[idx]} {dept.name}</span>
-                      <span style={{ color: '#666' }}>{dept.count}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
           </div>
 
           {/* MONTH */}
@@ -1455,19 +1429,6 @@ export default function MinSide() {
                 <div style={{ fontSize: '0.7rem', color: '#999', marginBottom: '0.3rem', textTransform: 'uppercase', fontWeight: '600' }}>Rekord</div>
                 <div style={{ fontSize: '1.1rem', fontWeight: '700', color: '#333' }}>👑 {departmentRecords.monthRecord.name.split(' ')[0]}</div>
                 <div style={{ fontSize: '1.5rem', fontWeight: '900', color: '#ff6b35' }}>{departmentRecords.monthRecord.count}</div>
-              </div>
-            )}
-            {departmentDeptStats.monthTopThree.length > 0 && (
-              <div style={{ marginTop: '0.75rem', padding: '0.75rem', borderTop: '2px solid #ddd', textAlign: 'center' }}>
-                {departmentDeptStats.monthTopThree.map((dept, idx) => {
-                  const medals = ['🥇', '🥈', '🥉'];
-                  return (
-                    <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', fontWeight: '600', padding: '0.3rem 0' }}>
-                      <span>{medals[idx]} {dept.name}</span>
-                      <span style={{ color: '#666' }}>{dept.count}</span>
-                    </div>
-                  );
-                })}
               </div>
             )}
           </div>
