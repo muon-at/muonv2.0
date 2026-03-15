@@ -12,7 +12,7 @@
 .plaquet {
   position: relative;
   width: 100%;
-  aspect-ratio: 0.8;
+  height: 350px;
   background: linear-gradient(135deg, #8B6F47 0%, #A0826D 50%, #8B6F47 100%);
   border: 6px solid #5C4A3D;
   border-radius: 10px;
@@ -26,7 +26,6 @@
   align-items: center;
   justify-content: center;
   overflow: visible;
-  min-height: auto;
   background-clip: padding-box;
 }
 
@@ -164,7 +163,7 @@
   }
 
   .plaquet {
-    aspect-ratio: 0.8;
+    height: 350px;
   }
 
   .plaquet-title {
