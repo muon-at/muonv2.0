@@ -81,7 +81,7 @@ export const WallOfFame: React.FC<WallOfFameProps> = ({ recordsCache }) => {
           <div className="plaquet-content">
             <div className="plaquet-trophy">🏆</div>
             <div className="plaquet-title">KRS</div>
-            <div className="plaquet-subtitle">Best Employees</div>
+            <div className="plaquet-subtitle">Rekorder</div>
             <div className="plaquet-records">
               <div className="plaquet-record">
                 <span className="plaquet-record-label">Day:</span>
