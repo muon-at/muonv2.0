@@ -1,0 +1,188 @@
+/* THEME OVERLAYS - Holiday & Special Effects */
+
+/* ============ CHRISTMAS THEME ============ */
+body.theme-christmas {
+  --primary-color: #c41e3a;
+  --secondary-color: #165b33;
+}
+
+body.theme-christmas .logo,
+body.theme-christmas .mobile-home-header .logo .logo-n {
+  color: #c41e3a;
+  text-shadow: 0 0 20px #00ff00, 0 0 40px #c41e3a;
+  animation: christmas-glow 2s ease-in-out infinite;
+}
+
+@keyframes christmas-glow {
+  0%, 100% { text-shadow: 0 0 10px #00ff00, 0 0 20px #c41e3a; }
+  50% { text-shadow: 0 0 20px #ffffff, 0 0 40px #c41e3a, 0 0 60px #00ff00; }
+}
+
+body.theme-christmas::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+  background-image: 
+    radial-gradient(2px 2px at 20px 30px, #eee, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 60px 70px, #fff, rgba(0,0,0,0)),
+    radial-gradient(1px 1px at 50px 50px, #ddd, rgba(0,0,0,0)),
+    radial-gradient(1px 1px at 130px 80px, #fff, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 90px 10px, #eee, rgba(0,0,0,0));
+  background-repeat: repeat;
+  background-size: 200px 200px;
+  animation: snowfall 20s linear infinite;
+}
+
+@keyframes snowfall {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+body.theme-christmas .stat-circle,
+body.theme-christmas .mobile-home-card,
+body.theme-christmas button {
+  border: 2px solid #165b33;
+  box-shadow: 0 0 10px rgba(165, 42, 42, 0.5);
+}
+
+body.theme-christmas .stat-circle:hover,
+body.theme-christmas .mobile-home-card:hover,
+body.theme-christmas button:hover {
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.8), inset 0 0 10px rgba(196, 30, 58, 0.3);
+}
+
+/* ============ HALLOWEEN THEME ============ */
+body.theme-halloween {
+  --primary-color: #ff6b00;
+  --secondary-color: #2d2d2d;
+}
+
+body.theme-halloween::before {
+  content: '🕷️';
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  font-size: 2rem;
+  z-index: 100;
+  animation: spider-crawl 8s linear infinite;
+}
+
+body.theme-halloween::after {
+  content: '🕷️';
+  position: fixed;
+  top: 20%;
+  right: 5%;
+  font-size: 1.5rem;
+  z-index: 100;
+  animation: spider-crawl-reverse 10s linear infinite;
+}
+
+@keyframes spider-crawl {
+  0% { transform: translateX(0) translateY(0); }
+  25% { transform: translateX(200px) translateY(100px); }
+  50% { transform: translateX(100px) translateY(200px); }
+  75% { transform: translateX(300px) translateY(50px); }
+  100% { transform: translateX(0) translateY(0); }
+}
+
+@keyframes spider-crawl-reverse {
+  0% { transform: translateX(0) translateY(0); }
+  50% { transform: translateX(-250px) translateY(150px); }
+  100% { transform: translateX(0) translateY(0); }
+}
+
+body.theme-halloween .logo,
+body.theme-halloween .mobile-home-header .logo .logo-n {
+  color: #ff6b00;
+  text-shadow: 0 0 10px #ff6b00, 0 0 20px #2d2d2d;
+}
+
+body.theme-halloween .stat-circle,
+body.theme-halloween .mobile-home-card,
+body.theme-halloween button {
+  border: 2px dashed #ff6b00;
+  background: rgba(45, 45, 45, 0.8);
+}
+
+/* ============ NEW YEAR THEME ============ */
+body.theme-newyear {
+  --primary-color: #ffd700;
+  --secondary-color: #000080;
+}
+
+body.theme-newyear .logo,
+body.theme-newyear .mobile-home-header .logo .logo-n {
+  color: #ffd700;
+  text-shadow: 0 0 20px #ffd700, 0 0 40px #ff1493;
+  animation: disco-pulse 0.5s ease-in-out infinite;
+}
+
+@keyframes disco-pulse {
+  0%, 100% { transform: scale(1); text-shadow: 0 0 20px #ffd700, 0 0 40px #ff1493; }
+  50% { transform: scale(1.1); text-shadow: 0 0 30px #00ff00, 0 0 50px #ff1493; }
+}
+
+body.theme-newyear .stat-circle,
+body.theme-newyear .mobile-home-card,
+body.theme-newyear button {
+  background: linear-gradient(45deg, #ffd700, #ff1493, #00ffff);
+  box-shadow: 0 0 20px #ffd700, inset 0 0 10px rgba(255, 215, 0, 0.5);
+  animation: rainbow-rotate 3s linear infinite;
+}
+
+@keyframes rainbow-rotate {
+  0% { filter: hue-rotate(0deg); }
+  100% { filter: hue-rotate(360deg); }
+}
+
+/* ============ EASTER THEME ============ */
+body.theme-easter {
+  --primary-color: #ff69b4;
+  --secondary-color: #ffa500;
+}
+
+body.theme-easter .logo,
+body.theme-easter .mobile-home-header .logo .logo-n {
+  color: #ff69b4;
+  text-shadow: 0 0 15px #ffa500;
+  animation: easter-bounce 2s ease-in-out infinite;
+}
+
+@keyframes easter-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+body.theme-easter .stat-circle,
+body.theme-easter .mobile-home-card,
+body.theme-easter button {
+  border: 3px solid #ffa500;
+  background: linear-gradient(135deg, #ffe4e1, #fff0f5);
+  box-shadow: 0 0 15px rgba(255, 105, 180, 0.6);
+}
+
+body.theme-easter::before {
+  content: '🥚';
+  position: fixed;
+  bottom: 20px;
+  left: 10%;
+  font-size: 2rem;
+  z-index: 100;
+  animation: egg-bounce 3s ease-in-out infinite;
+}
+
+@keyframes egg-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-50px); }
+}
+
+/* Prevent pointer-events on decorations */
+body::before,
+body::after {
+  pointer-events: none !important;
+}

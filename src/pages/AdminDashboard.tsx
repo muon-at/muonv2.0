@@ -3,7 +3,9 @@ import { collection, getDocs, doc, updateDoc, addDoc, getDoc, setDoc, deleteDoc,
 import { db } from '../lib/firebase';
 import FileUploadModal from '../components/FileUploadModal';
 import { FixProductsButton } from '../components/FixProductsButton';
+import { ThemeSelector } from '../components/ThemeSelector';
 import '../styles/AdminDashboard.css';
+import '../styles/themes.css';
 
 interface Employee {
   id: string;
@@ -1230,6 +1232,7 @@ export default function AdminDashboard() {
     { id: 'dashboard', label: '📊 Dashboard' },
     { id: 'organisasjon', label: '👥 Organisasjon' },
     { id: 'allente', label: '🟠 Allente' },
+    { id: 'tema', label: '🎨 Tema' },
   ];
 
   const allenteTabs = [
@@ -2806,6 +2809,17 @@ export default function AdminDashboard() {
           </div>
         </div>
       )}
+
+        {activeMainTab === 'tema' && (
+          <div className="tab-content">
+            <div style={{ maxWidth: '600px' }}>
+              <h2 style={{ margin: '0 0 1rem 0', fontSize: '1.8rem', fontWeight: '700', color: '#333' }}>🎨 Tema & Overlays</h2>
+              <p style={{ color: '#666', marginBottom: '2rem' }}>Velg tema for overdrevne effekter og høytids-dekk!</p>
+              <ThemeSelector />
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* File Upload Modal */}
       <FileUploadModal
