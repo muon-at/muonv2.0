@@ -2829,6 +2829,7 @@ export default function AdminDashboard() {
         onClose={() => setUploadModal({ isOpen: false })}
         onUpload={handleFileUpload}
       />
+      </div>
     </div>
   );
 }
