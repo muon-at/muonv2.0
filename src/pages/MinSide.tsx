@@ -112,6 +112,12 @@ export default function MinSide() {
     monthTopThree: [] as Array<{ name: string; count: number; contracts: number }>,
   });
 
+  const [departmentRecords, setDepartmentRecords] = useState({
+    dayRecord: { name: '', count: 0 },
+    weekRecord: { name: '', count: 0 },
+    monthRecord: { name: '', count: 0 },
+  });
+
   // Load saved goals from Firestore
   const loadSavedGoals = async () => {
     try {
@@ -407,16 +413,27 @@ export default function MinSide() {
           .slice(0, 3);
       };
 
+      const dayTop3 = getTop3('dayCount', 'dayContracts');
+      const weekTop3 = getTop3('weekCount', 'weekContracts');
+      const monthTop3 = getTop3('monthCount', 'monthContracts');
+
       setDepartmentStats({
         dayTotal,
         dayContracts,
-        dayTopThree: getTop3('dayCount', 'dayContracts'),
+        dayTopThree: dayTop3,
         weekTotal,
         weekContracts,
-        weekTopThree: getTop3('weekCount', 'weekContracts'),
+        weekTopThree: weekTop3,
         monthTotal,
         monthContracts,
-        monthTopThree: getTop3('monthCount', 'monthContracts'),
+        monthTopThree: monthTop3,
+      });
+
+      // Set records (top performer in each period)
+      setDepartmentRecords({
+        dayRecord: dayTop3.length > 0 ? { name: dayTop3[0].name, count: dayTop3[0].count + dayTop3[0].contracts } : { name: '', count: 0 },
+        weekRecord: weekTop3.length > 0 ? { name: weekTop3[0].name, count: weekTop3[0].count + weekTop3[0].contracts } : { name: '', count: 0 },
+        monthRecord: monthTop3.length > 0 ? { name: monthTop3[0].name, count: monthTop3[0].count + monthTop3[0].contracts } : { name: '', count: 0 },
       });
     } catch (err) {
       console.error('Error loading department stats:', err);
@@ -1095,6 +1112,13 @@ export default function MinSide() {
                 })}
               </div>
             )}
+            {departmentRecords.dayRecord.name && (
+              <div style={{ marginTop: '0.75rem', padding: '0.75rem', borderTop: '2px solid #ff6b35', textAlign: 'center' }}>
+                <div style={{ fontSize: '0.7rem', color: '#999', marginBottom: '0.3rem', textTransform: 'uppercase', fontWeight: '600' }}>Rekord</div>
+                <div style={{ fontSize: '1.1rem', fontWeight: '700', color: '#333' }}>👑 {departmentRecords.dayRecord.name.split(' ')[0]}</div>
+                <div style={{ fontSize: '1.5rem', fontWeight: '900', color: '#ff6b35' }}>{departmentRecords.dayRecord.count}</div>
+              </div>
+            )}
           </div>
 
           {/* WEEK */}
@@ -1118,6 +1142,13 @@ export default function MinSide() {
                 })}
               </div>
             )}
+            {departmentRecords.weekRecord.name && (
+              <div style={{ marginTop: '0.75rem', padding: '0.75rem', borderTop: '2px solid #ff6b35', textAlign: 'center' }}>
+                <div style={{ fontSize: '0.7rem', color: '#999', marginBottom: '0.3rem', textTransform: 'uppercase', fontWeight: '600' }}>Rekord</div>
+                <div style={{ fontSize: '1.1rem', fontWeight: '700', color: '#333' }}>👑 {departmentRecords.weekRecord.name.split(' ')[0]}</div>
+                <div style={{ fontSize: '1.5rem', fontWeight: '900', color: '#ff6b35' }}>{departmentRecords.weekRecord.count}</div>
+              </div>
+            )}
           </div>
 
           {/* MONTH */}
@@ -1139,6 +1170,13 @@ export default function MinSide() {
                     </div>
                   );
                 })}
+              </div>
+            )}
+            {departmentRecords.monthRecord.name && (
+              <div style={{ marginTop: '0.75rem', padding: '0.75rem', borderTop: '2px solid #ff6b35', textAlign: 'center' }}>
+                <div style={{ fontSize: '0.7rem', color: '#999', marginBottom: '0.3rem', textTransform: 'uppercase', fontWeight: '600' }}>Rekord</div>
+                <div style={{ fontSize: '1.1rem', fontWeight: '700', color: '#333' }}>👑 {departmentRecords.monthRecord.name.split(' ')[0]}</div>
+                <div style={{ fontSize: '1.5rem', fontWeight: '900', color: '#ff6b35' }}>{departmentRecords.monthRecord.count}</div>
               </div>
             )}
           </div>
