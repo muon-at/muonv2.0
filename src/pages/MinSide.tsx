@@ -1076,7 +1076,7 @@ export default function MinSide() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1.5rem', marginBottom: '1rem' }}>
           {/* DAY */}
           <div>
-            <h4 style={{ marginBottom: '0.75rem', color: '#666', fontSize: '0.95rem' }}>📅 DAY</h4>
+            <h4 style={{ marginBottom: '0.75rem', color: '#666', fontSize: '0.95rem' }}>DAY</h4>
             <div style={{ textAlign: 'center', marginBottom: '1rem', padding: '1rem', borderRadius: '6px' }}>
               <div style={{ fontSize: '0.7rem', color: '#999', marginBottom: '0.5rem', textTransform: 'uppercase', fontWeight: '600' }}>Total</div>
               <div style={{ fontSize: '3.5rem', fontWeight: '900', color: '#333', lineHeight: '1' }}>{departmentStats.dayTotal + departmentStats.dayContracts}</div>
@@ -1099,7 +1099,7 @@ export default function MinSide() {
 
           {/* WEEK */}
           <div>
-            <h4 style={{ marginBottom: '0.75rem', color: '#666', fontSize: '0.95rem' }}>📊 WEEK</h4>
+            <h4 style={{ marginBottom: '0.75rem', color: '#666', fontSize: '0.95rem' }}>WEEK</h4>
             <div style={{ textAlign: 'center', marginBottom: '1rem', padding: '1rem', borderRadius: '6px' }}>
               <div style={{ fontSize: '0.7rem', color: '#999', marginBottom: '0.5rem', textTransform: 'uppercase', fontWeight: '600' }}>Total</div>
               <div style={{ fontSize: '3.5rem', fontWeight: '900', color: '#333', lineHeight: '1' }}>{departmentStats.weekTotal + departmentStats.weekContracts}</div>
@@ -1122,7 +1122,7 @@ export default function MinSide() {
 
           {/* MONTH */}
           <div>
-            <h4 style={{ marginBottom: '0.75rem', color: '#666', fontSize: '0.95rem' }}>📈 MONTH</h4>
+            <h4 style={{ marginBottom: '0.75rem', color: '#666', fontSize: '0.95rem' }}>MONTH</h4>
             <div style={{ textAlign: 'center', marginBottom: '1rem', padding: '1rem', borderRadius: '6px' }}>
               <div style={{ fontSize: '0.7rem', color: '#999', marginBottom: '0.5rem', textTransform: 'uppercase', fontWeight: '600' }}>Total</div>
               <div style={{ fontSize: '3.5rem', fontWeight: '900', color: '#333', lineHeight: '1' }}>{departmentStats.monthTotal + departmentStats.monthContracts}</div>
