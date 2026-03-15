@@ -116,30 +116,10 @@ export const WallOfFame: React.FC<WallOfFameProps> = ({ recordsCache }) => {
   );
 
   return (
-    <div className="tab-content">
-      <div className="content-title">
-        <h3>🏆 Wall of Fame</h3>
-        <p>Rekorder per avdeling</p>
-      </div>
-
-      <div className="plaquet-container">
-        {depts.map(dept => (
-          <PlaqueCard key={dept} dept={dept} records={deptRecords[dept]} />
-        ))}
-      </div>
-
-      {/* DEBUG INFO */}
-      <div style={{ marginTop: '2rem', padding: '1rem', background: '#f0f0f0', borderRadius: '8px', fontSize: '0.85rem' }}>
-        <div>📊 recordsCache.employees: {Object.keys(recordsCache.employees || {}).length}</div>
-        <div>🔗 empDeptMap: {Object.keys(empDeptMap).length}</div>
-        <div style={{ marginTop: '0.5rem' }}>
-          {depts.map(dept => (
-            <div key={dept}>
-              {dept}: Day={deptRecords[dept].day ? `${deptRecords[dept].day!.name} ${deptRecords[dept].day!.count}` : 'Loading...'} | Week={deptRecords[dept].week ? deptRecords[dept].week!.count : 'Loading...'} | Month={deptRecords[dept].month ? deptRecords[dept].month!.count : 'Loading...'}
-            </div>
-          ))}
-        </div>
-      </div>
+    <div className="plaquet-container">
+      {depts.map(dept => (
+        <PlaqueCard key={dept} dept={dept} records={deptRecords[dept]} />
+      ))}
     </div>
   );
 };
