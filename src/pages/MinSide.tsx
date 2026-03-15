@@ -459,9 +459,9 @@ export default function MinSide() {
 
       // Set records (top performer in each period)
       setDepartmentRecords({
-        dayRecord: dayTop3.length > 0 ? { name: dayTop3[0].name, count: dayTop3[0].count + dayTop3[0].contracts } : { name: '', count: 0 },
-        weekRecord: weekTop3.length > 0 ? { name: weekTop3[0].name, count: weekTop3[0].count + weekTop3[0].contracts } : { name: '', count: 0 },
-        monthRecord: monthTop3.length > 0 ? { name: monthTop3[0].name, count: monthTop3[0].count + monthTop3[0].contracts } : { name: '', count: 0 },
+        dayRecord: dayTop3.length > 0 ? { name: dayTop3[0].name, count: dayTop3[0].contracts } : { name: '', count: 0 },
+        weekRecord: weekTop3.length > 0 ? { name: weekTop3[0].name, count: weekTop3[0].contracts } : { name: '', count: 0 },
+        monthRecord: monthTop3.length > 0 ? { name: monthTop3[0].name, count: monthTop3[0].contracts } : { name: '', count: 0 },
       });
     } catch (err) {
       console.error('Error loading department stats:', err);
@@ -615,9 +615,9 @@ export default function MinSide() {
       });
 
       setProjectRecords({
-        dayRecord: dayEmpTop3.length > 0 ? { name: dayEmpTop3[0].name, count: dayEmpTop3[0].count + dayEmpTop3[0].contracts } : { name: '', count: 0 },
-        weekRecord: weekEmpTop3.length > 0 ? { name: weekEmpTop3[0].name, count: weekEmpTop3[0].count + weekEmpTop3[0].contracts } : { name: '', count: 0 },
-        monthRecord: monthEmpTop3.length > 0 ? { name: monthEmpTop3[0].name, count: monthEmpTop3[0].count + monthEmpTop3[0].contracts } : { name: '', count: 0 },
+        dayRecord: dayEmpTop3.length > 0 ? { name: dayEmpTop3[0].name, count: dayEmpTop3[0].contracts } : { name: '', count: 0 },
+        weekRecord: weekEmpTop3.length > 0 ? { name: weekEmpTop3[0].name, count: weekEmpTop3[0].contracts } : { name: '', count: 0 },
+        monthRecord: monthEmpTop3.length > 0 ? { name: monthEmpTop3[0].name, count: monthEmpTop3[0].contracts } : { name: '', count: 0 },
       });
 
       setProjectDeptStats({
