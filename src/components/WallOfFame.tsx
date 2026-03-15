@@ -88,37 +88,72 @@ export const WallOfFame: React.FC<WallOfFameProps> = ({ recordsCache }) => {
 
   const depts = ['KRS', 'OSL', 'Skien', 'Allente'];
 
-  const PlaqueCard = ({ dept, records }: { dept: string; records: DeptRecords }) => (
+  const PlaqueCard = ({ dept, records, isDepartment }: { dept: string; records: DeptRecords | any; isDepartment?: boolean }) => (
     <div className="plaquet">
       <div className="plaquet-content">
-        <div className="plaquet-trophy">🏆</div>
+        <div className="plaquet-trophy">{isDepartment ? '🏢' : '🏆'}</div>
         <div className="plaquet-title">{dept}</div>
-        <div className="plaquet-subtitle">Rekorder</div>
+        <div className="plaquet-subtitle">{isDepartment ? 'Totalt' : 'Rekorder'}</div>
         <div className="plaquet-records">
           <div className="plaquet-record">
             <span className="plaquet-record-label">Day:</span>
-            <span className="plaquet-record-name">{records.day ? records.day.name.split(' ')[0] : '—'}</span>
-            <span className="plaquet-record-value">{records.day ? records.day.count : '0'}</span>
+            {isDepartment ? (
+              <span className="plaquet-record-value">{records.day?.count || 0}</span>
+            ) : (
+              <>
+                <span className="plaquet-record-name">{records.day ? records.day.name.split(' ')[0] : '—'}</span>
+                <span className="plaquet-record-value">{records.day ? records.day.count : '0'}</span>
+              </>
+            )}
           </div>
           <div className="plaquet-record">
             <span className="plaquet-record-label">Week:</span>
-            <span className="plaquet-record-name">{records.week ? records.week.name.split(' ')[0] : '—'}</span>
-            <span className="plaquet-record-value">{records.week ? records.week.count : '0'}</span>
+            {isDepartment ? (
+              <span className="plaquet-record-value">{records.week?.count || 0}</span>
+            ) : (
+              <>
+                <span className="plaquet-record-name">{records.week ? records.week.name.split(' ')[0] : '—'}</span>
+                <span className="plaquet-record-value">{records.week ? records.week.count : '0'}</span>
+              </>
+            )}
           </div>
           <div className="plaquet-record">
             <span className="plaquet-record-label">Month:</span>
-            <span className="plaquet-record-name">{records.month ? records.month.name.split(' ')[0] : '—'}</span>
-            <span className="plaquet-record-value">{records.month ? records.month.count : '0'}</span>
+            {isDepartment ? (
+              <span className="plaquet-record-value">{records.month?.count || 0}</span>
+            ) : (
+              <>
+                <span className="plaquet-record-name">{records.month ? records.month.name.split(' ')[0] : '—'}</span>
+                <span className="plaquet-record-value">{records.month ? records.month.count : '0'}</span>
+              </>
+            )}
           </div>
         </div>
       </div>
     </div>
   );
 
+  // Prepare department records
+  const deptTotals: { [dept: string]: DeptRecords } = {};
+  depts.forEach(dept => {
+    const deptRecord = recordsCache.departments?.[dept] || { dayBest: 0, weekBest: 0, monthBest: 0 };
+    deptTotals[dept] = {
+      day: { name: 'Total', count: deptRecord.dayBest },
+      week: { name: 'Total', count: deptRecord.weekBest },
+      month: { name: 'Total', count: deptRecord.monthBest },
+    };
+  });
+
   return (
     <div className="plaquet-container">
+      {/* EMPLOYEE PLAQUES */}
       {depts.map(dept => (
-        <PlaqueCard key={dept} dept={dept} records={deptRecords[dept]} />
+        <PlaqueCard key={`emp-${dept}`} dept={dept} records={deptRecords[dept]} isDepartment={false} />
+      ))}
+      
+      {/* DEPARTMENT PLAQUES */}
+      {depts.map(dept => (
+        <PlaqueCard key={`dept-${dept}`} dept={dept} records={deptTotals[dept]} isDepartment={true} />
       ))}
     </div>
   );
