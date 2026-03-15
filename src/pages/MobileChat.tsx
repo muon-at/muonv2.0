@@ -109,8 +109,8 @@ export default function MobileChat() {
           const data = doc.data();
           const id = data.id || doc.id;
           
-          // Only include whitelisted channels
-          if (ALLOWED_CHANNELS.includes(id)) {
+          // Only include whitelisted channels (skip Global - has issues)
+          if (ALLOWED_CHANNELS.includes(id) && id !== 'global') {
             const unreadKey = `chat_unread_${id}`;
             const unreadCount = parseInt(localStorage.getItem(unreadKey) || '0', 10);
             

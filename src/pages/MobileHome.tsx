@@ -6,8 +6,13 @@ import '../styles/MobileHome.css';
 
 export default function MobileHome() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const { channelUnreadCounts } = useChannelUnread();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
   const [dmUnread, setDmUnread] = useState(0);
 
   // Calculate DM unread count
@@ -109,6 +114,12 @@ export default function MobileHome() {
 
       <div className="mobile-home-footer">
         <p className="user-greeting">Hei {user?.name}! 👋</p>
+        <button 
+          className="mobile-logout-button"
+          onClick={handleLogout}
+        >
+          🚪 Logg ut
+        </button>
       </div>
     </div>
   );
