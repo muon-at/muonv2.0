@@ -76,14 +76,29 @@ export const buildRecordsCache = async (db: Firestore): Promise<RecordsCache> =>
     
     snapshot.forEach(doc => {
       const data = doc.data();
-      console.log('📄 Contract doc:', { dato: data.dato, selger: data.selger, produkt: data.produkt });
-      const cDate = parseDate(data.dato || '');
+      
+      // FIELD NAMES: Ordredato, Selger (with format "Name / Selger"), Avdeling
+      const ordredato = data.Ordredato || data.dato || '';
+      const selgerRaw = data.Selger || data.selger || '';
+      // Parse "Brandon / Selger" → "Brandon"
+      const selgerName = selgerRaw.includes(' / ') ? selgerRaw.split(' / ')[0].trim() : selgerRaw;
+      
+      console.log('📄 Contract doc:', { ordredato, selger: selgerName, avdeling: data.Avdeling });
+      
+      // Parse date - handle "9/3/2026" or "yyyy-mm-dd"
+      let cDate: Date | null = null;
+      if (ordredato.includes('/')) {
+        const [d, m, y] = ordredato.split('/').map(Number);
+        cDate = new Date(y, m - 1, d);
+      } else {
+        cDate = parseDate(ordredato);
+      }
       
       // Include ALL contracts (all years are live and dynamic)
-      if (cDate) {
-        contracts.push(data);
+      if (cDate && !isNaN(cDate.getTime())) {
+        contracts.push({ ...data, selger: selgerName });
       } else {
-        console.log('⚠️ Invalid date:', data.dato);
+        console.log('⚠️ Invalid date:', ordredato);
       }
     });
     
