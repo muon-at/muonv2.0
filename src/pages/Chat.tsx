@@ -867,49 +867,78 @@ export default function Chat() {
         channelProject: channelInfo?.project
       });
       const messagesRef = collection(db, 'chat_channels', channelId, 'messages');
-      const q = query(messagesRef, orderBy('timestamp', 'asc'));
+      
+      // Try orderBy, fallback if mixed timestamp types
+      let q;
+      try {
+        q = query(messagesRef, orderBy('timestamp', 'asc'));
+      } catch (err) {
+        console.warn('⚠️ Channel orderBy failed, loading without order:', err);
+        q = query(messagesRef);
+      }
       
       const unsubscribe = onSnapshot(q, (snapshot) => {
-        const msgs: Message[] = [];
-        snapshot.forEach(doc => {
-          msgs.push({
-            id: doc.id,
-            ...doc.data() as any,
-          });
-        });
-        console.log('📦 Loaded', msgs.length, 'messages from channel', channelId, 'for user', user?.name);
-        if (msgs.length > 0) {
-          console.log('📋 MESSAGE SENDERS IN CHANNEL:', msgs.map(m => ({ sender: m.sender, content: m.content.substring(0, 30), time: m.timestamp })));
-          console.log('First message:', msgs[0]);
-          console.log('Last message:', msgs[msgs.length - 1]);
-          
-          // Check for new messages and send notifications
-          const lastNotified = lastNotifiedMessageTime[channelId] || 0;
-          const newMessages = msgs.filter(m => (m.timestamp || 0) > lastNotified && m.sender !== user?.name);
-          
-          if (newMessages.length > 0 && lastNotified > 0) {
-            // Only notify if this isn't the first load
-            newMessages.forEach(msg => {
-              console.log('🔔 NEW MESSAGE NOTIFICATION:', msg.sender, '-', msg.content.substring(0, 50));
-              showNotification({
-                senderName: msg.sender,
-                text: msg.content,
-                senderId: msg.id,
-              });
-              playNotificationSound();
-              vibrateDevice();
+        try {
+          const msgs: Message[] = [];
+          snapshot.forEach(doc => {
+            msgs.push({
+              id: doc.id,
+              ...doc.data() as any,
             });
-          }
+          });
           
-          // Update last notified time
+          // Sort locally (handle mixed timestamp types)
+          msgs.sort((a, b) => {
+            const aTime = typeof a.timestamp === 'number' ? a.timestamp : (a.timestamp as any).seconds * 1000 || 0;
+            const bTime = typeof b.timestamp === 'number' ? b.timestamp : (b.timestamp as any).seconds * 1000 || 0;
+            return aTime - bTime;
+          });
+          
+          console.log('📦 Loaded', msgs.length, 'messages from channel', channelId, 'for user', user?.name);
           if (msgs.length > 0) {
-            setLastNotifiedMessageTime(prev => ({
-              ...prev,
-              [channelId]: Math.max(...msgs.map(m => m.timestamp || 0))
+            console.log('📋 MESSAGE SENDERS IN CHANNEL:', msgs.map(m => ({ sender: m.sender, content: m.content.substring(0, 30), time: m.timestamp })));
+            console.log('First message:', msgs[0]);
+            console.log('Last message:', msgs[msgs.length - 1]);
+            
+            // Check for new messages and send notifications
+            const lastNotified = lastNotifiedMessageTime[channelId] || 0;
+            const newMessages = msgs.filter(m => {
+              const mTime = typeof m.timestamp === 'number' ? m.timestamp : (m.timestamp as any).seconds * 1000 || 0;
+              return mTime > lastNotified && m.sender !== user?.name;
+            });
+            
+            if (newMessages.length > 0 && lastNotified > 0) {
+              // Only notify if this isn't the first load
+              newMessages.forEach(msg => {
+                console.log('🔔 NEW MESSAGE NOTIFICATION:', msg.sender, '-', msg.content.substring(0, 50));
+                showNotification({
+                  senderName: msg.sender,
+                  text: msg.content,
+                  senderId: msg.id,
+                });
+                playNotificationSound();
+                vibrateDevice();
+              });
+            }
+            
+            // Update last notified time
+            if (msgs.length > 0) {
+              const maxTime = Math.max(...msgs.map(m => {
+                const mTime = typeof m.timestamp === 'number' ? m.timestamp : (m.timestamp as any).seconds * 1000 || 0;
+                return mTime;
+              }));
+              setLastNotifiedMessageTime(prev => ({
+                ...prev,
+                [channelId]: maxTime
             }));
           }
+          }
+          setMessages(msgs);
+        } catch (snapErr) {
+          console.error('❌ Error processing channel snapshot:', snapErr);
         }
-        setMessages(msgs);
+      }, (snapErr) => {
+        console.error('❌ Channel snapshot error (mixed timestamp types?):', snapErr);
       });
       
       // Mark channel as read when loaded
