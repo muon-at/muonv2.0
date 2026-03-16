@@ -1151,8 +1151,37 @@ export default function MinSide() {
 
       {/* MAIN CONTENT - STATS TAB */}
       {activeTab === 'stats' && (
-      <div className="minside-main">
-        <div className="stats-and-earnings-container" style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: '2rem', alignItems: 'start' }}>
+      <div className="minside-main" style={{ position: 'relative' }}>
+        {/* 🔔 Notification Panel Button (Stian only - floating right side) */}
+        {user?.name === 'Stian Abrahamsen' && (
+          <button
+            onClick={() => setShowNotificationPanel(!showNotificationPanel)}
+            style={{
+              position: 'absolute',
+              top: '0',
+              right: '0',
+              background: 'none',
+              border: 'none',
+              fontSize: '4rem',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '100px',
+              height: '100px',
+              transition: 'transform 0.2s',
+              padding: '0',
+              zIndex: '10',
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.15)'}
+            onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+            title="Nye meldinger"
+          >
+            🔔
+          </button>
+        )}
+
+        <div className="stats-and-earnings-container">
           <div className="stats-left-section">
             <div className="stats-circles">
           <div className="trophy-placeholder">🏆</div>
@@ -1356,33 +1385,6 @@ export default function MinSide() {
               </div>
             </div>
           </div>
-
-          {/* 🔔 Notification Panel Button (Stian only - right side) */}
-          {user?.name === 'Stian Abrahamsen' && (
-            <button
-              onClick={() => setShowNotificationPanel(!showNotificationPanel)}
-              style={{
-                background: 'none',
-                border: 'none',
-                fontSize: '3rem',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'flex-start',
-                justifyContent: 'center',
-                width: '95px',
-                height: '95px',
-                transition: 'transform 0.2s',
-                padding: '0',
-                gridColumn: '3',
-                justifySelf: 'center',
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
-              onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-              title="Nye meldinger"
-            >
-              🔔
-            </button>
-          )}
         </div>
       </div>
       )}
