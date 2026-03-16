@@ -72,15 +72,22 @@ export const buildRecordsCache = async (db: Firestore): Promise<RecordsCache> =>
     const snapshot = await getDocs(salesRef);
     const contracts: any[] = [];
     
+    console.log('🔍 SNAPSHOT:', snapshot.size, 'documents in allente_kontraktsarkiv');
+    
     snapshot.forEach(doc => {
       const data = doc.data();
+      console.log('📄 Contract doc:', { dato: data.dato, selger: data.selger, produkt: data.produkt });
       const cDate = parseDate(data.dato || '');
       
       // Include ALL contracts (all years are live and dynamic)
       if (cDate) {
         contracts.push(data);
+      } else {
+        console.log('⚠️ Invalid date:', data.dato);
       }
     });
+    
+    console.log('✅ Loaded contracts:', contracts.length, 'with valid dates');
 
     // Load employees to get department info
     const empRef = collection(db, 'employees');
@@ -105,6 +112,8 @@ export const buildRecordsCache = async (db: Firestore): Promise<RecordsCache> =>
         employeeContracts[emp].push(c);
       }
     });
+    
+    console.log('👥 Employees found:', Object.keys(employeeContracts).length, Object.keys(employeeContracts));
 
     // Calculate EMPLOYEE records
     Object.entries(employeeContracts).forEach(([emp, empContracts]) => {
