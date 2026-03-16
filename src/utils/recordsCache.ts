@@ -93,12 +93,15 @@ export const buildRecordsCache = async (db: Firestore): Promise<RecordsCache> =>
     const empRef = collection(db, 'employees');
     const empSnapshot = await getDocs(empRef);
     const empDepartments: { [emp: string]: string } = {};
+    console.log('📋 ALL EMPLOYEES IN DB:');
     empSnapshot.forEach(doc => {
       const data = doc.data();
+      console.log('  -', data.externalName, '(dept:', data.department, ')');
       if (data.externalName) {
         empDepartments[data.externalName] = data.department || 'Unknown';
       }
     });
+    console.log('✅ empDepartments map:', empDepartments);
 
     const employeeCache: { [key: string]: HistoricalRecord } = {};
     const departmentCache: { [key: string]: DepartmentRecords } = {};
@@ -113,7 +116,12 @@ export const buildRecordsCache = async (db: Firestore): Promise<RecordsCache> =>
       }
     });
     
-    console.log('👥 Employees found:', Object.keys(employeeContracts).length, Object.keys(employeeContracts));
+    console.log('👥 UNIQUE SELLERS IN CONTRACTS:', Object.keys(employeeContracts));
+    console.log('🔗 MATCHING CHECK:');
+    Object.keys(employeeContracts).forEach(seller => {
+      const foundInDept = empDepartments[seller] ? '✅ FOUND' : '❌ NOT FOUND';
+      console.log(`  "${seller}" → ${foundInDept}`);
+    });
 
     // Calculate EMPLOYEE records
     Object.entries(employeeContracts).forEach(([emp, empContracts]) => {
