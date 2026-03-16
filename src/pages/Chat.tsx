@@ -892,14 +892,20 @@ export default function Chat() {
       });
       const messagesRef = collection(db, 'chat_channels', channelId, 'messages');
       
-      // Try orderBy with limit (load last 500 messages only), fallback if mixed timestamp types
+      // Reduce message limit for mobile (Android/iOS detection)
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      const messageLimit = isMobile ? 200 : 500; // Mobile: 200 msgs, Desktop: 500
+      
+      // Try orderBy with limit, fallback if mixed timestamp types
       let q;
       try {
-        q = query(messagesRef, orderBy('timestamp', 'asc'), limitToLast(500));
+        q = query(messagesRef, orderBy('timestamp', 'asc'), limitToLast(messageLimit));
       } catch (err) {
         console.warn('⚠️ Channel orderBy failed, loading without order:', err);
-        q = query(messagesRef, limitToLast(500));
+        q = query(messagesRef, limitToLast(messageLimit));
       }
+      
+      console.log(`📱 Loading channel messages - limit: ${messageLimit} (mobile: ${isMobile})`);
       
       const unsubscribe = onSnapshot(q, (snapshot) => {
         try {
@@ -979,14 +985,20 @@ export default function Chat() {
     try {
       const messagesRef = collection(db, 'chat_dms', dmId, 'messages');
       
-      // Try orderBy with limit (load last 500 messages only), fallback if mixed timestamp types
+      // Reduce message limit for mobile
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      const messageLimit = isMobile ? 200 : 500; // Mobile: 200 msgs, Desktop: 500
+      
+      // Try orderBy with limit, fallback if mixed timestamp types
       let q;
       try {
-        q = query(messagesRef, orderBy('timestamp', 'asc'), limitToLast(500));
+        q = query(messagesRef, orderBy('timestamp', 'asc'), limitToLast(messageLimit));
       } catch (err) {
         console.warn('⚠️ DM orderBy failed (mixed timestamp types), loading without order:', err);
-        q = query(messagesRef, limitToLast(500));
+        q = query(messagesRef, limitToLast(messageLimit));
       }
+      
+      console.log(`📱 Loading DM messages - limit: ${messageLimit} (mobile: ${isMobile})`);
       
       const unsubscribe = onSnapshot(q, (snapshot) => {
         const msgs: Message[] = [];
