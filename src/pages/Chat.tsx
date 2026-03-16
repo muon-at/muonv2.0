@@ -2073,12 +2073,13 @@ export default function Chat() {
                               {(() => {
                                 let messageDate: Date;
                                 try {
-                                  if (msg.timestamp?.seconds) {
-                                    messageDate = new Date(msg.timestamp.seconds * 1000);
-                                  } else if (typeof msg.timestamp === 'number') {
-                                    messageDate = new Date(msg.timestamp);
+                                  const ts = msg.timestamp as any;
+                                  if (ts?.seconds) {
+                                    messageDate = new Date(ts.seconds * 1000);
+                                  } else if (typeof ts === 'number') {
+                                    messageDate = new Date(ts);
                                   } else {
-                                    messageDate = new Date(msg.timestamp);
+                                    messageDate = new Date(ts);
                                   }
                                   if (isNaN(messageDate.getTime())) return '--:--';
                                   return messageDate.toLocaleTimeString('no-NO', {
